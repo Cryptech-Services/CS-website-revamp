@@ -529,7 +529,7 @@ export default function Home() {
           linear-gradient(
             135deg,
             ${alpha(primary, 0.85)} 0%,
-            ${alpha(primary, 0.65)} 50% , ${alpha(primary, 0.95)} 100%
+            ${alpha(primary, 0.75)} 50% , ${alpha(primary, 0.95)} 100%
           )
         `
                         : `
