@@ -449,12 +449,12 @@ export default function Home() {
                   borderRadius: '50%',
 
                   background: `
-                    radial-gradient(
-                      circle,
-                      ${alpha(primary, 0.18)},
-                      transparent 68%
-                    )
-                  `,
+        radial-gradient(
+          circle,
+          ${alpha(primary, 0.18)},
+          transparent 68%
+        )
+      `,
 
                   filter: 'blur(18px)',
 
@@ -471,14 +471,17 @@ export default function Home() {
                 style={{
                   objectFit: 'contain',
 
-                  filter: `
-                    drop-shadow(
-                      0 0 10px ${alpha(primary, 0.5)}
-                    )
-                    drop-shadow(
-                      0 0 30px ${alpha(primary, 0.35)}
-                    )
-                  `,
+                  filter:
+                    theme.palette.mode === 'dark'
+                      ? `
+              drop-shadow(
+                0 0 10px ${alpha(primary, 0.5)}
+              )
+              drop-shadow(
+                0 0 30px ${alpha(primary, 0.35)}
+              )
+            `
+                      : 'none',
 
                   animation: 'logoFloat 4s ease-in-out infinite'
                 }}
@@ -520,13 +523,22 @@ export default function Home() {
                   background: {
                     xs: 'none',
 
-                    md: `
-                      linear-gradient(
-                        135deg,
-                        ${textPrimary},
-                        ${alpha(primary, 0.8)}
-                      )
-                    `
+                    md:
+                      theme.palette.mode === 'light'
+                        ? `
+          linear-gradient(
+            135deg,
+            ${alpha(primary, 0.85)} 0%,
+            ${alpha(primary, 0.65)} 50% , ${alpha(primary, 0.95)} 100%
+          )
+        `
+                        : `
+          linear-gradient(
+            135deg,
+            ${textPrimary},
+            ${alpha(primary, 0.8)}
+          )
+        `
                   },
 
                   backgroundClip: {
