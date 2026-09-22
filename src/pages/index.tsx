@@ -22,6 +22,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import LayersIcon from '@mui/icons-material/Layers';
 import PaletteIcon from '@mui/icons-material/Palette';
 import SpeedIcon from '@mui/icons-material/Speed';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 import { useThemeContext } from '@/contexts/themeContext';
 
@@ -2354,10 +2355,21 @@ export default function Home() {
               <Typography
                 variant="caption"
                 sx={{
-                  color: textSecondary
+                  color: textSecondary,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 0.5
                 }}
               >
-                Built with MUI · Designed for scalable interfaces
+                Built with{' '}
+                <FavoriteIcon
+                  sx={{
+                    fontSize: '0.9em',
+                    color: primary,
+                    verticalAlign: 'middle'
+                  }}
+                />{' '}
+                Love · Designed for scalable interfaces
               </Typography>
 
               <Stack
