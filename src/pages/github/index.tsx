@@ -818,8 +818,8 @@ export default function GitHubPage() {
           sx={{
             position: 'absolute',
             inset: 0,
-
-            opacity: theme.palette.mode === 'dark' ? 0.1 : 0.075,
+            height: '75vh',
+            opacity: theme.palette.mode === 'dark' ? 0.075 : 0.075,
 
             backgroundImage: `
               linear-gradient(

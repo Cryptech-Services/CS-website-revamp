@@ -2492,7 +2492,7 @@ export default function PlaygroundSection() {
             position: 'absolute',
             inset: 0,
 
-            opacity: isDark ? 0.1 : 0.075,
+            opacity: isDark ? 0.075 : 0.075,
 
             backgroundImage: `
                               linear-gradient(

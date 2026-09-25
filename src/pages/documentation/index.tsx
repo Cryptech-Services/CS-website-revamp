@@ -235,8 +235,8 @@ export default function TypographyShowcase() {
               sx={{
                 position: 'absolute',
                 inset: 0,
-
-                opacity: isDark ? 0.1 : 0.075,
+                height: '75vh',
+                opacity: isDark ? 0.05 : 0.075,
 
                 backgroundImage: `
                                                   linear-gradient(
