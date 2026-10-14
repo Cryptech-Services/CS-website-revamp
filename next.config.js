@@ -24,6 +24,7 @@ const cspDev = `
     'self'
     https://avatars.githubusercontent.com
     https://github.com
+    https://cdn.discordapp.com
     blob:
     data:;
 
@@ -60,6 +61,7 @@ const cspProd = `
     'self'
     https://avatars.githubusercontent.com
     https://github.com
+    https://cdn.discordapp.com
     blob:
     data:;
 

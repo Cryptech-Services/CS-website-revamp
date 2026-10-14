@@ -5,257 +5,634 @@ import * as React from 'react';
 import {
   AppBar,
   Box,
-  Container,
+  Button,
   Divider,
+  Drawer,
+  IconButton,
+  ListItemIcon,
+  ListItemText,
   Menu,
   MenuItem,
   Stack,
   Toolbar,
-  Typography
+  Tooltip,
+  Typography,
+  useMediaQuery
 } from '@mui/material';
-import Portal from '@mui/material/Portal';
 
 import { alpha, useTheme } from '@mui/material/styles';
-import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
-import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+import { usePathname } from 'next/navigation';
 
-import CloseIcon from '@mui/icons-material/Close';
-import GitHubIcon from '@mui/icons-material/GitHub';
-import MenuIcon from '@mui/icons-material/Menu';
-import PaletteIcon from '@mui/icons-material/Palette';
-import SmartDisplayIcon from '@mui/icons-material/SmartDisplay';
-import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import CodeRoundedIcon from '@mui/icons-material/CodeRounded';
+import ArrowOutwardRoundedIcon from '@mui/icons-material/ArrowOutwardRounded';
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import DesignServicesRoundedIcon from '@mui/icons-material/DesignServicesRounded';
+import BusinessCenterRoundedIcon from '@mui/icons-material/BusinessCenterRounded';
+import HelpOutlineRoundedIcon from '@mui/icons-material/HelpOutlineRounded';
+import MailOutlineRoundedIcon from '@mui/icons-material/MailOutlineRounded';
+import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
+import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
+import PaletteRoundedIcon from '@mui/icons-material/PaletteRounded';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 
 import { useThemeContext } from '@/contexts/themeContext';
+import { THEME_SETS } from '@/theme/theme';
 
-import { AppButton, AppChip } from '@/theme/components/CustomComponents';
-
-import { THEME_ICONS, THEME_SETS } from '@/theme/theme';
-import { usePathname } from 'next/navigation';
-import FormatPaintIcon from '@mui/icons-material/FormatPaint';
-
-const GITHUB_URL = process.env.NEXT_PUBLIC_GITHUB_URL;
+interface NavbarProps {
+  onToggleTheme: () => void;
+}
 
 const navItems = [
   {
-    label: 'Playground',
-    href: '/playground'
+    label: 'Services',
+    href: '/#services',
+    section: 'services',
+    icon: DesignServicesRoundedIcon
   },
   {
-    label: 'Themes',
-    href: '/sets'
+    label: 'About',
+    href: '/#about',
+    section: 'about',
+    icon: BusinessCenterRoundedIcon
   },
   {
-    label: 'Documentation',
-    href: '/documentation'
-  },
-  {
-    label: 'Github',
-    href: '/github'
+    label: 'FAQs',
+    href: '/#faqs',
+    section: 'faqs',
+    icon: HelpOutlineRoundedIcon
   }
 ];
 
 type ThemeKey = keyof typeof THEME_SETS;
 
-type ThemeItem = {
-  label: string;
-  category: string;
-  color: string;
-  secondary: string;
-  gray: string;
-  background: string;
-  icon?: string;
-};
-
-const THEME_CATEGORY_LABELS: Record<string, string> = {
-  classic: 'Classic',
-  mythology: 'Mythology',
-  minecraft: 'Minecraft',
-  cosmic: 'Cosmic',
-  premium: 'Premium',
-  elements: 'Elements'
-};
-
-export default function Navbar() {
+export default function Navbar({ onToggleTheme }: NavbarProps) {
   const theme = useTheme();
+  const pathname = usePathname();
+
+  const isDark = theme.palette.mode === 'dark';
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  const primary = theme.colorScale?.[9] ?? theme.palette.primary.main;
+  const secondary = theme.secondaryScale?.[9] ?? theme.palette.secondary.main;
+  const headingColor = theme.grayScale?.[12] ?? theme.palette.text.primary;
+  const mutedColor = theme.grayScale?.[10] ?? theme.palette.text.secondary;
+  const surface = theme.backgroundScale?.[3] ?? theme.palette.background.paper;
+
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [activeSection, setActiveSection] = React.useState('');
+
+  const [themeMenuAnchor, setThemeMenuAnchor] =
+    React.useState<HTMLElement | null>(null);
 
   const { themeSet, setThemeSet } = useThemeContext();
 
-  const themeIcon = THEME_ICONS[themeSet];
-  const activeTheme = THEME_SETS[themeSet];
+  const openThemeMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setThemeMenuAnchor(event.currentTarget);
+  };
 
-  const primary = theme.colorScale[9];
-  const secondary = theme.secondaryScale[9];
-
-  const textPrimary = theme.grayScale[12];
-  const textSecondary = theme.grayScale[10];
-
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [themeMenuAnchor, setThemeMenuAnchor] =
-    React.useState<null | HTMLElement>(null);
-
-  const pathname = usePathname();
-
-  const isDocumentationPage = pathname === '/';
-
-  const themeItems = Object.entries(THEME_SETS).filter(
-    ([key]) => key !== 'custom'
-  ) as [Exclude<ThemeKey, 'custom'>, ThemeItem][];
-
-  const themeCategories = Array.from(
-    new Set(themeItems.map(([, item]) => item.category))
-  );
-
-  const handleThemeChange = (key: Exclude<ThemeKey, 'custom'>) => {
-    setThemeSet(key);
+  const closeThemeMenu = () => {
     setThemeMenuAnchor(null);
+  };
+
+  const selectTheme = (key: ThemeKey) => {
+    setThemeSet(key);
+    closeThemeMenu();
+  };
+
+  const closeMobileMenu = () => {
     setMobileOpen(false);
   };
 
-  const getNavIcon = (href: string) => {
-    switch (href) {
-      case '/playground':
-        return <SmartDisplayIcon sx={{ fontSize: 18 }} />;
+  /*
+   * Active section detection.
+   */
+  React.useEffect(() => {
+    if (pathname !== '/') {
+      setActiveSection('');
+      return;
+    }
 
-      case '/sets':
-        return <FormatPaintIcon sx={{ fontSize: 18 }} />;
+    const sections = navItems
+      .map((item) => document.getElementById(item.section))
+      .filter((section): section is HTMLElement => section !== null);
 
-      case '/documentation':
-        return <DescriptionOutlinedIcon sx={{ fontSize: 18 }} />;
+    const updateFromHash = () => {
+      const hash = window.location.hash.replace('#', '');
 
-      case '/github':
-        return <GitHubIcon sx={{ fontSize: 18 }} />;
+      if (navItems.some((item) => item.section === hash)) {
+        setActiveSection(hash);
+      } else if (!hash) {
+        setActiveSection('');
+      }
+    };
 
-      default:
-        return <HomeOutlinedIcon sx={{ fontSize: 18 }} />;
+    updateFromHash();
+
+    if (sections.length === 0) {
+      window.addEventListener('hashchange', updateFromHash);
+      window.addEventListener('popstate', updateFromHash);
+
+      return () => {
+        window.removeEventListener('hashchange', updateFromHash);
+        window.removeEventListener('popstate', updateFromHash);
+      };
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleSections = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+
+        if (visibleSections.length > 0) {
+          setActiveSection(visibleSections[0].target.id);
+        }
+      },
+      {
+        root: null,
+        rootMargin: '-20% 0px -60% 0px',
+        threshold: 0
+      }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+
+    window.addEventListener('hashchange', updateFromHash);
+    window.addEventListener('popstate', updateFromHash);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('hashchange', updateFromHash);
+      window.removeEventListener('popstate', updateFromHash);
+    };
+  }, [pathname]);
+
+  const isActive = (section: string) => {
+    return pathname === '/' && activeSection === section;
+  };
+
+  /*
+   * Smooth navigation for same-page section links.
+   */
+  const handleNavigation = (
+    event: React.MouseEvent<HTMLAnchorElement>,
+    href: string
+  ) => {
+    closeMobileMenu();
+
+    const [path, hash] = href.split('#');
+
+    if (!hash || path !== '/' || pathname !== '/') {
+      return;
+    }
+
+    const target = document.getElementById(hash);
+
+    if (!target) {
+      return;
+    }
+
+    event.preventDefault();
+
+    window.history.pushState(null, '', `/#${hash}`);
+
+    if (navItems.some((item) => item.section === hash)) {
+      setActiveSection(hash);
+    }
+
+    target.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  };
+
+  const handleThemeToggle = () => {
+    closeMobileMenu();
+    onToggleTheme();
+  };
+
+  /*
+   * Desktop navigation styling.
+   */
+  const navButtonSx = (active: boolean) => ({
+    position: 'relative',
+    isolation: 'isolate',
+    overflow: 'hidden',
+
+    minHeight: 42,
+    px: 3,
+    borderRadius: 1.5,
+
+    color: active ? headingColor : mutedColor,
+    fontSize: '0.875rem',
+    textTransform: 'none',
+    whiteSpace: 'nowrap',
+
+    background: active
+      ? `linear-gradient(
+          135deg,
+          ${alpha(primary, 0.5)},
+          ${alpha(secondary, 0.5)}
+        )`
+      : 'transparent',
+
+    border: '1px solid',
+    borderColor: active ? alpha(primary, 0.16) : 'transparent',
+
+    boxShadow: active ? `inset 0 0 0 1px ${alpha(primary, 0.035)}` : 'none',
+
+    transition:
+      'color 180ms ease, background-color 180ms ease, border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease',
+
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      inset: 0,
+      zIndex: -1,
+      borderRadius: 'inherit',
+
+      background: `linear-gradient(
+        135deg,
+        ${alpha(primary, 0.12)},
+        ${alpha(secondary, 0.09)}
+      )`,
+
+      opacity: active ? 1 : 0,
+      transform: active ? 'scale(1)' : 'scale(0.92)',
+
+      transition: 'opacity 180ms ease, transform 180ms ease'
+    },
+
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+
+      left: '50%',
+      bottom: 3,
+
+      width: active ? '55%' : 0,
+      height: 2,
+
+      borderRadius: 999,
+
+      background: `linear-gradient(
+        90deg,
+        ${primary},
+        ${secondary}
+      )`,
+
+      transform: 'translateX(-50%)',
+      transition: 'width 220ms ease'
+    },
+
+    '& .MuiButton-startIcon': {
+      position: 'relative',
+      zIndex: 1,
+      mr: 0.9,
+      color: active ? primary : mutedColor,
+      transition: 'color 180ms ease, transform 180ms ease'
+    },
+
+    '&:hover': {
+      color: headingColor,
+      backgroundColor: alpha(primary, 0.07),
+      borderColor: alpha(primary, 0.13),
+      transform: 'translateY(-1px)',
+      boxShadow: `inset 0 0 0 1px ${alpha(primary, 0.06)}`,
+
+      '&::before': {
+        opacity: 1,
+        transform: 'scale(1)'
+      },
+
+      '&::after': {
+        width: '55%'
+      },
+
+      '& .MuiButton-startIcon': {
+        color: primary,
+        transform: 'translateY(-1px) scale(1.08)'
+      }
+    },
+
+    '&:active': {
+      transform: 'scale(0.98)'
+    }
+  });
+
+  /*
+   * Primary CTA styling.
+   */
+  const projectButtonSx = {
+    minHeight: 42,
+    px: 2,
+
+    borderRadius: 1.5,
+    gap: 0.75,
+
+    color: '#ffffff',
+
+    background: `linear-gradient(
+      135deg,
+      ${primary},
+      ${secondary}
+    )`,
+
+    fontSize: '0.875rem',
+    fontWeight: 800,
+    textTransform: 'none',
+    whiteSpace: 'nowrap',
+
+    border: `1px solid ${alpha(primary, 0.25)}`,
+
+    boxShadow: `0 5px 18px ${alpha(primary, 0.2)}`,
+
+    transition:
+      'background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease',
+
+    '&:hover': {
+      background: `linear-gradient(
+        135deg,
+        ${secondary},
+        ${primary}
+      )`,
+
+      boxShadow: `0 8px 24px ${alpha(primary, 0.28)}`,
+
+      transform: 'translateY(-1px)'
+    },
+
+    '&:active': {
+      transform: 'translateY(0) scale(0.98)'
     }
   };
 
-  return (
-    <AppBar
-      position={!isDocumentationPage ? 'sticky' : 'absolute'}
-      elevation={0}
-      color="transparent"
-      sx={{
-        top: 0,
-        zIndex: theme.zIndex.appBar,
+  /*
+   * Shared icon button styling.
+   */
+  const iconButtonSx = {
+    position: 'relative',
 
-        background: !isDocumentationPage
-          ? {
-              xs: alpha(theme.backgroundScale[3], 1),
-              md: alpha(theme.backgroundScale[5], 1)
-            }
-          : `linear-gradient(
-              to bottom,
-              ${alpha(theme.colorScale[2], 0)} 0%,
-              ${alpha(theme.colorScale[2], 0)} 70%,
-              ${alpha(theme.colorScale[2], 0)} 100%
-            )`,
+    width: 42,
+    height: 42,
 
-        boxShadow: 'none',
+    flexShrink: 0,
+    overflow: 'hidden',
 
-        borderBottom: !isDocumentationPage
-          ? `2px solid ${alpha(secondary, 0.25)}`
-          : 'unset'
+    borderRadius: 1.5,
+
+    color: isDark ? primary : secondary,
+
+    background: `linear-gradient(
+      135deg,
+      ${alpha(primary, 0.14)},
+      ${alpha(secondary, 0.1)}
+    )`,
+
+    border: `1px solid ${alpha(primary, 0.2)}`,
+
+    transition:
+      'color 180ms ease, background-color 180ms ease, border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease',
+
+    '&:hover': {
+      color: primary,
+      backgroundColor: alpha(primary, 0.12),
+      borderColor: alpha(primary, 0.45),
+      transform: 'translateY(-1px)',
+      boxShadow: `0 0 18px ${alpha(primary, 0.12)}`
+    },
+
+    '&:active': {
+      transform: 'scale(0.96)'
+    }
+  };
+
+  const ThemeIcon = isDark ? LightModeRoundedIcon : DarkModeRoundedIcon;
+
+  /*
+   * Theme preset selector.
+   */
+  const themeMenu = (
+    <Menu
+      anchorEl={themeMenuAnchor}
+      open={Boolean(themeMenuAnchor)}
+      onClose={closeThemeMenu}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'right'
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'right'
+      }}
+      slotProps={{
+        paper: {
+          sx: {
+            mt: 1,
+            minWidth: 240,
+            maxHeight: 420,
+            overflowY: 'auto',
+
+            borderRadius: 2.5,
+
+            border: `1px solid ${alpha(primary, 0.2)}`,
+
+            backgroundColor: surface,
+            backgroundImage: 'none',
+            color: headingColor,
+
+            boxShadow: `0 12px 36px ${alpha(
+              theme.palette.common.black,
+              isDark ? 0.25 : 0.1
+            )}`
+          }
+        }
       }}
     >
-      <Toolbar
-        disableGutters
-        sx={{
-          minHeight: {
-            xs: 64,
-            md: 65
-          },
-
-          px: {
-            xs: 1,
-            md: 3
-          },
-
-          gap: 2
-        }}
-      >
-        <AppButton
-          component="a"
-          href="/"
-          variant="text"
-          color="inherit"
+      <Box sx={{ px: 2, py: 1.25 }}>
+        <Typography
           sx={{
-            minWidth: 0,
-            p: 0,
-
-            color: textPrimary,
-
-            '&:hover': {
-              backgroundColor: 'transparent'
-            }
+            fontSize: '0.68rem',
+            fontWeight: 800,
+            letterSpacing: '0.12em',
+            color: mutedColor,
+            textTransform: 'uppercase'
           }}
         >
-          <Stack
-            direction="row"
-            spacing={1.25}
+          Choose your theme
+        </Typography>
+      </Box>
+
+      <Divider sx={{ borderColor: alpha(primary, 0.12) }} />
+
+      {(
+        Object.entries(THEME_SETS) as [
+          ThemeKey,
+          (typeof THEME_SETS)[ThemeKey]
+        ][]
+      )
+        .filter(([key]) => key !== 'custom')
+        .map(([key, preset]) => {
+          const selected = themeSet === key;
+
+          return (
+            <MenuItem
+              key={key}
+              selected={selected}
+              onClick={() => selectTheme(key)}
+              sx={{
+                py: 1.25,
+                px: 1.75,
+                gap: 1,
+
+                '&.Mui-selected': {
+                  backgroundColor: alpha(primary, 0.12)
+                },
+
+                '&.Mui-selected:hover': {
+                  backgroundColor: alpha(primary, 0.18)
+                },
+
+                '&:hover': {
+                  backgroundColor: alpha(primary, 0.08)
+                }
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 30,
+                  color: selected ? primary : mutedColor
+                }}
+              >
+                {selected ? (
+                  <CheckRoundedIcon fontSize="small" />
+                ) : (
+                  <PaletteRoundedIcon fontSize="small" />
+                )}
+              </ListItemIcon>
+
+              <ListItemText primary={preset.label} />
+            </MenuItem>
+          );
+        })}
+    </Menu>
+  );
+
+  return (
+    <>
+      <AppBar
+        position="absolute"
+        elevation={0}
+        color="transparent"
+        sx={{
+          top: 0,
+
+          px: { xs: 1.5, sm: 2.5, md: 3 },
+
+          zIndex: theme.zIndex.appBar,
+
+          color: headingColor,
+
+          backgroundImage: 'none'
+        }}
+      >
+        <Toolbar
+          disableGutters
+          sx={{
+            minHeight: { xs: 68, md: 78 },
+            gap: { xs: 1, md: 2 },
+            justifyContent: 'space-between'
+          }}
+        >
+          {/* BRAND */}
+
+          <Box
+            component="a"
+            href="/"
+            aria-label="Cryptech Services home"
             sx={{
-              alignItems: 'center'
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 1.25,
+
+              minWidth: 0,
+              flexShrink: 0,
+
+              color: 'inherit',
+              textDecoration: 'none'
             }}
           >
             <Box
               sx={{
                 position: 'relative',
 
-                width: {
-                  xs: 38,
-                  md: 42
+                display: 'grid',
+                placeItems: 'center',
+
+                width: { xs: 40, md: 46 },
+                height: { xs: 40, md: 46 },
+
+                borderRadius: 2,
+
+                color: primary,
+
+                background: `linear-gradient(
+                  145deg,
+                  ${alpha(primary, 0.16)},
+                  ${alpha(secondary, 0.08)}
+                )`,
+
+                border: `1px solid ${alpha(primary, 0.22)}`,
+
+                flexShrink: 0,
+
+                transition: 'transform 180ms ease, box-shadow 180ms ease',
+
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  inset: -4,
+                  borderRadius: 2.5,
+                  border: `1px solid ${alpha(primary, 0.08)}`,
+                  pointerEvents: 'none'
                 },
 
-                height: {
-                  xs: 38,
-                  md: 42
+                '& .MuiSvgIcon-root': {
+                  fontSize: { xs: 23, md: 28 }
                 },
 
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-
-                flexShrink: 0
-              }}
-            >
-              {themeIcon && (
-                <Box
-                  component="img"
-                  src={themeIcon}
-                  alt=""
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'contain',
-
-                    filter: `drop-shadow(
-                      0 4px 12px ${alpha(primary, 0.25)}
-                    )`,
-
-                    transition: 'transform 0.3s ease',
-
-                    '.MuiButton-root:hover &': {
-                      transform: 'scale(1.08)'
-                    }
-                  }}
-                />
-              )}
-            </Box>
-
-            <Box
-              sx={{
-                textAlign: 'left'
+                'a:hover &': {
+                  transform: 'translateY(-1px)',
+                  boxShadow: `0 5px 16px ${alpha(primary, 0.12)}`
+                }
               }}
             >
               <Typography
                 sx={{
-                  fontSize: '0.95rem',
-                  fontWeight: 800,
-                  lineHeight: 1.15,
-                  letterSpacing: '-0.01em',
-                  color: textPrimary,
+                  fontSize: {
+                    md: '1.8rem'
+                  }
+                }}
+              >
+                ❖
+              </Typography>
+            </Box>
+
+            <Box sx={{ minWidth: 0 }}>
+              <Typography
+                sx={{
+                  color: headingColor,
+
+                  fontSize: {
+                    xs: '0.9rem',
+                    sm: '0.95rem',
+                    md: '1.05rem'
+                  },
+
+                  fontWeight: 850,
+                  letterSpacing: '-0.035em',
+                  lineHeight: 1.2,
                   whiteSpace: 'nowrap'
                 }}
               >
@@ -264,1256 +641,600 @@ export default function Navbar() {
 
               <Typography
                 sx={{
-                  mt: 0.25,
+                  mt: 0.45,
 
-                  fontSize: '0.68rem',
-                  fontWeight: 600,
+                  color: mutedColor,
+
+                  fontSize: '0.62rem',
+                  fontWeight: 700,
+                  letterSpacing: '0.12em',
                   lineHeight: 1,
 
-                  color: textSecondary,
-
-                  letterSpacing: '0.08em',
                   textTransform: 'uppercase',
-
                   whiteSpace: 'nowrap'
                 }}
               >
-                Theme System
+                Digital Solutions
               </Typography>
             </Box>
-          </Stack>
-        </AppButton>
-
-        <Stack
-          direction="row"
-          spacing={2}
-          sx={{
-            display: {
-              xs: 'none',
-              md: 'flex'
-            },
-
-            position: 'absolute',
-            left: '50%',
-            transform: 'translateX(-50%)',
-
-            alignItems: 'center',
-
-            p: 0.5,
-
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)'
-          }}
-        >
-          {navItems.map((item) => {
-            const isActive =
-              item.href === '/'
-                ? pathname === '/'
-                : pathname === item.href ||
-                  pathname.startsWith(`${item.href}/`);
-
-            const icon = getNavIcon(item.href);
-
-            return (
-              <AppButton
-                key={item.href}
-                component="a"
-                href={item.href}
-                variant="text"
-                color="inherit"
-                size="small"
-                startIcon={icon}
-                sx={{
-                  position: 'relative',
-
-                  minHeight: 40,
-
-                  px: 2,
-
-                  borderRadius: 1,
-
-                  color: isActive ? textPrimary : textSecondary,
-
-                  fontWeight: isActive ? 700 : 650,
-
-                  overflow: 'hidden',
-
-                  background: isActive
-                    ? `linear-gradient(
-                        135deg,
-                        ${alpha(primary, 0.16)},
-                        ${alpha(secondary, 0.12)}
-                      )`
-                    : 'transparent',
-
-                  boxShadow: isActive
-                    ? `inset 0 0 0 1px ${alpha(primary, 0.12)}`
-                    : 'none',
-
-                  transition:
-                    'color 180ms ease, background-color 180ms ease, transform 180ms ease, box-shadow 180ms ease',
-
-                  '& .MuiButton-startIcon': {
-                    position: 'relative',
-                    zIndex: 1,
-
-                    color: isActive ? primary : 'inherit',
-
-                    transition: 'transform 180ms ease, color 180ms ease'
-                  },
-
-                  '&::before': {
-                    content: '""',
-
-                    position: 'absolute',
-
-                    inset: 0,
-
-                    borderRadius: 'inherit',
-
-                    background: `linear-gradient(
-                      135deg,
-                      ${alpha(primary, 0.14)},
-                      ${alpha(secondary, 0.1)}
-                    )`,
-
-                    opacity: isActive ? 1 : 0,
-
-                    transform: isActive ? 'scale(1)' : 'scale(0.85)',
-
-                    transition: 'opacity 180ms ease, transform 180ms ease'
-                  },
-
-                  '&::after': {
-                    content: '""',
-
-                    position: 'absolute',
-
-                    left: '50%',
-                    bottom: 3,
-
-                    width: isActive ? '55%' : 0,
-                    height: 2,
-
-                    borderRadius: 999,
-
-                    background: `linear-gradient(
-                      90deg,
-                      ${primary},
-                      ${secondary}
-                    )`,
-
-                    transform: 'translateX(-50%)',
-
-                    transition: 'width 220ms ease'
-                  },
-
-                  '&:hover': {
-                    color: textPrimary,
-
-                    backgroundColor: alpha(primary, 0.07),
-
-                    transform: 'translateY(-1px)',
-
-                    boxShadow: `inset 0 0 0 1px ${alpha(primary, 0.1)}`,
-
-                    '&::before': {
-                      opacity: 1,
-                      transform: 'scale(1)'
-                    },
-
-                    '&::after': {
-                      width: '55%'
-                    },
-
-                    '& .MuiButton-startIcon': {
-                      color: primary,
-                      transform: 'translateY(-1px) scale(1.08)'
-                    }
-                  },
-
-                  '&:active': {
-                    transform: 'translateY(0) scale(0.97)'
-                  }
-                }}
-              >
-                <Box
-                  component="span"
-                  sx={{
-                    position: 'relative',
-                    zIndex: 1
-                  }}
-                >
-                  {item.label}
-                </Box>
-              </AppButton>
-            );
-          })}
-
-          {/* {GITHUB_URL && (
-            <AppButton
-              component="a"
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="text"
-              color="inherit"
-              size="small"
-              startIcon={
-                <GitHubIcon
-                  sx={{
-                    fontSize: 18
-                  }}
-                />
-              }
-              sx={{
-                position: 'relative',
-
-                minHeight: 40,
-
-                px: 2,
-
-                borderRadius: 1,
-
-                color: textSecondary,
-
-                fontWeight: 650,
-
-                overflow: 'hidden',
-
-                transition:
-                  'color 180ms ease, background-color 180ms ease, transform 180ms ease',
-
-                '& .MuiButton-startIcon': {
-                  position: 'relative',
-                  zIndex: 1,
-                  transition: 'transform 180ms ease'
-                },
-
-                '&::before': {
-                  content: '""',
-
-                  position: 'absolute',
-
-                  inset: 0,
-
-                  borderRadius: 'inherit',
-
-                  background: `linear-gradient(
-                    135deg,
-                    ${alpha(secondary, 0.15)},
-                    ${alpha(primary, 0.08)}
-                  )`,
-
-                  opacity: 0,
-
-                  transform: 'scale(0.85)',
-
-                  transition: 'opacity 180ms ease, transform 180ms ease'
-                },
-
-                '&::after': {
-                  content: '""',
-
-                  position: 'absolute',
-
-                  left: '50%',
-                  bottom: 3,
-
-                  width: 0,
-                  height: 2,
-
-                  borderRadius: 999,
-
-                  background: `linear-gradient(
-                    90deg,
-                    ${secondary},
-                    ${primary}
-                  )`,
-
-                  transform: 'translateX(-50%)',
-
-                  transition: 'width 220ms ease'
-                },
-
-                '&:hover': {
-                  color: textPrimary,
-
-                  backgroundColor: alpha(secondary, 0.07),
-
-                  transform: 'translateY(-1px)',
-
-                  '&::before': {
-                    opacity: 1,
-                    transform: 'scale(1)'
-                  },
-
-                  '&::after': {
-                    width: '55%'
-                  },
-
-                  '& .MuiButton-startIcon': {
-                    transform: 'translateY(-1px) rotate(-5deg) scale(1.08)'
-                  }
-                },
-
-                '&:active': {
-                  transform: 'translateY(0) scale(0.97)'
-                }
-              }}
-            >
-              <Box
-                component="span"
-                sx={{
-                  position: 'relative',
-                  zIndex: 1
-                }}
-              >
-                GitHub
-              </Box>
-            </AppButton>
-          )} */}
-        </Stack>
-
-        <Box
-          sx={{
-            flex: 1
-          }}
-        />
-
-        <Stack
-          direction="row"
-          spacing={1}
-          sx={{
-            alignItems: 'center'
-          }}
-        >
-          <Box
-            sx={{
-              display: {
-                xs: 'none',
-                sm: 'block'
-              }
-            }}
-          >
-            <AppButton
-              variant="text"
-              color="inherit"
-              size="small"
-              startIcon={
-                <PaletteIcon
-                  sx={{
-                    fontSize: 17
-                  }}
-                />
-              }
-              endIcon={
-                <KeyboardArrowDownRoundedIcon
-                  sx={{
-                    fontSize: 18
-                  }}
-                />
-              }
-              onClick={(event) => {
-                setThemeMenuAnchor(event.currentTarget);
-              }}
-              aria-haspopup="menu"
-              aria-expanded={Boolean(themeMenuAnchor)}
-              sx={{
-                minHeight: 36,
-
-                px: 1.25,
-
-                borderRadius: 1,
-
-                color: textPrimary,
-
-                fontWeight: 700,
-
-                backgroundColor: alpha(secondary, 0.25),
-
-                border: `1px solid ${alpha(primary, 0.12)}`,
-
-                '&:hover': {
-                  backgroundColor: alpha(primary, 0.1),
-
-                  borderColor: alpha(primary, 0.2)
-                },
-
-                '& .MuiButton-startIcon': {
-                  color: primary
-                },
-
-                '& .MuiButton-endIcon': {
-                  color: textSecondary,
-
-                  transition: 'transform 180ms ease'
-                }
-              }}
-            >
-              {activeTheme?.label ?? themeSet}
-            </AppButton>
           </Box>
 
-          <Menu
-            anchorEl={themeMenuAnchor}
-            open={Boolean(themeMenuAnchor)}
-            onClose={() => setThemeMenuAnchor(null)}
-            slotProps={{
-              paper: {
-                elevation: 0,
-                sx: {
-                  mt: 1,
+          {/* DESKTOP NAVIGATION */}
 
-                  width: 310,
-
-                  maxHeight: 'min(70vh, 620px)',
-
-                  overflow: 'hidden',
-
-                  borderRadius: 2.5,
-
-                  backgroundColor: theme.backgroundScale[3],
-
-                  border: `1px solid ${alpha(theme.secondaryScale[6], 0.8)}`,
-
-                  boxShadow: `
-          0 20px 60px ${alpha(theme.grayScale[1], 0.2)}
-        `
-                }
-              }
-            }}
-          >
-            <Box
+          {!isMobile && (
+            <Stack
+              component="nav"
+              aria-label="Main navigation"
+              direction="row"
+              spacing={4}
               sx={{
-                px: 2,
-                py: 1.5,
-
-                background: `linear-gradient(
-                  135deg,
-                  ${alpha(primary, 0.08)},
-                  ${alpha(secondary, 0.05)}
-                )`,
-
-                borderBottom: `1px solid ${alpha(theme.secondaryScale[6], 0.6)}`
+                alignItems: 'center',
+                p: 0.5
               }}
             >
-              <Typography
-                sx={{
-                  fontSize: 12,
-                  fontWeight: 800,
-                  color: textPrimary
-                }}
-              >
-                Theme Sets
-              </Typography>
-
-              <Typography
-                sx={{
-                  mt: 0.25,
-                  fontSize: 10,
-                  color: textSecondary
-                }}
-              >
-                Choose a theme for the entire design system.
-              </Typography>
-            </Box>
-
-            <Box
-              sx={{
-                maxHeight: 520,
-                overflowY: 'auto',
-
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-
-                '&::-webkit-scrollbar': {
-                  display: 'none'
-                },
-
-                py: 0.75
-              }}
-            >
-              {themeCategories.map((category, categoryIndex) => {
-                const categoryItems = themeItems.filter(
-                  ([, item]) => item.category === category
-                );
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.section);
 
                 return (
-                  <Box key={category}>
-                    {categoryIndex > 0 && (
-                      <Divider
-                        sx={{
-                          my: 0.75,
-
-                          borderColor: alpha(theme.secondaryScale[6], 0.5)
-                        }}
-                      />
-                    )}
-
-                    <Typography
-                      sx={{
-                        px: 2,
-                        pt: 0.75,
-                        pb: 0.5,
-
-                        fontSize: 9,
-                        fontWeight: 800,
-
-                        letterSpacing: '0.12em',
-                        textTransform: 'uppercase',
-
-                        color: theme.grayScale[8]
-                      }}
-                    >
-                      {THEME_CATEGORY_LABELS[category] ?? category}
-                    </Typography>
-
-                    {categoryItems.map(([key, item]) => {
-                      const isActive = themeSet === key;
-                      const icon = THEME_ICONS[key];
-
-                      return (
-                        <MenuItem
-                          key={key}
-                          selected={isActive}
-                          onClick={() => handleThemeChange(key)}
-                          sx={{
-                            minHeight: 48,
-
-                            mx: 0.75,
-                            px: 1.25,
-
-                            gap: 1.25,
-
-                            borderRadius: 1.5,
-
-                            color: textPrimary,
-
-                            '&.Mui-selected': {
-                              backgroundColor: alpha(item.color, 0.09)
-                            },
-
-                            '&.Mui-selected:hover': {
-                              backgroundColor: alpha(item.color, 0.13)
-                            },
-
-                            '&:hover': {
-                              backgroundColor: alpha(item.color, 0.06)
-                            }
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              width: 30,
-                              height: 30,
-
-                              flexShrink: 0,
-
-                              display: 'grid',
-                              placeItems: 'center',
-
-                              borderRadius: 1.5,
-
-                              backgroundColor: alpha(item.color, 0.08),
-
-                              border: `1px solid ${alpha(item.color, 0.16)}`
-                            }}
-                          >
-                            {icon ? (
-                              <Box
-                                component="img"
-                                src={icon}
-                                alt=""
-                                sx={{
-                                  width: 22,
-                                  height: 22,
-                                  objectFit: 'contain'
-                                }}
-                              />
-                            ) : (
-                              <Box
-                                sx={{
-                                  width: 9,
-                                  height: 9,
-
-                                  borderRadius: '50%',
-
-                                  backgroundColor: item.color
-                                }}
-                              />
-                            )}
-                          </Box>
-
-                          <Box
-                            sx={{
-                              flex: 1,
-                              minWidth: 0
-                            }}
-                          >
-                            <Typography
-                              sx={{
-                                fontSize: 12,
-                                fontWeight: isActive ? 800 : 650,
-
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap'
-                              }}
-                            >
-                              {item.label}
-                            </Typography>
-
-                            <Typography
-                              sx={{
-                                mt: 0.15,
-
-                                fontSize: 9,
-
-                                color: textSecondary,
-
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap'
-                              }}
-                            >
-                              {THEME_CATEGORY_LABELS[item.category] ??
-                                item.category}
-                            </Typography>
-                          </Box>
-
-                          {isActive && (
-                            <CheckRoundedIcon
-                              sx={{
-                                flexShrink: 0,
-
-                                fontSize: 18,
-
-                                color: item.color
-                              }}
-                            />
-                          )}
-                        </MenuItem>
-                      );
-                    })}
-                  </Box>
+                  <Button
+                    key={item.section}
+                    component="a"
+                    href={item.href}
+                    onClick={(event) => handleNavigation(event, item.href)}
+                    startIcon={<Icon />}
+                    aria-current={active ? 'location' : undefined}
+                    sx={navButtonSx(active)}
+                  >
+                    {item.label}
+                  </Button>
                 );
               })}
-            </Box>
-          </Menu>
+            </Stack>
+          )}
 
-          {/* <Box
+          {/* DESKTOP AND MOBILE ACTIONS */}
+
+          <Stack
+            direction="row"
+            spacing={{ xs: 0.75, md: 1 }}
             sx={{
-              display: {
-                xs: 'none',
-                sm: 'block'
-              }
+              alignItems: 'center',
+              flexShrink: 0
             }}
           >
-            <AppChip
-              label={activeTheme?.label ?? themeSet}
-              color="secondary"
-              size="small"
-              sx={{
-                height: 28,
+            <Tooltip
+              title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              <IconButton
+                onClick={handleThemeToggle}
+                aria-label={
+                  isDark ? 'Switch to light mode' : 'Switch to dark mode'
+                }
+                sx={iconButtonSx}
+              >
+                <ThemeIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
 
-                px: 0.5,
+            {/* DESKTOP SELECT THEME */}
 
-                fontSize: '0.72rem',
-                fontWeight: 700,
+            {!isMobile && (
+              <Tooltip title="Select Theme">
+                <Button
+                  onClick={openThemeMenu}
+                  startIcon={<PaletteRoundedIcon />}
+                  sx={{
+                    minHeight: 42,
+                    px: 1.5,
 
-                textTransform: 'capitalize',
+                    borderRadius: 1.5,
 
-                backgroundColor: alpha(secondary, 0.08),
+                    textTransform: 'none',
+                    fontWeight: 700,
+                    whiteSpace: 'nowrap',
 
-                border: `1px solid ${alpha(secondary, 0.16)}`
-              }}
-            />
-          </Box> */}
+                    color: headingColor,
 
-          <AppButton
-            variant="text"
-            color="inherit"
-            onClick={() => setMobileOpen((prev) => !prev)}
-            aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}
-            aria-expanded={mobileOpen}
-            sx={{
-              display: {
-                xs: 'flex',
-                md: 'none'
-              },
+                    border: `1px solid ${alpha(primary, 0.25)}`,
+                    backgroundColor: alpha(primary, 0.06),
 
-              minWidth: 40,
-              width: 40,
-              height: 40,
+                    transition: 'all 180ms ease',
 
-              p: 0,
+                    '& .MuiButton-startIcon': {
+                      color: primary
+                    },
 
-              color: textPrimary,
-
-              borderRadius: 1,
-
-              '&:hover': {
-                backgroundColor: alpha(primary, 0.08)
-              }
-            }}
-          >
-            {mobileOpen ? (
-              <CloseIcon fontSize="small" />
-            ) : (
-              <MenuIcon fontSize="small" />
+                    '&:hover': {
+                      backgroundColor: alpha(primary, 0.12),
+                      borderColor: alpha(primary, 0.4),
+                      transform: 'translateY(-1px)'
+                    }
+                  }}
+                >
+                  Select Theme
+                </Button>
+              </Tooltip>
             )}
-          </AppButton>
-        </Stack>
-      </Toolbar>
 
-      <Box
-        sx={{
-          display: {
-            xs: 'block',
-            md: 'none'
+            {!isMobile && (
+              <Button
+                component="a"
+                href="/#contact-form"
+                onClick={(event) => handleNavigation(event, '/#contact-form')}
+                variant="contained"
+                startIcon={<MailOutlineRoundedIcon />}
+                endIcon={<ArrowOutwardRoundedIcon />}
+                sx={projectButtonSx}
+              >
+                Start a Project
+              </Button>
+            )}
+
+            {isMobile && (
+              <IconButton
+                onClick={() => setMobileOpen(true)}
+                aria-label="Open navigation menu"
+                aria-expanded={mobileOpen}
+                sx={iconButtonSx}
+              >
+                <MenuRoundedIcon fontSize="small" />
+              </IconButton>
+            )}
+          </Stack>
+        </Toolbar>
+      </AppBar>
+
+      {/* THEME MENU */}
+
+      {themeMenu}
+
+      {/* MOBILE DRAWER */}
+
+      <Drawer
+        anchor="right"
+        open={mobileOpen}
+        onClose={closeMobileMenu}
+        slotProps={{
+          paper: {
+            sx: {
+              width: 'min(88vw, 380px)',
+
+              color: headingColor,
+
+              backgroundColor: surface,
+              backgroundImage: 'none',
+
+              borderLeft: `1px solid ${alpha(primary, 0.2)}`,
+
+              boxShadow: `-12px 0 40px ${alpha(
+                theme.palette.common.black,
+                0.2
+              )}`
+            }
           }
         }}
       >
         <Box
-          onClick={() => setMobileOpen(false)}
           sx={{
-            position: 'fixed',
-            inset: 0,
-
-            zIndex: theme.zIndex.drawer - 1,
-
-            backgroundColor: alpha('#000', 0.5),
-
-            opacity: mobileOpen ? 1 : 0,
-            visibility: mobileOpen ? 'visible' : 'hidden',
-
-            transition: 'opacity 0.25s ease, visibility 0.25s ease'
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '100%',
+            p: 2.5
           }}
-        />
+        >
+          {/* DRAWER HEADER */}
 
-        <Box>
-          <Portal>
-            <Box
-              onClick={() => setMobileOpen(false)}
+          <Stack
+            direction="row"
+            spacing={1.5}
+            sx={{
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              pb: 2
+            }}
+          >
+            <Stack
+              direction="row"
+              spacing={1.25}
               sx={{
-                position: 'fixed',
-                inset: 0,
-
-                zIndex: 9998,
-
-                backgroundColor: alpha('#000', 0.5),
-
-                opacity: mobileOpen ? 1 : 0,
-
-                visibility: mobileOpen ? 'visible' : 'hidden',
-
-                pointerEvents: mobileOpen ? 'auto' : 'none',
-
-                transition: 'opacity 0.25s ease, visibility 0.25s ease'
-              }}
-            />
-
-            <Box
-              sx={{
-                position: 'fixed',
-
-                top: 0,
-                right: 0,
-
-                width: {
-                  xs: 'min(88vw, 360px)',
-                  sm: 320
-                },
-
-                height: '100dvh',
-
-                zIndex: 9999,
-
-                display: 'flex',
-                flexDirection: 'column',
-
-                overflow: 'hidden',
-
-                backgroundColor: theme.backgroundScale[4],
-
-                borderLeft: `1px solid ${alpha(secondary, 0.2)}`,
-
-                boxShadow: `-12px 0 40px ${alpha('#000', 0.35)}`,
-
-                transform: mobileOpen ? 'translateX(0)' : 'translateX(100%)',
-
-                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                alignItems: 'center',
+                minWidth: 0
               }}
             >
               <Box
                 sx={{
+                  display: 'grid',
+                  placeItems: 'center',
+
+                  width: 42,
+                  height: 42,
+
                   flexShrink: 0,
+                  borderRadius: 2,
 
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
+                  color: primary,
 
-                  minHeight: 72,
+                  background: `linear-gradient(
+                    145deg,
+                    ${alpha(primary, 0.16)},
+                    ${alpha(secondary, 0.08)}
+                  )`,
 
-                  px: 2,
-
-                  borderBottom: `1px solid ${alpha(secondary, 0.12)}`
+                  border: `1px solid ${alpha(primary, 0.22)}`
                 }}
               >
-                <Box
+                <CodeRoundedIcon />
+              </Box>
+
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
                   sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-
-                    gap: 1.25,
-
-                    minWidth: 0
+                    fontSize: '0.95rem',
+                    fontWeight: 850,
+                    letterSpacing: '-0.025em',
+                    lineHeight: 1.3
                   }}
                 >
-                  <Box
-                    component="img"
-                    src={themeIcon}
-                    alt="Cryptech Services"
-                    sx={{
-                      width: 36,
-                      height: 36,
+                  Cryptech Services
+                </Typography>
 
-                      objectFit: 'contain',
-
-                      flexShrink: 0
-                    }}
-                  />
-
-                  <Box
-                    sx={{
-                      minWidth: 0,
-
-                      display: 'flex',
-                      flexDirection: 'column'
-                    }}
-                  >
-                    <Box
-                      component="span"
-                      sx={{
-                        color: textPrimary,
-
-                        fontSize: 15,
-                        lineHeight: 1.2,
-
-                        fontWeight: 700,
-
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}
-                    >
-                      Cryptech Services
-                    </Box>
-
-                    <Box
-                      component="span"
-                      sx={{
-                        mt: 0.25,
-
-                        color: textSecondary,
-
-                        fontSize: 11,
-                        lineHeight: 1.2,
-
-                        fontWeight: 500,
-
-                        letterSpacing: '0.08em'
-                      }}
-                    >
-                      THEME SYSTEM
-                    </Box>
-                  </Box>
-                </Box>
-
-                <AppButton
-                  variant="text"
-                  color="inherit"
-                  onClick={() => setMobileOpen(false)}
-                  aria-label="Close navigation"
+                <Typography
                   sx={{
-                    minWidth: 40,
-                    width: 40,
-                    height: 40,
+                    mt: 0.35,
 
-                    p: 0,
+                    color: mutedColor,
 
-                    flexShrink: 0,
+                    fontSize: '0.65rem',
+                    fontWeight: 650,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase'
+                  }}
+                >
+                  Digital Solutions
+                </Typography>
+              </Box>
+            </Stack>
 
-                    borderRadius: 1,
+            <IconButton
+              onClick={closeMobileMenu}
+              aria-label="Close navigation menu"
+              sx={iconButtonSx}
+            >
+              <CloseRoundedIcon fontSize="small" />
+            </IconButton>
+          </Stack>
 
-                    color: textSecondary,
+          <Divider sx={{ borderColor: alpha(primary, 0.15) }} />
+
+          {/* MOBILE NAVIGATION */}
+
+          <Typography
+            sx={{
+              mt: 3,
+              mb: 1.25,
+              px: 0.75,
+
+              color: mutedColor,
+
+              fontSize: '0.68rem',
+              fontWeight: 800,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase'
+            }}
+          >
+            Navigation
+          </Typography>
+
+          <Stack component="nav" aria-label="Mobile navigation" spacing={0.75}>
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.section);
+
+              return (
+                <Button
+                  key={item.section}
+                  component="a"
+                  href={item.href}
+                  onClick={(event) => handleNavigation(event, item.href)}
+                  startIcon={<Icon />}
+                  aria-current={active ? 'location' : undefined}
+                  sx={{
+                    position: 'relative',
+                    isolation: 'isolate',
+                    overflow: 'hidden',
+
+                    justifyContent: 'flex-start',
+
+                    width: '100%',
+                    minHeight: 50,
+                    px: 1.5,
+
+                    borderRadius: 1.5,
+
+                    color: active ? headingColor : mutedColor,
+
+                    fontSize: '0.9rem',
+                    fontWeight: active ? 800 : 650,
+                    textTransform: 'none',
+
+                    background: active
+                      ? `linear-gradient(
+                          135deg,
+                          ${alpha(primary, 0.16)},
+                          ${alpha(secondary, 0.12)}
+                        )`
+                      : 'transparent',
+
+                    border: '1px solid',
+                    borderColor: active ? alpha(primary, 0.2) : 'transparent',
+
+                    boxShadow: active
+                      ? `inset 0 0 0 1px ${alpha(primary, 0.04)}`
+                      : 'none',
+
+                    transition:
+                      'background-color 180ms ease, border-color 180ms ease, transform 180ms ease',
+
+                    '&::before': {
+                      content: '""',
+
+                      position: 'absolute',
+                      left: 0,
+                      top: 7,
+                      bottom: 7,
+
+                      width: 3,
+
+                      borderRadius: '0 4px 4px 0',
+
+                      background: `linear-gradient(
+                        to bottom,
+                        ${primary},
+                        ${secondary}
+                      )`,
+
+                      opacity: active ? 1 : 0,
+                      transition: 'opacity 180ms ease'
+                    },
+
+                    '& .MuiButton-startIcon': {
+                      position: 'relative',
+                      zIndex: 1,
+
+                      mr: 1.25,
+
+                      color: active ? primary : mutedColor,
+
+                      transition: 'color 180ms ease, transform 180ms ease'
+                    },
 
                     '&:hover': {
-                      color: textPrimary,
-                      backgroundColor: alpha(primary, 0.07)
+                      color: headingColor,
+
+                      background: `linear-gradient(
+                        135deg,
+                        ${alpha(primary, 0.1)},
+                        ${alpha(secondary, 0.06)}
+                      )`,
+
+                      borderColor: alpha(primary, 0.17),
+                      transform: 'translateX(2px)',
+
+                      '& .MuiButton-startIcon': {
+                        color: primary,
+                        transform: 'scale(1.08)'
+                      }
+                    },
+
+                    '&:active': {
+                      transform: 'scale(0.99)'
                     }
                   }}
                 >
-                  <CloseIcon
-                    sx={{
-                      fontSize: 21
-                    }}
-                  />
-                </AppButton>
-              </Box>
+                  {item.label}
+                </Button>
+              );
+            })}
+          </Stack>
 
+          {/* MOBILE DARK/LIGHT TOGGLE */}
+
+          <Button
+            onClick={handleThemeToggle}
+            startIcon={<ThemeIcon />}
+            sx={{
+              justifyContent: 'flex-start',
+
+              minHeight: 48,
+              mt: 1.5,
+              px: 1.5,
+
+              borderRadius: 1.5,
+
+              color: headingColor,
+
+              fontWeight: 700,
+              textTransform: 'none',
+
+              background: `linear-gradient(
+                135deg,
+                ${alpha(primary, 0.1)},
+                ${alpha(secondary, 0.06)}
+              )`,
+
+              border: `1px solid ${alpha(primary, 0.17)}`,
+
+              '& .MuiButton-startIcon': {
+                color: primary
+              },
+
+              '&:hover': {
+                backgroundColor: alpha(primary, 0.12),
+                borderColor: alpha(primary, 0.35)
+              }
+            }}
+          >
+            {isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          </Button>
+
+          {/* MOBILE SELECT THEME */}
+
+          <Button
+            onClick={(event) => {
+              closeMobileMenu();
+              openThemeMenu(event);
+            }}
+            startIcon={<PaletteRoundedIcon />}
+            endIcon={<ArrowOutwardRoundedIcon />}
+            fullWidth
+            sx={{
+              justifyContent: 'flex-start',
+
+              minHeight: 48,
+              mt: 1,
+              px: 1.5,
+
+              borderRadius: 1.5,
+
+              color: headingColor,
+
+              fontWeight: 700,
+              textTransform: 'none',
+
+              background: `linear-gradient(
+                135deg,
+                ${alpha(primary, 0.1)},
+                ${alpha(secondary, 0.06)}
+              )`,
+
+              border: `1px solid ${alpha(primary, 0.17)}`,
+
+              '& .MuiButton-startIcon': {
+                color: primary
+              },
+
+              '& .MuiButton-endIcon': {
+                ml: 'auto',
+                color: mutedColor
+              },
+
+              '&:hover': {
+                backgroundColor: alpha(primary, 0.12),
+                borderColor: alpha(primary, 0.35)
+              }
+            }}
+          >
+            Select Theme
+          </Button>
+
+          <Box sx={{ flex: 1, minHeight: 36 }} />
+
+          {/* MOBILE CONTACT CARD */}
+
+          <Box
+            sx={{
+              p: 2,
+
+              borderRadius: 2.5,
+
+              border: `1px solid ${alpha(primary, 0.18)}`,
+
+              background: `linear-gradient(
+                145deg,
+                ${alpha(primary, isDark ? 0.12 : 0.08)},
+                ${alpha(secondary, 0.04)}
+              )`
+            }}
+          >
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{
+                alignItems: 'center',
+                mb: 1
+              }}
+            >
               <Box
                 sx={{
-                  flex: 1,
+                  display: 'grid',
+                  placeItems: 'center',
 
-                  minHeight: 0,
+                  width: 34,
+                  height: 34,
 
-                  overflowY: 'auto',
-
-                  px: 1.5,
-                  py: 2
-                }}
-              >
-                <Stack spacing={0.5}>
-                  {navItems.map((item) => {
-                    const isActive =
-                      item.href === '/'
-                        ? pathname === '/'
-                        : pathname === item.href ||
-                          pathname.startsWith(`${item.href}/`);
-
-                    const icon = getNavIcon(item.href);
-
-                    return (
-                      <AppButton
-                        key={item.href}
-                        component="a"
-                        href={item.href}
-                        variant="text"
-                        color="inherit"
-                        startIcon={icon}
-                        onClick={() => setMobileOpen(false)}
-                        sx={{
-                          position: 'relative',
-
-                          justifyContent: 'flex-start',
-
-                          width: '100%',
-                          minHeight: 48,
-
-                          px: 1.5,
-
-                          borderRadius: 1,
-
-                          color: isActive ? textPrimary : textSecondary,
-
-                          fontWeight: isActive ? 700 : 600,
-
-                          background: isActive
-                            ? `linear-gradient(
-                                135deg,
-                                ${alpha(primary, 0.14)},
-                                ${alpha(secondary, 0.1)}
-                              )`
-                            : 'transparent',
-
-                          boxShadow: isActive
-                            ? `inset 0 0 0 1px ${alpha(primary, 0.12)}`
-                            : 'none',
-
-                          '& .MuiButton-startIcon': {
-                            marginRight: 1.25,
-                            marginLeft: 0,
-
-                            color: isActive ? primary : 'inherit'
-                          },
-
-                          '&:hover': {
-                            color: textPrimary,
-
-                            backgroundColor: alpha(primary, 0.07),
-
-                            '& .MuiButton-startIcon': {
-                              color: primary
-                            }
-                          }
-                        }}
-                      >
-                        {item.label}
-                      </AppButton>
-                    );
-                  })}
-
-                  {/* {GITHUB_URL && (
-                    <AppButton
-                      component="a"
-                      href={GITHUB_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      variant="text"
-                      color="inherit"
-                      startIcon={
-                        <GitHubIcon
-                          sx={{
-                            fontSize: 19
-                          }}
-                        />
-                      }
-                      sx={{
-                        justifyContent: 'flex-start',
-
-                        width: '100%',
-                        minHeight: 48,
-
-                        px: 1.5,
-
-                        borderRadius: 1,
-
-                        color: textSecondary,
-
-                        fontWeight: 600,
-
-                        '& .MuiButton-startIcon': {
-                          marginRight: 1.25,
-                          marginLeft: 0
-                        },
-
-                        '&:hover': {
-                          color: textPrimary,
-
-                          backgroundColor: alpha(primary, 0.07)
-                        }
-                      }}
-                    >
-                      GitHub
-                    </AppButton>
-                  )} */}
-                </Stack>
-
-                <Divider
-                  sx={{
-                    my: 2,
-
-                    borderColor: alpha(theme.secondaryScale[6], 0.6)
-                  }}
-                />
-
-                <Stack spacing={1}>
-                  <Stack
-                    direction="row"
-                    spacing={0.75}
-                    sx={{
-                      alignItems: 'center',
-                      px: 0.5
-                    }}
-                  >
-                    <PaletteIcon
-                      sx={{
-                        fontSize: 17,
-                        color: primary
-                      }}
-                    />
-
-                    <Typography
-                      sx={{
-                        fontSize: 11,
-                        fontWeight: 800,
-
-                        letterSpacing: '0.08em',
-                        textTransform: 'uppercase',
-
-                        color: textSecondary
-                      }}
-                    >
-                      Theme Sets
-                    </Typography>
-                  </Stack>
-
-                  {themeCategories.map((category) => {
-                    const categoryItems = themeItems.filter(
-                      ([, item]) => item.category === category
-                    );
-
-                    return (
-                      <Box key={category}>
-                        <Typography
-                          sx={{
-                            px: 0.75,
-                            pt: 0.75,
-                            pb: 0.5,
-
-                            fontSize: 9,
-                            fontWeight: 800,
-
-                            letterSpacing: '0.1em',
-                            textTransform: 'uppercase',
-
-                            color: theme.grayScale[8]
-                          }}
-                        >
-                          {THEME_CATEGORY_LABELS[category] ?? category}
-                        </Typography>
-
-                        <Stack spacing={0.25}>
-                          {categoryItems.map(([key, item]) => {
-                            const isActive = themeSet === key;
-                            const icon = THEME_ICONS[key];
-
-                            return (
-                              <AppButton
-                                key={key}
-                                variant="text"
-                                color="inherit"
-                                onClick={() => handleThemeChange(key)}
-                                sx={{
-                                  width: '100%',
-
-                                  minHeight: 46,
-
-                                  px: 1,
-
-                                  justifyContent: 'flex-start',
-
-                                  borderRadius: 1.5,
-
-                                  color: isActive ? textPrimary : textSecondary,
-
-                                  backgroundColor: isActive
-                                    ? alpha(item.color, 0.08)
-                                    : 'transparent',
-
-                                  border: '1px solid',
-                                  borderColor: isActive
-                                    ? alpha(item.color, 0.16)
-                                    : 'transparent',
-
-                                  '&:hover': {
-                                    color: textPrimary,
-
-                                    backgroundColor: alpha(item.color, 0.06)
-                                  }
-                                }}
-                              >
-                                <Box
-                                  sx={{
-                                    width: 28,
-                                    height: 28,
-
-                                    mr: 1,
-
-                                    flexShrink: 0,
-
-                                    display: 'grid',
-                                    placeItems: 'center',
-
-                                    borderRadius: 1.25,
-
-                                    backgroundColor: alpha(item.color, 0.08),
-
-                                    border: `1px solid ${alpha(
-                                      item.color,
-                                      0.15
-                                    )}`
-                                  }}
-                                >
-                                  {icon ? (
-                                    <Box
-                                      component="img"
-                                      src={icon}
-                                      alt=""
-                                      sx={{
-                                        width: 21,
-                                        height: 21,
-                                        objectFit: 'contain'
-                                      }}
-                                    />
-                                  ) : (
-                                    <Box
-                                      sx={{
-                                        width: 8,
-                                        height: 8,
-
-                                        borderRadius: '50%',
-
-                                        backgroundColor: item.color
-                                      }}
-                                    />
-                                  )}
-                                </Box>
-
-                                <Box
-                                  sx={{
-                                    flex: 1,
-                                    minWidth: 0,
-
-                                    textAlign: 'left'
-                                  }}
-                                >
-                                  <Typography
-                                    sx={{
-                                      fontSize: 11.5,
-                                      lineHeight: 1.2,
-
-                                      fontWeight: isActive ? 800 : 600,
-
-                                      overflow: 'hidden',
-                                      textOverflow: 'ellipsis',
-                                      whiteSpace: 'nowrap'
-                                    }}
-                                  >
-                                    {item.label}
-                                  </Typography>
-                                </Box>
-
-                                {isActive && (
-                                  <CheckRoundedIcon
-                                    sx={{
-                                      fontSize: 17,
-
-                                      flexShrink: 0,
-
-                                      color: item.color
-                                    }}
-                                  />
-                                )}
-                              </AppButton>
-                            );
-                          })}
-                        </Stack>
-                      </Box>
-                    );
-                  })}
-                </Stack>
-              </Box>
-
-              <Box
-                sx={{
                   flexShrink: 0,
+                  borderRadius: 1.5,
 
-                  p: 2,
+                  color: primary,
 
-                  borderTop: `1px solid ${alpha(secondary, 0.12)}`
+                  backgroundColor: alpha(primary, 0.12),
+
+                  border: `1px solid ${alpha(primary, 0.18)}`
                 }}
               >
-                <AppChip
-                  label={activeTheme?.label ?? themeSet}
-                  color="secondary"
-                  size="small"
-                  sx={{
-                    width: '100%',
-                    height: 36,
-
-                    fontWeight: 700,
-
-                    textTransform: 'capitalize'
-                  }}
-                />
+                <MailOutlineRoundedIcon fontSize="small" />
               </Box>
-            </Box>
-          </Portal>
+
+              <Typography
+                sx={{
+                  fontSize: '1rem',
+                  fontWeight: 800,
+                  letterSpacing: '-0.02em'
+                }}
+              >
+                Have a project in mind?
+              </Typography>
+            </Stack>
+
+            <Typography
+              sx={{
+                mt: 0.75,
+                mb: 2,
+
+                color: mutedColor,
+
+                fontSize: '0.82rem',
+                lineHeight: 1.8
+              }}
+            >
+              Let&apos;s discuss your goals and build something great.
+            </Typography>
+
+            <Button
+              component="a"
+              href="/#contact-form"
+              onClick={(event) => handleNavigation(event, '/#contact-form')}
+              fullWidth
+              variant="contained"
+              startIcon={<MailOutlineRoundedIcon />}
+              endIcon={<ArrowOutwardRoundedIcon />}
+              sx={projectButtonSx}
+            >
+              Start a Project
+            </Button>
+
+            <Stack
+              direction="row"
+              spacing={0.75}
+              sx={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                mt: 1.75
+              }}
+            >
+              <Typography
+                sx={{
+                  color: mutedColor,
+                  fontSize: '0.72rem'
+                }}
+              >
+                Let&apos;s build something great.
+              </Typography>
+            </Stack>
+          </Box>
         </Box>
-      </Box>
-    </AppBar>
+      </Drawer>
+    </>
   );
 }
