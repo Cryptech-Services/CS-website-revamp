@@ -1,4 +1,3 @@
-// next.config.js
 /** @type {import('next').NextConfig} */
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -6,6 +5,14 @@ const isProd = process.env.NODE_ENV === 'production';
 const hostForceHttps = process.env.HOST_FORCE_HTTPS_REQUEST === 'true';
 
 const upgradeInsecureRequests = 'upgrade-insecure-requests;';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+const supabaseOrigin = supabaseUrl ? new URL(supabaseUrl).origin : null;
+
+const explorerUri = process.env.NEXT_PUBLIC_EXPLORER_URI;
+
+const explorerOrigin = explorerUri ? new URL(explorerUri).origin : null;
 
 const cspDev = `
   default-src 'self';
@@ -71,7 +78,8 @@ const cspProd = `
 
   connect-src
     'self'
-    ${process.env.NEXT_PUBLIC_EXPLORER_URI};
+    ${explorerOrigin ?? ''}
+    ${supabaseOrigin ?? ''};
 
   object-src 'none';
 
@@ -89,7 +97,9 @@ const cspProd = `
 const nextConfig = {
   reactStrictMode: isProd,
 
-  allowedDevOrigins: isProd ? [] : [`${process.env.NEXT_PUBLIC_FQDN}`],
+  allowedDevOrigins: isProd
+    ? []
+    : [process.env.NEXT_PUBLIC_FQDN].filter(Boolean),
 
   async headers() {
     return [
