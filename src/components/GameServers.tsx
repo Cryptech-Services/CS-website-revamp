@@ -204,13 +204,13 @@ function ServerArtwork({ server }: { server: GameServer }) {
           background: `
             linear-gradient(
               180deg,
-              ${alpha(cardSurface, isDark ? 0.35 : 0.48)} 0%,
-              ${alpha(cardSurface, isDark ? 0.48 : 0.55)} 48%,
-              ${alpha(cardSurface, isDark ? 0.9 : 0.88)} 100%
+              ${alpha(cardSurface, isDark ? 0.35 : 0.0)} 0%,
+              ${alpha(cardSurface, isDark ? 0.48 : 0.0)} 48%,
+              ${alpha(cardSurface, isDark ? 0.9 : 0.0)} 100%
             ),
             radial-gradient(
               circle at 50% 40%,
-              ${alpha(server.accent, 0.25)},
+              ${alpha(server.accent, isDark ? 0.25 : 0.0)},
               transparent 65%
             )
           `
@@ -286,7 +286,7 @@ function ServerArtwork({ server }: { server: GameServer }) {
               linear-gradient(
                 145deg,
                 ${alpha(server.accent, 0.18)},
-                ${alpha(cardSurface, isDark ? 0.82 : 0.88)}
+                ${alpha(cardSurface, isDark ? 0.82 : 0.5)}
               )
             `,
             backdropFilter: 'blur(12px)',
@@ -367,7 +367,7 @@ function ServerArtwork({ server }: { server: GameServer }) {
           py: 0.5,
           borderRadius: 10,
           border: `1px solid ${alpha(server.accent, 0.3)}`,
-          backgroundColor: alpha(cardSurface, isDark ? 0.94 : 0.92),
+          backgroundColor: alpha(cardSurface, isDark ? 0.94 : 0.9),
           backdropFilter: 'blur(10px)',
           WebkitBackdropFilter: 'blur(10px)'
         }}
@@ -424,7 +424,7 @@ function GameServerCard({ server }: { server: GameServer }) {
         background: `
   linear-gradient(
     155deg,
-    ${alpha(server.accent, 0.2)} 45%,
+    ${alpha(server.accent, isDark ? 0.2 : 0.5)},
     transparent 75%
   ),
   ${cardSurface}

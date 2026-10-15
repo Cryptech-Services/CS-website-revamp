@@ -256,25 +256,6 @@ export default function ContactUsPage() {
         backgroundColor: surface
       }}
     >
-      {/* Background decoration */}
-      <Box
-        aria-hidden="true"
-        sx={{
-          position: 'absolute',
-          zIndex: -1,
-          top: -170,
-          right: { xs: -150, md: -80 },
-          width: { xs: 300, md: 560 },
-          height: { xs: 300, md: 560 },
-          borderRadius: '50%',
-          background: `radial-gradient(circle, ${alpha(
-            primary,
-            isDark ? 0.14 : 0.09
-          )} 0%, transparent 70%)`,
-          pointerEvents: 'none'
-        }}
-      />
-
       <Box
         aria-hidden="true"
         sx={{
@@ -285,10 +266,10 @@ export default function ContactUsPage() {
           width: 360,
           height: 360,
           borderRadius: '50%',
-          border: `1px solid ${alpha(primary, 0.12)}`,
+          border: `1px solid ${alpha(primary, 0.5)}`,
           boxShadow: `
-            0 0 0 40px ${alpha(primary, 0.035)},
-            0 0 0 80px ${alpha(primary, 0.025)}
+            0 0 0 40px ${alpha(primary, 0.25)},
+            0 0 0 80px ${alpha(primary, 0.15)}
           `,
           pointerEvents: 'none'
         }}
