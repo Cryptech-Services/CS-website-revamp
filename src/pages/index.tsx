@@ -77,6 +77,7 @@ export default function Home() {
         }}
       >
         {/* IT Network / Circuit Background */}
+
         <Box
           aria-hidden="true"
           sx={{
@@ -87,7 +88,58 @@ export default function Home() {
             pointerEvents: 'none',
             opacity: isDark ? 0.25 : 0.28,
             maskImage:
-              'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)'
+              'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
+
+            '@keyframes circuitGridDrift': {
+              '0%, 100%': {
+                transform: 'translate3d(0, 0, 0)'
+              },
+              '50%': {
+                transform: 'translate3d(-12px, 8px, 0)'
+              }
+            },
+
+            '@keyframes circuitFlow': {
+              to: {
+                strokeDashoffset: -200
+              }
+            },
+
+            '@keyframes circuitPulse': {
+              '0%, 100%': {
+                opacity: 0.4
+              },
+              '50%': {
+                opacity: 1
+              }
+            },
+
+            '@keyframes circuitGlow': {
+              '0%, 100%': {
+                transform: 'translate(-20px, 10px) scale(0.95)'
+              },
+              '50%': {
+                transform: 'translate(20px, -15px) scale(1.08)'
+              }
+            },
+
+            '@keyframes circuitNodePulse': {
+              '0%, 100%': {
+                opacity: 0.45,
+                transform: 'scale(0.9)'
+              },
+              '50%': {
+                opacity: 1,
+                transform: 'scale(1.15)'
+              }
+            },
+
+            '@media (prefers-reduced-motion: reduce)': {
+              '& .circuit-grid, & .circuit-glow, & .circuit-traces, & .circuit-node, & .circuit-connection':
+                {
+                  animation: 'none !important'
+                }
+            }
           }}
         >
           <Box
@@ -99,7 +151,33 @@ export default function Home() {
               width: '100%',
               height: '100%',
               inset: 0,
-              color: primary
+              color: primary,
+              overflow: 'visible',
+
+              '& .circuit-grid': {
+                animation: 'circuitGridDrift 24s ease-in-out infinite'
+              },
+
+              '& .circuit-glow': {
+                transformBox: 'fill-box',
+                transformOrigin: 'center',
+                animation: 'circuitGlow 18s ease-in-out infinite'
+              },
+
+              '& .circuit-traces': {
+                strokeDasharray: '8 12',
+                animation: 'circuitFlow 30s linear infinite'
+              },
+
+              '& .circuit-node': {
+                transformBox: 'fill-box',
+                transformOrigin: 'center',
+                animation: 'circuitNodePulse 4s ease-in-out infinite'
+              },
+
+              '& .circuit-connection': {
+                animation: 'circuitPulse 5s ease-in-out infinite'
+              }
             }}
           >
             <defs>
@@ -135,11 +213,20 @@ export default function Home() {
               </radialGradient>
             </defs>
 
-            {/* Subtle technical grid */}
-            <rect width="1200" height="600" fill="url(#footer-tech-grid)" />
+            {/* Subtle moving technical grid */}
+            <g className="circuit-grid">
+              <rect
+                x="-48"
+                y="-48"
+                width="1296"
+                height="696"
+                fill="url(#footer-tech-grid)"
+              />
+            </g>
 
-            {/* Ambient glow */}
+            {/* Slowly drifting ambient glow */}
             <ellipse
+              className="circuit-glow"
               cx="940"
               cy="270"
               rx="350"
@@ -147,8 +234,9 @@ export default function Home() {
               fill="url(#footer-tech-glow)"
             />
 
-            {/* Circuit traces */}
+            {/* Animated circuit traces */}
             <g
+              className="circuit-traces"
               fill="none"
               stroke="url(#footer-circuit-gradient)"
               strokeWidth="1.2"
@@ -168,7 +256,7 @@ export default function Home() {
               <path d="M250 0 V70 H320 V120 H400 V180" />
             </g>
 
-            {/* Network nodes */}
+            {/* Pulsing network nodes */}
             <g fill="currentColor">
               {[
                 [640, 90],
@@ -207,7 +295,12 @@ export default function Home() {
                 [400, 180]
               ].map(([cx, cy], index) => (
                 <circle
-                  key={index}
+                  key={`${cx}-${cy}`}
+                  className="circuit-node"
+                  style={{
+                    animationDelay: `${(index % 8) * -0.5}s`,
+                    animationDuration: `${3 + (index % 4)}s`
+                  }}
                   cx={cx}
                   cy={cy}
                   r={index % 4 === 0 ? 3 : 1.8}
@@ -216,17 +309,24 @@ export default function Home() {
               ))}
             </g>
 
-            {/* Larger connection points */}
-            <g fill="none" stroke="currentColor" strokeWidth="1">
+            {/* Larger pulsing connection points */}
+            <g
+              className="circuit-connection"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1"
+            >
               <circle cx="910" cy="205" r="8" opacity="0.45" />
               <circle cx="910" cy="205" r="15" opacity="0.18" />
+
               <circle cx="320" cy="370" r="7" opacity="0.4" />
               <circle cx="320" cy="370" r="13" opacity="0.16" />
+
               <circle cx="840" cy="410" r="7" opacity="0.4" />
               <circle cx="840" cy="410" r="13" opacity="0.16" />
             </g>
 
-            {/* Minimal binary / technology accents */}
+            {/* Minimal technical accents */}
             <g
               fill="currentColor"
               fontSize="10"
@@ -278,7 +378,6 @@ export default function Home() {
             pointerEvents: 'none'
           }}
         />
-
         <Box
           sx={{
             position: 'absolute',
@@ -309,7 +408,6 @@ export default function Home() {
             }}
           />
         </Box>
-
         <Container
           maxWidth="xl"
           sx={{
@@ -804,6 +902,31 @@ export default function Home() {
           </Box>
         </Container>
       </Box>
+
+      <Box
+        component="section"
+        aria-label="Our technology services"
+        sx={{
+          position: 'absolute',
+          width: '100%',
+          height: { xs: '3.5rem', md: '4rem' },
+          zIndex: 2
+        }}
+      >
+        <Box
+          aria-hidden="true"
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            overflow: 'hidden',
+            transform: 'skewY(1deg)',
+            transformOrigin: 'right center',
+            background: `linear-gradient(90deg, ${primary}, ${secondary})`,
+            opacity: isDark ? 0.95 : 0.9
+          }}
+        />
+      </Box>
+
       <HomeMarquee />
       <AboutUs />
       <Box
@@ -863,8 +986,7 @@ export default function Home() {
           position: 'relative',
           width: '100%',
           height: { xs: '3.5rem', md: '4rem' },
-          zIndex: 2,
-          marginTop: { xs: 0, md: 2 }
+          zIndex: 2
         }}
       >
         <Box
@@ -889,8 +1011,7 @@ export default function Home() {
           position: 'relative',
           width: '100%',
           height: { xs: '3.5rem', md: '4rem' },
-          zIndex: 2,
-          marginTop: { xs: 0, md: 2 }
+          zIndex: 2
         }}
       >
         <Box
@@ -963,8 +1084,7 @@ export default function Home() {
           position: 'relative',
           width: '100%',
           height: { xs: '3.5rem', md: '4rem' },
-          zIndex: 2,
-          marginTop: { xs: 0, md: 2 }
+          zIndex: 2
         }}
       >
         <Box

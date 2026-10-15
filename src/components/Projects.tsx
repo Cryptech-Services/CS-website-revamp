@@ -22,6 +22,7 @@ import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceW
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
 import SportsEsportsRoundedIcon from '@mui/icons-material/SportsEsportsRounded';
+import PageviewRoundedIcon from '@mui/icons-material/PageviewRounded';
 
 type ProjectType = 'web' | 'web3' | 'design' | 'game';
 
@@ -315,7 +316,6 @@ export default function Projects({
             {description}
           </Typography>
         </Stack>
-
         {/* Category filters */}
         <Stack
           direction="row"
@@ -363,9 +363,9 @@ export default function Projects({
             );
           })}
         </Stack>
-
         {/* Paginated project grid */}
-        <Grid container spacing={{ xs: 3, md: 3.5 }}>
+
+        <Grid container spacing={{ xs: 2.5, md: 3 }}>
           {visibleProjects.map((project) => (
             <Grid
               key={project.number}
@@ -377,28 +377,77 @@ export default function Projects({
             >
               <Box
                 sx={{
+                  position: 'relative',
                   display: 'flex',
                   flexDirection: project.featured
                     ? { xs: 'column', md: 'row' }
                     : 'column',
                   height: '100%',
-                  minHeight: project.featured ? { md: 380 } : 0,
-                  border: `1px solid ${borderColor}`,
-                  borderRadius: '24px',
+                  minHeight: project.featured ? { xs: 0, md: 390 } : 0,
                   overflow: 'hidden',
-                  bgcolor: alpha(cardSurface, isDark ? 0.94 : 0.98),
+                  isolation: 'isolate',
+                  border: `1px solid ${borderColor}`,
+                  borderRadius: { xs: '20px', md: '24px' },
+                  bgcolor: alpha(cardSurface, isDark ? 0.96 : 0.99),
                   transition:
-                    'transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease',
+                    'transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 280ms ease, box-shadow 280ms ease',
+
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: '12%',
+                    right: '12%',
+                    height: '1px',
+                    background: `linear-gradient(90deg, transparent, ${alpha(
+                      primary,
+                      0.7
+                    )}, transparent)`,
+                    opacity: 0.35,
+                    transition: 'opacity 280ms ease',
+                    zIndex: 2,
+                    pointerEvents: 'none'
+                  },
+
                   '&:hover': {
                     transform: 'translateY(-5px)',
                     borderColor: alpha(primary, 0.45),
-                    boxShadow: `0 20px 55px ${alpha(
+                    boxShadow: `0 22px 55px ${alpha(
                       headingColor,
-                      isDark ? 0.17 : 0.08
+                      isDark ? 0.16 : 0.075
                     )}`
                   },
+
+                  '&:hover::before': {
+                    opacity: 1
+                  },
+
                   '&:hover .project-art': {
                     transform: 'scale(1.035)'
+                  },
+
+                  '&:hover .project-art-overlay': {
+                    opacity: 0.65
+                  },
+
+                  '&:hover .project-arrow': {
+                    color: primary,
+                    transform: 'translate(3px, -3px)'
+                  },
+
+                  '&:hover .project-link': {
+                    borderColor: alpha(primary, 0.28),
+                    bgcolor: alpha(primary, isDark ? 0.1 : 0.055)
+                  },
+
+                  '@media (prefers-reduced-motion: reduce)': {
+                    transition: 'none',
+                    '&:hover': {
+                      transform: 'none'
+                    },
+                    '& .project-art, & .project-arrow': {
+                      transition: 'none'
+                    }
                   }
                 }}
               >
@@ -406,246 +455,414 @@ export default function Projects({
                 <Box
                   sx={{
                     position: 'relative',
-                    flex: project.featured ? '1.2 1 0' : 'none',
+                    flex: project.featured ? '1.15 1 0' : 'none',
                     minWidth: 0,
-                    minHeight: project.featured ? 300 : 245,
+                    minHeight: project.featured
+                      ? { xs: 230, sm: 300, md: 0 }
+                      : { xs: 220, sm: 250 },
+                    aspectRatio: project.featured
+                      ? { xs: '16 / 9', md: 'auto' }
+                      : '16 / 10',
                     overflow: 'hidden',
+                    bgcolor: alpha(primary, isDark ? 0.08 : 0.045),
                     background:
                       project.type === 'web3'
                         ? `linear-gradient(145deg, ${alpha(
                             secondary,
-                            0.24
-                          )}, ${alpha(primary, 0.1)})`
+                            0.2
+                          )}, ${alpha(primary, 0.08)})`
                         : project.type === 'design'
                           ? `linear-gradient(145deg, ${alpha(
                               primary,
-                              0.18
-                            )}, ${alpha(secondary, 0.13)})`
+                              0.15
+                            )}, ${alpha(secondary, 0.1)})`
                           : project.type === 'game'
                             ? `linear-gradient(145deg, ${alpha(
                                 secondary,
-                                0.2
-                              )}, ${alpha(primary, 0.12)})`
+                                0.17
+                              )}, ${alpha(primary, 0.1)})`
                             : `linear-gradient(145deg, ${alpha(
                                 primary,
-                                0.2
-                              )}, ${alpha(secondary, 0.1)})`
+                                0.15
+                              )}, ${alpha(secondary, 0.08)})`
                   }}
                 >
+                  {/* Decorative grid */}
+                  <Box
+                    aria-hidden="true"
+                    sx={{
+                      position: 'absolute',
+                      inset: 0,
+                      zIndex: 1,
+                      pointerEvents: 'none',
+                      opacity: isDark ? 0.22 : 0.15,
+                      backgroundImage: `radial-gradient(${alpha(
+                        primary,
+                        0.65
+                      )} 0.8px, transparent 0.8px)`,
+                      backgroundSize: '22px 22px',
+                      maskImage:
+                        'linear-gradient(to bottom right, black, transparent 85%)'
+                    }}
+                  />
+
+                  {/* Artwork */}
                   <Box
                     className="project-art"
                     sx={{
                       position: 'absolute',
-                      inset: 0,
+                      inset: { xs: 12, sm: 16 },
                       display: 'grid',
                       placeItems: 'center',
-                      p: { xs: 2, sm: 1 },
-                      transition: 'transform 350ms ease'
+                      transition:
+                        'transform 450ms cubic-bezier(0.2, 0.8, 0.2, 1)'
                     }}
                   >
                     <Box
                       component="img"
                       src={project.banner}
-                      alt={`${project.title} banner`}
+                      alt={`${project.title} project preview`}
+                      loading="lazy"
+                      decoding="async"
                       sx={{
                         display: 'block',
                         width: '100%',
-                        aspectRatio: '16 / 9',
-                        objectFit: 'cover',
-                        borderRadius: 3,
-                        mb: 2
+                        height: '100%',
+                        objectFit: 'contain',
+                        borderRadius: '14px',
+                        filter: isDark
+                          ? 'drop-shadow(0 12px 24px rgba(0, 0, 0, 0.22))'
+                          : 'drop-shadow(0 12px 24px rgba(0, 0, 0, 0.08))'
                       }}
                     />
                   </Box>
 
-                  {/* Category badge */}
+                  {/* Bottom artwork fade */}
+                  <Box
+                    className="project-art-overlay"
+                    sx={{
+                      position: 'absolute',
+                      inset: 0,
+                      zIndex: 1,
+                      pointerEvents: 'none',
+                      opacity: 0.4,
+                      background: `linear-gradient(to top, ${alpha(
+                        headingColor,
+                        isDark ? 0.2 : 0.12
+                      )}, transparent 55%)`,
+                      transition: 'opacity 280ms ease'
+                    }}
+                  />
+
+                  {/* Category */}
                   <Box
                     sx={{
                       position: 'absolute',
-                      top: 18,
-                      left: 18,
-                      px: 1.2,
-                      py: 0.7,
-                      borderRadius: '8px',
-                      bgcolor: alpha(cardSurface, isDark ? 0.9 : 0.92),
-                      border: `1px solid ${alpha(headingColor, 0.12)}`,
-                      backdropFilter: 'blur(10px)'
+                      zIndex: 2,
+                      top: 16,
+                      left: 16,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 0.8,
+                      px: 1.25,
+                      py: 0.8,
+                      borderRadius: '9px',
+                      bgcolor: alpha(cardSurface, isDark ? 0.88 : 0.94),
+                      border: `1px solid ${alpha(headingColor, 0.1)}`,
+                      backdropFilter: 'blur(12px)',
+                      maxWidth: 'calc(100% - 32px)'
                     }}
                   >
+                    <Box
+                      sx={{
+                        width: 6,
+                        height: 6,
+                        flexShrink: 0,
+                        borderRadius: '50%',
+                        bgcolor: primary,
+                        boxShadow: `0 0 9px ${alpha(primary, 0.45)}`
+                      }}
+                    />
+
                     <Typography
                       sx={{
-                        fontSize: '0.66rem',
+                        color: headingColor,
+                        fontSize: '0.64rem',
                         fontWeight: 800,
-                        letterSpacing: '0.1em',
-                        color: headingColor
+                        letterSpacing: '0.09em',
+                        textTransform: 'uppercase',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
                       }}
                     >
                       {project.category}
                     </Typography>
                   </Box>
 
+                  {/* Featured badge */}
                   {project.featured && (
                     <Box
                       sx={{
                         position: 'absolute',
-                        top: 18,
-                        right: 18,
+                        zIndex: 2,
+                        top: 16,
+                        right: 16,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 0.7,
                         px: 1.2,
-                        py: 0.7,
-                        borderRadius: '8px',
-                        bgcolor: alpha(primary, 0.13),
-                        border: `1px solid ${alpha(primary, 0.3)}`
+                        py: 0.8,
+                        borderRadius: '9px',
+                        bgcolor: alpha(primary, isDark ? 0.16 : 0.11),
+                        border: `1px solid ${alpha(primary, 0.3)}`,
+                        backdropFilter: 'blur(12px)'
                       }}
                     >
+                      <AutoAwesomeRoundedIcon
+                        sx={{ fontSize: 14, color: primary }}
+                      />
+
                       <Typography
                         sx={{
                           color: primary,
-                          fontSize: '0.66rem',
+                          fontSize: '0.64rem',
                           fontWeight: 800,
-                          letterSpacing: '0.1em'
+                          letterSpacing: '0.08em'
                         }}
                       >
                         FEATURED
                       </Typography>
                     </Box>
                   )}
+
+                  {/* Project number */}
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      zIndex: 2,
+                      right: 16,
+                      bottom: 16,
+                      px: 1,
+                      py: 0.55,
+                      borderRadius: '7px',
+                      bgcolor: alpha(cardSurface, isDark ? 0.82 : 0.9),
+                      border: `1px solid ${alpha(headingColor, 0.1)}`,
+                      backdropFilter: 'blur(10px)'
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        color: mutedColor,
+                        fontFamily: 'monospace',
+                        fontSize: '0.68rem',
+                        fontWeight: 700,
+                        letterSpacing: '0.05em'
+                      }}
+                    >
+                      {`NO. ${String(project.number).padStart(2, '0')}`}
+                    </Typography>
+                  </Box>
                 </Box>
 
                 {/* Project details */}
                 <Stack
-                  spacing={2}
+                  spacing={2.2}
                   sx={{
+                    position: 'relative',
                     flex: 1,
                     minWidth: 0,
-                    p: { xs: 2.5, md: 3.2 }
+                    p: { xs: 2.5, md: project.featured ? 3.5 : 3 },
+                    justifyContent: 'flex-start'
                   }}
                 >
+                  {/* Eyebrow and arrow */}
                   <Stack
                     direction="row"
                     sx={{
                       justifyContent: 'space-between',
-                      alignItems: 'center'
+                      alignItems: 'center',
+                      gap: 1
                     }}
                   >
                     <Typography
                       sx={{
                         color: primary,
                         fontFamily: 'monospace',
-                        fontSize: '0.75rem',
+                        fontSize: '0.7rem',
                         fontWeight: 700,
-                        letterSpacing: '0.04em'
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase'
                       }}
                     >
-                      PROJECT / {project.number}
+                      Selected work / {String(project.number).padStart(2, '0')}
                     </Typography>
 
                     <ArrowOutwardRoundedIcon
-                      sx={{ color: mutedColor, fontSize: 20 }}
+                      className="project-arrow"
+                      sx={{
+                        flexShrink: 0,
+                        color: mutedColor,
+                        fontSize: 20,
+                        transition: 'transform 220ms ease, color 220ms ease'
+                      }}
                     />
                   </Stack>
 
+                  {/* Title */}
                   <Typography
                     component="h3"
                     sx={{
+                      color: headingColor,
                       fontSize: project.featured
-                        ? { xs: '1.5rem', md: '2rem' }
-                        : '1.35rem',
+                        ? { xs: '1.55rem', sm: '1.8rem', md: '2rem' }
+                        : '1.3rem',
                       fontWeight: 800,
-                      letterSpacing: '-0.035em',
-                      lineHeight: 1.3
+                      letterSpacing: '-0.04em',
+                      lineHeight: 1.3,
+                      overflowWrap: 'anywhere'
                     }}
                   >
                     {project.title}
                   </Typography>
 
+                  {/* Description */}
                   <Typography
                     sx={{
                       color: mutedColor,
-                      fontSize: '0.9rem',
-                      lineHeight: 1.85,
-                      flexGrow: 1
+                      fontSize: '0.875rem',
+                      lineHeight: 1.9,
+                      flexGrow: 1,
+                      display: '-webkit-box',
+                      WebkitBoxOrient: 'vertical',
+                      WebkitLineClamp: project.featured ? 5 : 4,
+                      overflow: 'hidden'
                     }}
                   >
                     {project.description}
                   </Typography>
 
-                  {/* Technology tags */}
-                  <Stack
-                    direction="row"
-                    sx={{
-                      flexWrap: 'wrap',
-                      gap: 0.8
-                    }}
-                  >
-                    {project.technologies.map((technology) => (
-                      <Chip
-                        key={technology}
-                        label={technology}
-                        size="small"
-                        variant="outlined"
-                        sx={{
-                          borderRadius: '8px',
-                          borderColor: alpha(secondary, 0.27),
-                          bgcolor: alpha(secondary, isDark ? 0.06 : 0.035),
-                          color: mutedColor,
-                          fontSize: '0.72rem',
-                          '& .MuiChip-label': {
-                            px: 1.1
-                          }
-                        }}
-                      />
-                    ))}
-                  </Stack>
+                  {/* Technology section */}
+                  <Box>
+                    <Typography
+                      sx={{
+                        mb: 1.1,
+                        color: alpha(mutedColor, 0.8),
+                        fontSize: '0.65rem',
+                        fontWeight: 800,
+                        letterSpacing: '0.12em',
+                        textTransform: 'uppercase'
+                      }}
+                    >
+                      Built with
+                    </Typography>
 
-                  {/* Optional project links */}
+                    <Stack
+                      direction="row"
+                      sx={{
+                        flexWrap: 'wrap',
+                        gap: 0.8
+                      }}
+                    >
+                      {project.technologies.map((technology) => (
+                        <Chip
+                          key={technology}
+                          label={technology}
+                          size="small"
+                          variant="outlined"
+                          sx={{
+                            height: 27,
+                            borderRadius: '8px',
+                            borderColor: alpha(secondary, 0.22),
+                            bgcolor: alpha(secondary, isDark ? 0.055 : 0.03),
+                            color: mutedColor,
+                            fontSize: '0.69rem',
+                            fontWeight: 600,
+                            transition:
+                              'border-color 220ms ease, background-color 220ms ease',
+                            '& .MuiChip-label': {
+                              px: 1.1
+                            }
+                          }}
+                        />
+                      ))}
+                    </Stack>
+                  </Box>
+
+                  {/* Project links */}
                   {(project.liveUrl || project.sourceUrl) && (
                     <Stack
                       direction="row"
-                      spacing={2}
+                      spacing={1}
                       sx={{
                         flexWrap: 'wrap',
-                        rowGap: 1,
+                        gap: 1,
                         pt: 2,
                         borderTop: `1px solid ${borderColor}`
                       }}
                     >
                       {project.liveUrl && (
                         <MuiLink
+                          className="project-link"
                           href={project.liveUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           underline="none"
+                          aria-label={`View live preview of ${project.title}`}
                           sx={{
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: 0.7,
+                            justifyContent: 'center',
+                            gap: 0.8,
+                            minHeight: 38,
+                            px: 1.3,
+                            py: 0.8,
+                            border: `1px solid ${alpha(primary, 0.22)}`,
+                            borderRadius: '10px',
+                            bgcolor: alpha(primary, isDark ? 0.07 : 0.035),
                             color: primary,
-                            fontSize: '0.84rem',
+                            fontSize: '0.78rem',
                             fontWeight: 700,
+                            transition:
+                              'border-color 220ms ease, background-color 220ms ease',
                             '&:hover': {
-                              color: secondary
+                              color: primary
                             }
                           }}
                         >
-                          <LanguageRoundedIcon sx={{ fontSize: 18 }} />
+                          <LanguageRoundedIcon sx={{ fontSize: 17 }} />
                           Live Preview
-                          <ArrowOutwardRoundedIcon sx={{ fontSize: 15 }} />
+                          <ArrowOutwardRoundedIcon sx={{ fontSize: 14 }} />
                         </MuiLink>
                       )}
 
                       {project.sourceUrl && (
                         <MuiLink
+                          className="project-link"
                           href={project.sourceUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           underline="none"
+                          aria-label={`View source code for ${project.title}`}
                           sx={{
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: 0.7,
+                            justifyContent: 'center',
+                            gap: 0.8,
+                            minHeight: 38,
+                            px: 1.3,
+                            py: 0.8,
+                            border: `1px solid ${borderColor}`,
+                            borderRadius: '10px',
+                            bgcolor: alpha(
+                              headingColor,
+                              isDark ? 0.025 : 0.015
+                            ),
                             color: mutedColor,
-                            fontSize: '0.84rem',
+                            fontSize: '0.78rem',
                             fontWeight: 700,
+                            transition:
+                              'border-color 220ms ease, background-color 220ms ease, color 220ms ease',
                             '&:hover': {
                               color: primary
                             }
@@ -653,7 +870,7 @@ export default function Projects({
                         >
                           <GitHubIcon sx={{ fontSize: 17 }} />
                           Source Code
-                          <ArrowOutwardRoundedIcon sx={{ fontSize: 15 }} />
+                          <ArrowOutwardRoundedIcon sx={{ fontSize: 14 }} />
                         </MuiLink>
                       )}
                     </Stack>
@@ -663,17 +880,64 @@ export default function Projects({
             </Grid>
           ))}
 
+          {/* Empty state */}
           {filteredProjects.length === 0 && (
             <Grid size={{ xs: 12 }}>
-              <Typography
+              <Box
                 sx={{
-                  color: mutedColor,
-                  py: 6,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  py: { xs: 7, md: 9 },
+                  px: 3,
+                  border: `1px dashed ${borderColor}`,
+                  borderRadius: '24px',
+                  bgcolor: alpha(cardSurface, isDark ? 0.45 : 0.6),
                   textAlign: 'center'
                 }}
               >
-                No projects in this category yet.
-              </Typography>
+                <Box
+                  sx={{
+                    display: 'grid',
+                    placeItems: 'center',
+                    width: 52,
+                    height: 52,
+                    mb: 2,
+                    borderRadius: '16px',
+                    color: mutedColor,
+                    bgcolor: alpha(headingColor, isDark ? 0.06 : 0.035),
+                    border: `1px solid ${borderColor}`
+                  }}
+                >
+                  <PageviewRoundedIcon sx={{ fontSize: 32 }} />
+                </Box>
+
+                <Typography
+                  component="h3"
+                  sx={{
+                    mb: 0.8,
+                    color: headingColor,
+                    fontSize: '1.05rem',
+                    fontWeight: 750,
+                    letterSpacing: '-0.02em'
+                  }}
+                >
+                  No projects found
+                </Typography>
+
+                <Typography
+                  sx={{
+                    maxWidth: 340,
+                    color: mutedColor,
+                    fontSize: '0.875rem',
+                    lineHeight: 1.8
+                  }}
+                >
+                  There are no projects in this category yet. Try selecting
+                  another category to explore more work.
+                </Typography>
+              </Box>
             </Grid>
           )}
         </Grid>

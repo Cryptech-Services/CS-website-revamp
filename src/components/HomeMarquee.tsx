@@ -81,38 +81,9 @@ export default function HomeMarquee() {
         position: 'relative',
         width: '100%',
         height: { xs: '3.5rem', md: '4rem' },
-        zIndex: 2,
-        marginTop: { xs: 0, md: 2 }
+        zIndex: 2
       }}
     >
-      {/* Angled background layer */}
-
-      <Box
-        aria-hidden="true"
-        sx={{
-          position: 'absolute',
-          inset: 0,
-          overflow: 'hidden',
-          transform: 'skewY(-2deg)',
-          transformOrigin: 'right center',
-          background: `linear-gradient(90deg, ${primary}, ${secondary})`,
-          opacity: isDark ? 0.95 : 0.9
-        }}
-      />
-
-      <Box
-        aria-hidden="true"
-        sx={{
-          position: 'absolute',
-          inset: 0,
-          overflow: 'hidden',
-          transform: 'skewY(2deg)',
-          transformOrigin: 'right center',
-          background: `linear-gradient(90deg, ${primary}, ${secondary})`,
-          opacity: isDark ? 0.95 : 0.9
-        }}
-      />
-
       {/* Scrolling services */}
       <Box
         sx={{

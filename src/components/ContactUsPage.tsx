@@ -16,11 +16,14 @@ import {
 import { alpha, useTheme } from '@mui/material/styles';
 import {
   ArrowForwardRounded,
+  ArrowOutwardRounded,
+  CheckCircleOutlineRounded,
   EmailOutlined,
   LocationOnOutlined,
   PhoneOutlined,
   SendRounded,
-  ScheduleOutlined
+  ScheduleOutlined,
+  TerminalRounded
 } from '@mui/icons-material';
 
 type ContactForm = {
@@ -45,22 +48,50 @@ const initialForm: ContactForm = {
   message: ''
 };
 
+const contactItems = [
+  {
+    icon: EmailOutlined,
+    label: 'Email',
+    value: 'inquiries@cryptech.services',
+    detail: 'Send us your project inquiry.',
+    href: 'mailto:inquiries@cryptech.services'
+  },
+  {
+    icon: PhoneOutlined,
+    label: 'Schedule a call',
+    value: 'By appointment',
+    detail: 'Reach out by email to arrange a call.',
+    href: 'mailto:inquiries@cryptech.services'
+  },
+  {
+    icon: LocationOnOutlined,
+    label: 'Location',
+    value: 'United States',
+    detail: 'Serving digital projects remotely.',
+    href: undefined
+  },
+  {
+    icon: ScheduleOutlined,
+    label: 'Availability',
+    value: 'Monday – Friday',
+    detail: 'Send a message anytime.',
+    href: undefined
+  }
+];
+
 export default function ContactUsPage() {
   const theme = useTheme();
-  const customTheme = theme;
   const isDark = theme.palette.mode === 'dark';
 
-  const primary = customTheme.colorScale?.[9] ?? theme.palette.primary.main;
-  const secondary =
-    customTheme.secondaryScale?.[9] ?? theme.palette.secondary.main;
-  const headingColor =
-    customTheme.grayScale?.[12] ?? theme.palette.text.primary;
-  const mutedColor =
-    customTheme.grayScale?.[10] ?? theme.palette.text.secondary;
+  const primary = theme.colorScale?.[9] ?? theme.palette.primary.main;
+  const secondary = theme.secondaryScale?.[9] ?? theme.palette.secondary.main;
+  const headingColor = theme.grayScale?.[12] ?? theme.palette.text.primary;
+  const mutedColor = theme.grayScale?.[10] ?? theme.palette.text.secondary;
   const surface =
-    customTheme.backgroundScale?.[2] ?? theme.palette.background.default;
+    theme.backgroundScale?.[1] ?? theme.palette.background.default;
   const cardSurface =
-    customTheme.secondaryScale?.[4] ?? theme.palette.background.paper;
+    theme.secondaryScale?.[4] ?? theme.palette.background.paper;
+
   const borderColor = alpha(headingColor, isDark ? 0.13 : 0.1);
 
   const [form, setForm] = useState<ContactForm>(initialForm);
@@ -132,7 +163,10 @@ export default function ContactUsPage() {
 
       const responseText = await response.text();
 
-      let data: { message?: string; error?: string } | null = null;
+      let data: {
+        message?: string;
+        error?: string;
+      } | null = null;
 
       if (responseText) {
         try {
@@ -142,7 +176,6 @@ export default function ContactUsPage() {
         }
       }
 
-      // Treat every non-2xx response as a failed submission.
       if (!response.ok) {
         throw new Error(
           data?.message ||
@@ -151,7 +184,6 @@ export default function ContactUsPage() {
         );
       }
 
-      // The API must return an actual success response to reach this point.
       showNotice(
         data?.message || 'Your message has been sent successfully!',
         'success'
@@ -172,37 +204,10 @@ export default function ContactUsPage() {
     }
   };
 
-  const contactItems = [
-    {
-      icon: <EmailOutlined />,
-      label: 'Email us',
-      value: 'inquiries@cryptech.services',
-      href: 'mailto:inquiries@cryptech.services'
-    },
-    {
-      icon: <PhoneOutlined />,
-      label: 'Call us',
-      value: 'Contact us by email to arrange a call',
-      href: 'mailto:inquiries@cryptech.services'
-    },
-    {
-      icon: <LocationOnOutlined />,
-      label: 'Our location',
-      value: 'US',
-      href: undefined
-    },
-    {
-      icon: <ScheduleOutlined />,
-      label: 'Working hours',
-      value: 'Monday – Friday',
-      href: undefined
-    }
-  ];
-
   const fieldSx = {
     '& .MuiOutlinedInput-root': {
-      borderRadius: 2.5,
-      backgroundColor: alpha(headingColor, isDark ? 0.025 : 0.018),
+      borderRadius: '12px',
+      backgroundColor: alpha(headingColor, isDark ? 0.025 : 0.015),
       transition: theme.transitions.create([
         'border-color',
         'box-shadow',
@@ -212,15 +217,15 @@ export default function ContactUsPage() {
         borderColor
       },
       '&:hover fieldset': {
-        borderColor: alpha(primary, 0.65)
+        borderColor: alpha(primary, 0.55)
       },
       '&.Mui-focused': {
-        backgroundColor: alpha(primary, isDark ? 0.045 : 0.025),
-        boxShadow: `0 0 0 3px ${alpha(primary, 0.1)}`
+        backgroundColor: alpha(primary, 0.035),
+        boxShadow: `0 0 0 3px ${alpha(primary, 0.09)}`
       },
       '&.Mui-focused fieldset': {
         borderColor: primary,
-        borderWidth: 1
+        borderWidth: '1px'
       }
     },
     '& .MuiInputLabel-root': {
@@ -230,11 +235,12 @@ export default function ContactUsPage() {
       color: primary
     },
     '& .MuiInputBase-input': {
-      color: headingColor
+      color: headingColor,
+      fontSize: '0.925rem'
     },
     '& .MuiInputBase-input::placeholder': {
       color: mutedColor,
-      opacity: 0.75
+      opacity: 0.7
     }
   };
 
@@ -245,73 +251,88 @@ export default function ContactUsPage() {
         position: 'relative',
         isolation: 'isolate',
         overflow: 'hidden',
-        py: { xs: 7, sm: 9, md: 12 },
+        py: { xs: 7, sm: 10, md: 14 },
         color: headingColor,
         backgroundColor: surface
       }}
     >
-      {/* Decorative background */}
+      {/* Background decoration */}
       <Box
         aria-hidden="true"
         sx={{
           position: 'absolute',
-          zIndex: 0,
-          bottom: 80,
-          left: '-8%',
-          width: { xs: 220, md: 380 },
-          height: { xs: 220, md: 380 },
+          zIndex: -1,
+          top: -170,
+          right: { xs: -150, md: -80 },
+          width: { xs: 300, md: 560 },
+          height: { xs: 300, md: 560 },
           borderRadius: '50%',
-          border: `2px solid ${alpha(primary, 0.3)}`,
+          background: `radial-gradient(circle, ${alpha(
+            primary,
+            isDark ? 0.14 : 0.09
+          )} 0%, transparent 70%)`,
+          pointerEvents: 'none'
+        }}
+      />
+
+      <Box
+        aria-hidden="true"
+        sx={{
+          position: 'absolute',
+          zIndex: -1,
+          top: '38%',
+          left: -190,
+          width: 360,
+          height: 360,
+          borderRadius: '50%',
+          border: `1px solid ${alpha(primary, 0.12)}`,
           boxShadow: `
-            0 0 0 40px ${alpha(primary, 0.09)},
-            0 0 0 80px ${alpha(primary, 0.055)}
+            0 0 0 40px ${alpha(primary, 0.035)},
+            0 0 0 80px ${alpha(primary, 0.025)}
           `,
           pointerEvents: 'none'
         }}
       />
 
-      <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
-        {/* Page heading */}
+      <Container maxWidth="lg" sx={{ position: 'relative' }}>
+        {/* Header */}
         <Stack
-          spacing={2.5}
+          spacing={3}
           sx={{
-            maxWidth: 760,
-            mb: { xs: 5, md: 7 }
+            maxWidth: 820,
+            mb: { xs: 5, md: 8 }
           }}
         >
           <Box
             sx={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: 1,
               alignSelf: 'flex-start',
+              gap: 1,
               px: 1.5,
-              py: 0.75,
+              py: 0.85,
               border: `1px solid ${alpha(primary, 0.25)}`,
-              borderRadius: 99,
-              color: primary,
-              backgroundColor: alpha(primary, 0.07)
+              borderRadius: '8px',
+              backgroundColor: alpha(primary, 0.055)
             }}
           >
-            <Box
+            <TerminalRounded
               sx={{
-                width: 7,
-                height: 7,
-                borderRadius: '50%',
-                backgroundColor: primary,
-                boxShadow: `0 0 12px ${alpha(primary, 0.7)}`
+                fontSize: 17,
+                color: primary
               }}
             />
 
             <Typography
               variant="overline"
               sx={{
-                fontWeight: 700,
-                letterSpacing: '0.12em',
+                color: primary,
+                fontWeight: 800,
+                letterSpacing: '0.14em',
                 lineHeight: 1.5
               }}
             >
-              CONTACT CRYPTECH SERVICES
+              LET&apos;S CONNECT
             </Typography>
           </Box>
 
@@ -319,190 +340,296 @@ export default function ContactUsPage() {
             component="h1"
             variant="h2"
             sx={{
-              fontWeight: 800,
-              lineHeight: 1.05,
-              letterSpacing: '-0.055em',
-              color: headingColor,
-              maxWidth: 760
+              maxWidth: 800,
+              fontWeight: 850,
+              lineHeight: { xs: 1.08, md: 1.02 },
+              letterSpacing: {
+                xs: '-0.055em',
+                md: '-0.075em'
+              },
+              color: headingColor
             }}
           >
-            Have a project
+            Let&apos;s build
             <Box
               component="span"
               sx={{
-                display: 'block',
+                display: { xs: 'block', sm: 'inline' },
                 color: primary
               }}
             >
-              in mind?
+              {' '}
+              something exceptional.
             </Box>
           </Typography>
 
           <Typography
             sx={{
-              maxWidth: 590,
+              maxWidth: 600,
               color: mutedColor,
-              fontSize: { xs: '1rem', md: '1.125rem' },
+              fontSize: {
+                xs: '1rem',
+                md: '1.1rem'
+              },
               lineHeight: 1.9
             }}
           >
-            Let&apos;s turn your ideas into reliable digital solutions. Tell us
-            what you&apos;re building, what you need, and how we can help bring
-            your vision to life.
+            Great digital experiences start with a conversation. Tell us about
+            your idea, your challenges, or the solution you have in mind.
+            Let&apos;s make it happen.
           </Typography>
+
+          <Stack
+            direction="row"
+            spacing={1.25}
+            sx={{ alignItems: 'center', pt: 0.5 }}
+          >
+            <Box
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                backgroundColor: '#30A46C',
+                boxShadow: '0 0 12px rgba(48, 164, 108, 0.45)'
+              }}
+            />
+
+            <Typography
+              sx={{
+                color: mutedColor,
+                fontSize: '0.8rem',
+                fontWeight: 600
+              }}
+            >
+              Ready to discuss your next project
+            </Typography>
+          </Stack>
         </Stack>
 
-        {/* Main contact section */}
+        {/* Contact layout */}
         <Grid
           container
           spacing={{ xs: 3, md: 4 }}
           sx={{ alignItems: 'stretch' }}
         >
-          {/* Contact information */}
+          {/* Left panel */}
           <Grid size={{ xs: 12, md: 5 }}>
             <Paper
               elevation={0}
               sx={{
                 position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
                 height: '100%',
+                minHeight: { md: 680 },
                 overflow: 'hidden',
-                p: { xs: 3, sm: 4 },
-                borderRadius: 4,
-                border: `1px solid ${borderColor}`,
-                backgroundColor: cardSurface,
-                backgroundImage: `linear-gradient(150deg, ${alpha(primary, isDark ? 0.11 : 0.065)}, transparent 55%)`
+                p: { xs: 3, sm: 4, md: 4.5 },
+                borderRadius: '20px',
+                border: `1px solid ${alpha(
+                  headingColor,
+                  isDark ? 0.14 : 0.08
+                )}`,
+                color: '#F5F7FA',
+                backgroundColor: isDark ? cardSurface : cardSurface,
+                backgroundImage: `
+                  radial-gradient(
+                    ellipse at 0% 0%,
+                    ${alpha(primary, 0.28)},
+                    transparent 55%
+                  )
+                `
               }}
             >
-              <Stack spacing={3.5} sx={{ height: '100%' }}>
+              {/* Decorative rings */}
+              <Box
+                aria-hidden="true"
+                sx={{
+                  position: 'absolute',
+                  right: -100,
+                  bottom: 110,
+                  width: 280,
+                  height: 280,
+                  borderRadius: '50%',
+                  border: `1px solid ${alpha('#FFFFFF', 0.09)}`,
+                  boxShadow: `
+                    0 0 0 35px ${alpha('#FFFFFF', 0.025)},
+                    0 0 0 70px ${alpha('#FFFFFF', 0.02)}
+                  `,
+                  pointerEvents: 'none'
+                }}
+              />
+
+              <Stack
+                spacing={4}
+                sx={{
+                  position: 'relative',
+                  zIndex: 1,
+                  flex: 1
+                }}
+              >
                 <Box>
                   <Typography
-                    component="h2"
-                    variant="h5"
                     sx={{
-                      mb: 1.25,
-                      fontWeight: 750,
-                      letterSpacing: '-0.025em',
-                      color: headingColor
+                      mb: 1.5,
+                      color: alpha('#FFFFFF', 0.55),
+                      fontSize: '0.75rem',
+                      fontWeight: 800,
+                      letterSpacing: '0.15em',
+                      textTransform: 'uppercase'
                     }}
                   >
-                    Let&apos;s talk
+                    Contact information
+                  </Typography>
+
+                  <Typography
+                    component="h2"
+                    sx={{
+                      mb: 1.5,
+                      color: '#FFFFFF',
+                      fontSize: {
+                        xs: '1.8rem',
+                        md: '2.15rem'
+                      },
+                      fontWeight: 800,
+                      letterSpacing: '-0.045em',
+                      lineHeight: 1.15
+                    }}
+                  >
+                    We&apos;re all ears.
                   </Typography>
 
                   <Typography
                     sx={{
-                      color: mutedColor,
-                      lineHeight: 1.85,
-                      fontSize: '0.95rem'
+                      maxWidth: 340,
+                      color: alpha('#FFFFFF', 0.67),
+                      fontSize: '0.9rem',
+                      lineHeight: 1.9
                     }}
                   >
-                    Whether you need a new website, a custom application, or
-                    help improving an existing system, we&apos;re ready to hear
-                    about your project.
+                    Have a question or an ambitious idea? Tell us about it.
+                    We&apos;d love to hear what you&apos;re working on.
                   </Typography>
                 </Box>
 
-                <Stack spacing={2.5}>
-                  {contactItems.map((item) => (
-                    <Stack
-                      key={item.label}
-                      direction="row"
-                      spacing={2}
-                      sx={{ alignItems: 'flex-start' }}
-                    >
-                      <Box
-                        sx={{
-                          display: 'grid',
-                          placeItems: 'center',
-                          flexShrink: 0,
-                          width: 46,
-                          height: 46,
-                          borderRadius: 2.5,
-                          color: primary,
-                          backgroundColor: alpha(primary, 0.09),
-                          border: `1px solid ${alpha(primary, 0.13)}`,
-                          '& .MuiSvgIcon-root': {
-                            fontSize: 22
-                          }
-                        }}
-                      >
-                        {item.icon}
-                      </Box>
+                <Stack spacing={3}>
+                  {contactItems.map((item) => {
+                    const Icon = item.icon;
 
-                      <Box sx={{ minWidth: 0, pt: 0.25 }}>
-                        <Typography
+                    return (
+                      <Stack
+                        key={item.label}
+                        direction="row"
+                        spacing={2}
+                        sx={{ alignItems: 'flex-start' }}
+                      >
+                        <Box
                           sx={{
-                            mb: 0.5,
-                            fontWeight: 700,
-                            fontSize: '0.9rem',
-                            color: headingColor
+                            display: 'grid',
+                            placeItems: 'center',
+                            flexShrink: 0,
+                            width: 44,
+                            height: 44,
+                            borderRadius: '12px',
+                            color: primary,
+                            backgroundColor: alpha(primary, 0.15),
+                            border: `1px solid ${alpha(primary, 0.2)}`
                           }}
                         >
-                          {item.label}
-                        </Typography>
+                          <Icon sx={{ fontSize: 21 }} />
+                        </Box>
 
-                        {item.href ? (
+                        <Box sx={{ minWidth: 0, pt: 0.25 }}>
                           <Typography
-                            component="a"
-                            href={item.href}
                             sx={{
-                              color: mutedColor,
-                              fontSize: '0.875rem',
-                              lineHeight: 1.7,
-                              textDecoration: 'none',
-                              overflowWrap: 'anywhere',
-                              transition: 'color 160ms ease',
-                              '&:hover': {
-                                color: primary
-                              }
+                              mb: 0.45,
+                              color: alpha('#FFFFFF', 0.55),
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              letterSpacing: '0.035em'
                             }}
                           >
-                            {item.value}
+                            {item.label}
                           </Typography>
-                        ) : (
+
+                          {item.href ? (
+                            <Typography
+                              component="a"
+                              href={item.href}
+                              sx={{
+                                display: 'inline-block',
+                                color: '#FFFFFF',
+                                fontSize: '0.9rem',
+                                fontWeight: 700,
+                                lineHeight: 1.6,
+                                overflowWrap: 'anywhere',
+                                textDecoration: 'none',
+                                transition: 'color 160ms ease',
+                                '&:hover': { color: primary }
+                              }}
+                            >
+                              {item.value}
+                            </Typography>
+                          ) : (
+                            <Typography
+                              sx={{
+                                color: '#FFFFFF',
+                                fontSize: '0.9rem',
+                                fontWeight: 700,
+                                lineHeight: 1.6
+                              }}
+                            >
+                              {item.value}
+                            </Typography>
+                          )}
+
                           <Typography
                             sx={{
-                              color: mutedColor,
-                              fontSize: '0.875rem',
+                              mt: 0.4,
+                              color: alpha('#FFFFFF', 0.52),
+                              fontSize: '0.775rem',
                               lineHeight: 1.7
                             }}
                           >
-                            {item.value}
+                            {item.detail}
                           </Typography>
-                        )}
-                      </Box>
-                    </Stack>
-                  ))}
+                        </Box>
+                      </Stack>
+                    );
+                  })}
                 </Stack>
 
+                <Box sx={{ flex: 1, minHeight: 8 }} />
+
+                {/* Bottom CTA */}
                 <Box
                   sx={{
-                    mt: 'auto',
                     p: 2.5,
-                    borderRadius: 3,
-                    border: `1px solid ${alpha(primary, 0.2)}`,
-                    backgroundColor: alpha(primary, isDark ? 0.07 : 0.045)
+                    borderRadius: '14px',
+                    border: `1px solid ${alpha('#FFFFFF', 0.11)}`,
+                    backgroundColor: alpha('#FFFFFF', 0.045)
                   }}
                 >
                   <Typography
                     sx={{
                       mb: 0.75,
-                      color: headingColor,
-                      fontWeight: 700
+                      color: '#FFFFFF',
+                      fontWeight: 750,
+                      fontSize: '0.95rem'
                     }}
                   >
-                    Have a specific idea?
+                    Have something in mind?
                   </Typography>
 
                   <Typography
                     sx={{
                       mb: 2,
-                      color: mutedColor,
-                      fontSize: '0.875rem',
+                      color: alpha('#FFFFFF', 0.6),
+                      fontSize: '0.825rem',
                       lineHeight: 1.8
                     }}
                   >
-                    Share your goals and requirements. We&apos;ll use the
-                    details to understand what you need.
+                    No idea is too small to start a conversation. Let&apos;s
+                    explore the possibilities.
                   </Typography>
 
                   <Button
@@ -512,93 +639,130 @@ export default function ContactUsPage() {
                     sx={{
                       p: 0,
                       color: primary,
-                      fontWeight: 700,
+                      fontWeight: 750,
+                      fontSize: '0.875rem',
                       textTransform: 'none',
                       '&:hover': {
                         backgroundColor: 'transparent',
-                        color: secondary
+                        color: '#FFFFFF'
                       }
                     }}
                   >
-                    Start a conversation
+                    Tell us about it
                   </Button>
                 </Box>
               </Stack>
             </Paper>
           </Grid>
 
-          {/* Contact form */}
+          {/* Right panel: Form */}
           <Grid size={{ xs: 12, md: 7 }}>
             <Paper
               id="contact-form"
               elevation={0}
               sx={{
-                p: { xs: 3, sm: 4, md: 4.5 },
                 height: '100%',
-                borderRadius: 4,
+                p: { xs: 3, sm: 4, md: 4.5 },
+                borderRadius: '20px',
                 border: `1px solid ${borderColor}`,
                 backgroundColor: cardSurface,
                 scrollMarginTop: 32
               }}
             >
-              <Stack spacing={1} sx={{ mb: 3.5 }}>
-                <Typography
-                  component="h2"
-                  variant="h5"
-                  sx={{
-                    fontWeight: 750,
-                    letterSpacing: '-0.025em',
-                    color: headingColor
-                  }}
-                >
-                  Send us a message
-                </Typography>
-
-                <Typography
-                  sx={{
-                    color: mutedColor,
-                    fontSize: '0.9rem',
-                    lineHeight: 1.8
-                  }}
-                >
-                  Fill out the form below and tell us more about your project.
-                </Typography>
-              </Stack>
-
-              <Box component="form" onSubmit={handleSubmit} noValidate>
-                {/* Inline success and error notification */}
-                {formNotice.open && (
-                  <Alert
-                    severity={formNotice.severity}
-                    variant="filled"
-                    onClose={() =>
-                      setFormNotice((previous) => ({
-                        ...previous,
-                        open: false
-                      }))
-                    }
+              <Stack
+                direction="row"
+                spacing={2}
+                sx={{ alignItems: 'flex-start', mb: 4 }}
+              >
+                <Box sx={{ flex: 1 }}>
+                  <Typography
+                    component="h2"
                     sx={{
-                      mb: 2.5,
-                      borderRadius: 2,
-                      alignItems: 'center',
-                      overflowWrap: 'anywhere'
+                      mb: 1,
+                      color: headingColor,
+                      fontSize: {
+                        xs: '1.55rem',
+                        md: '1.9rem'
+                      },
+                      fontWeight: 800,
+                      letterSpacing: '-0.045em'
                     }}
                   >
-                    {formNotice.message}
-                  </Alert>
-                )}
+                    Send us a message
+                  </Typography>
 
+                  <Typography
+                    sx={{
+                      color: mutedColor,
+                      fontSize: '0.9rem',
+                      lineHeight: 1.8
+                    }}
+                  >
+                    Share a few details and we&apos;ll have a better
+                    understanding of how we can help.
+                  </Typography>
+                </Box>
+
+                <Box
+                  sx={{
+                    display: { xs: 'none', sm: 'grid' },
+                    placeItems: 'center',
+                    flexShrink: 0,
+                    width: 48,
+                    height: 48,
+                    borderRadius: '14px',
+                    color: primary,
+                    border: `1px solid ${alpha(primary, 0.18)}`,
+                    backgroundColor: alpha(primary, 0.07)
+                  }}
+                >
+                  <EmailOutlined />
+                </Box>
+              </Stack>
+
+              {formNotice.open && (
+                <Alert
+                  severity={formNotice.severity}
+                  variant="outlined"
+                  onClose={() =>
+                    setFormNotice((previous) => ({
+                      ...previous,
+                      open: false
+                    }))
+                  }
+                  icon={
+                    formNotice.severity === 'success' ? (
+                      <CheckCircleOutlineRounded />
+                    ) : undefined
+                  }
+                  sx={{
+                    mb: 3,
+                    borderRadius: '12px',
+                    alignItems: 'center',
+                    overflowWrap: 'anywhere'
+                  }}
+                >
+                  {formNotice.message}
+                </Alert>
+              )}
+
+              <Box component="form" onSubmit={handleSubmit} noValidate>
                 <Stack spacing={2.5}>
                   <TextField
                     fullWidth
                     required
                     label="Full name"
-                    placeholder="Enter your full name"
+                    placeholder="John Doe"
                     autoComplete="name"
                     value={form.name}
                     onChange={handleChange('name')}
                     disabled={loading}
                     sx={fieldSx}
+                    slotProps={{
+                      htmlInput: {
+                        maxLength: 120
+                      }
+                    }}
                   />
 
                   <TextField
@@ -612,17 +776,27 @@ export default function ContactUsPage() {
                     onChange={handleChange('email')}
                     disabled={loading}
                     sx={fieldSx}
+                    slotProps={{
+                      htmlInput: {
+                        maxLength: 254
+                      }
+                    }}
                   />
 
                   <TextField
                     fullWidth
                     required
                     label="Subject"
-                    placeholder="What would you like to discuss?"
+                    placeholder="What can we help you with?"
                     value={form.subject}
                     onChange={handleChange('subject')}
                     disabled={loading}
                     sx={fieldSx}
+                    slotProps={{
+                      htmlInput: {
+                        maxLength: 200
+                      }
+                    }}
                   />
 
                   <TextField
@@ -630,12 +804,20 @@ export default function ContactUsPage() {
                     required
                     multiline
                     minRows={5}
+                    maxRows={12}
                     label="Project details"
-                    placeholder="Tell us about your project, goals, and requirements..."
+                    placeholder={
+                      'Tell us about your project, goals, timeline, or requirements...'
+                    }
                     value={form.message}
                     onChange={handleChange('message')}
                     disabled={loading}
                     sx={fieldSx}
+                    slotProps={{
+                      htmlInput: {
+                        maxLength: 10000
+                      }
+                    }}
                   />
 
                   <Button
@@ -651,15 +833,15 @@ export default function ContactUsPage() {
                       )
                     }
                     sx={{
-                      minHeight: 54,
+                      minHeight: 56,
                       mt: 0.5,
-                      borderRadius: 2.5,
+                      borderRadius: '12px',
                       color: theme.palette.getContrastText(primary),
                       backgroundColor: primary,
-                      fontWeight: 750,
-                      fontSize: '0.95rem',
+                      fontSize: '0.925rem',
+                      fontWeight: 800,
                       textTransform: 'none',
-                      boxShadow: `0 8px 24px ${alpha(primary, 0.22)}`,
+                      boxShadow: `0 8px 24px ${alpha(primary, 0.2)}`,
                       transition: theme.transitions.create([
                         'transform',
                         'box-shadow',
@@ -667,13 +849,16 @@ export default function ContactUsPage() {
                       ]),
                       '&:hover': {
                         backgroundColor: secondary,
-                        boxShadow: `0 12px 30px ${alpha(primary, 0.28)}`,
-                        transform: 'translateY(-1px)'
+                        boxShadow: `0 12px 30px ${alpha(primary, 0.25)}`,
+                        transform: 'translateY(-2px)'
+                      },
+                      '&:active': {
+                        transform: 'translateY(0)'
                       },
                       '&.Mui-disabled': {
                         color: alpha(
                           theme.palette.getContrastText(primary),
-                          0.7
+                          0.75
                         ),
                         backgroundColor: alpha(primary, 0.6)
                       }
@@ -686,18 +871,110 @@ export default function ContactUsPage() {
                     sx={{
                       textAlign: 'center',
                       color: mutedColor,
-                      fontSize: '0.75rem',
-                      lineHeight: 1.7
+                      fontSize: '0.775rem',
+                      lineHeight: 1.8
                     }}
                   >
-                    Please provide a valid email address so we can respond to
-                    your inquiry.
+                    By submitting this form, you&apos;re allowing Cryptech
+                    Services to use your details to respond to your inquiry.
                   </Typography>
+                </Stack>
+              </Box>
+
+              {/* Form footer */}
+              <Box
+                sx={{
+                  mt: 4,
+                  pt: 3,
+                  borderTop: `1px solid ${borderColor}`
+                }}
+              >
+                <Stack
+                  direction={{ xs: 'column', sm: 'row' }}
+                  spacing={1.5}
+                  sx={{
+                    alignItems: {
+                      xs: 'flex-start',
+                      sm: 'center',
+                      justifyContent: 'space-between'
+                    }
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      color: mutedColor,
+                      fontSize: '0.8rem'
+                    }}
+                  >
+                    Prefer email?
+                  </Typography>
+
+                  <Button
+                    component="a"
+                    href="mailto:inquiries@cryptech.services"
+                    endIcon={<ArrowOutwardRounded />}
+                    sx={{
+                      p: 0,
+                      color: primary,
+                      fontSize: '0.825rem',
+                      fontWeight: 750,
+                      textTransform: 'none',
+                      '&:hover': {
+                        backgroundColor: 'transparent',
+                        color: secondary
+                      }
+                    }}
+                  >
+                    inquiries@cryptech.services
+                  </Button>
                 </Stack>
               </Box>
             </Paper>
           </Grid>
         </Grid>
+
+        {/* Bottom note */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: { xs: 'flex-start', sm: 'center' },
+            justifyContent: 'space-between',
+            gap: 2,
+            mt: { xs: 4, md: 5 },
+            pt: 3,
+            borderTop: `1px solid ${borderColor}`
+          }}
+        >
+          <Typography
+            sx={{
+              color: mutedColor,
+              fontSize: '0.8rem',
+              lineHeight: 1.8
+            }}
+          >
+            CRYPTECH SERVICES
+            <Box
+              component="span"
+              sx={{
+                mx: 1,
+                color: alpha(headingColor, 0.35)
+              }}
+            >
+              /
+            </Box>
+            Technology. Creativity. Solutions.
+          </Typography>
+
+          <Typography
+            sx={{
+              color: mutedColor,
+              fontSize: '0.8rem'
+            }}
+          >
+            Let&apos;s create something meaningful.
+          </Typography>
+        </Box>
       </Container>
     </Box>
   );

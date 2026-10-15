@@ -123,6 +123,7 @@ export default function Services({
       }}
     >
       {/* Services Circuit Background */}
+
       <Box
         aria-hidden="true"
         sx={{
@@ -135,16 +136,126 @@ export default function Services({
           maskImage:
             'linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)',
           WebkitMaskImage:
-            'linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)'
+            'linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)',
+
+          '& .services-grid-motion': {
+            animation: 'servicesGridDrift 45s linear infinite'
+          },
+
+          '& .services-hex-motion': {
+            animation: 'servicesHexDrift 55s linear infinite alternate'
+          },
+
+          '& .services-glow-motion': {
+            transformBox: 'fill-box',
+            transformOrigin: 'center',
+            animation: 'servicesGlowPulse 9s ease-in-out infinite alternate'
+          },
+
+          '& .services-circuit-motion': {
+            strokeDasharray: '3 12',
+            animation: 'servicesDataFlow 12s linear infinite'
+          },
+
+          '& .services-circuit-reverse': {
+            strokeDasharray: '2 16',
+            animation: 'servicesDataFlowReverse 18s linear infinite'
+          },
+
+          '& .services-node-motion': {
+            transformBox: 'fill-box',
+            transformOrigin: 'center',
+            animation: 'servicesNodePulse 4s ease-in-out infinite'
+          },
+
+          '& .services-ring-motion': {
+            transformBox: 'view-box',
+            transformOrigin: '600px 400px',
+            animation: 'servicesRingRotate 65s linear infinite'
+          },
+
+          '& .services-ring-reverse': {
+            transformBox: 'view-box',
+            transformOrigin: '600px 400px',
+            animation: 'servicesRingReverse 80s linear infinite'
+          },
+
+          '& .services-scan': {
+            animation: 'servicesScan 10s ease-in-out infinite'
+          },
+
+          '& .services-scan-line': {
+            strokeDasharray: '2 10',
+            animation: 'servicesScanLine 14s linear infinite'
+          },
+
+          '@keyframes servicesGridDrift': {
+            from: { transform: 'translate3d(0, 0, 0)' },
+            to: { transform: 'translate3d(32px, 32px, 0)' }
+          },
+
+          '@keyframes servicesHexDrift': {
+            from: { transform: 'translate3d(0, 0, 0)' },
+            to: { transform: 'translate3d(-27px, 23px, 0)' }
+          },
+
+          '@keyframes servicesGlowPulse': {
+            from: { opacity: 0.5, transform: 'scale(0.92)' },
+            to: { opacity: 1, transform: 'scale(1.1)' }
+          },
+
+          '@keyframes servicesDataFlow': {
+            from: { strokeDashoffset: 0 },
+            to: { strokeDashoffset: -180 }
+          },
+
+          '@keyframes servicesDataFlowReverse': {
+            from: { strokeDashoffset: 0 },
+            to: { strokeDashoffset: 180 }
+          },
+
+          '@keyframes servicesNodePulse': {
+            '0%, 100%': { opacity: 0.55, transform: 'scale(0.85)' },
+            '50%': { opacity: 1, transform: 'scale(1.25)' }
+          },
+
+          '@keyframes servicesRingRotate': {
+            from: { transform: 'rotate(0deg)' },
+            to: { transform: 'rotate(360deg)' }
+          },
+
+          '@keyframes servicesRingReverse': {
+            from: { transform: 'rotate(360deg)' },
+            to: { transform: 'rotate(0deg)' }
+          },
+
+          '@keyframes servicesScan': {
+            '0%, 100%': { opacity: 0.2, transform: 'translateY(-18px)' },
+            '50%': { opacity: 0.8, transform: 'translateY(18px)' }
+          },
+
+          '@keyframes servicesScanLine': {
+            from: { strokeDashoffset: 0 },
+            to: { strokeDashoffset: -120 }
+          },
+
+          '@media (prefers-reduced-motion: reduce)': {
+            '& *, & *::before, & *::after': {
+              animation: 'none !important',
+              transition: 'none !important'
+            }
+          }
         }}
       >
-        <svg
+        <Box
+          component="svg"
           viewBox="0 0 1200 800"
           preserveAspectRatio="xMidYMid slice"
-          width="100%"
-          height="100%"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
+          sx={{
+            display: 'block',
+            width: '100%',
+            height: '100%'
+          }}
         >
           <defs>
             <linearGradient
@@ -186,11 +297,17 @@ export default function Services({
                 stroke={primary}
                 strokeOpacity="0.1"
                 strokeWidth="0.8"
+                fill="none"
               />
             </pattern>
 
             <radialGradient id="services-ambient-glow">
               <stop stopColor={primary} stopOpacity="0.2" />
+              <stop offset="1" stopColor={primary} stopOpacity="0" />
+            </radialGradient>
+
+            <radialGradient id="services-center-glow">
+              <stop stopColor={primary} stopOpacity="0.13" />
               <stop offset="1" stopColor={primary} stopOpacity="0" />
             </radialGradient>
 
@@ -207,39 +324,67 @@ export default function Services({
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
+
+            <linearGradient id="services-edge-fade" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor={primary} stopOpacity="0.06" />
+              <stop offset="15%" stopColor={primary} stopOpacity="0" />
+              <stop offset="85%" stopColor={primary} stopOpacity="0" />
+              <stop offset="100%" stopColor={primary} stopOpacity="0.06" />
+            </linearGradient>
           </defs>
 
-          {/* Subtle technical texture */}
-          <rect width="1200" height="800" fill="url(#services-micro-grid)" />
-          <path
-            d="M0 0H1200V800H0Z"
-            fill="url(#services-hex-grid)"
-            opacity="0.45"
-          />
+          {/* Moving technical grid */}
+          <g className="services-grid-motion">
+            <rect
+              x="-32"
+              y="-32"
+              width="1264"
+              height="864"
+              fill="url(#services-micro-grid)"
+            />
+          </g>
+
+          {/* Moving hexagonal grid */}
+          <g className="services-hex-motion">
+            <rect
+              width="1200"
+              height="800"
+              fill="url(#services-hex-grid)"
+              opacity="0.45"
+            />
+          </g>
 
           {/* Ambient light */}
           <ellipse
+            className="services-glow-motion"
             cx="1080"
             cy="160"
             rx="310"
             ry="250"
             fill="url(#services-ambient-glow)"
           />
+
           <ellipse
+            className="services-glow-motion"
             cx="100"
             cy="680"
             rx="300"
             ry="230"
             fill="url(#services-ambient-glow)"
+            style={{ animationDelay: '-4s' }}
           />
 
-          {/* Left-side circuit network */}
+          <circle cx="600" cy="400" r="350" fill="url(#services-center-glow)" />
+
+          {/* Static circuit framework */}
           <g
             stroke="url(#services-circuit-gradient)"
             strokeWidth="1.2"
             strokeLinecap="round"
             strokeLinejoin="round"
+            fill="none"
           >
+            {/* Left circuit pathways */}
             <path d="M0 110H90L126 146H224L260 182H330" />
             <path d="M0 146H60L100 186V260H178L214 296H300" />
             <path d="M0 330H110L150 290H226V244H292L330 206H380" />
@@ -252,7 +397,7 @@ export default function Services({
             <path d="M72 800V748L112 708V660" />
             <path d="M302 800V750L338 714V676" />
 
-            {/* Right-side circuit network */}
+            {/* Right circuit pathways */}
             <path d="M1200 90H1110L1070 130H990L954 166H882" />
             <path d="M1200 170H1140L1098 212V270H1020L982 308H906" />
             <path d="M1200 330H1090L1050 290H974V246H906L870 210H820" />
@@ -265,21 +410,65 @@ export default function Services({
             <path d="M1128 800V754L1088 714V668" />
             <path d="M898 800V752L862 716V674" />
 
-            {/* Upper and lower data pathways */}
+            {/* Upper and lower pathways */}
             <path d="M340 0V54L376 90H460L496 126H550" />
             <path d="M650 0V44L614 80H564L530 114" />
             <path d="M470 800V742L510 702H586L620 668H680" />
             <path d="M760 800V740L722 702H672L636 666" />
 
-            {/* Inner service connections */}
+            {/* Inner connections */}
             <path d="M0 250H42L76 284H132" />
             <path d="M1200 250H1154L1120 284H1066" />
             <path d="M0 570H48L82 604H142" />
             <path d="M1200 590H1152L1118 624H1058" />
           </g>
 
-          {/* Service nodes */}
-          <g fill={primary} filter="url(#services-node-glow)">
+          {/* Animated data traveling through the circuit network */}
+          <g
+            className="services-circuit-motion"
+            stroke={primary}
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            fill="none"
+            opacity="0.85"
+          >
+            <path d="M0 110H90L126 146H224L260 182H330" />
+            <path d="M0 330H110L150 290H226V244H292L330 206H380" />
+            <path d="M0 510H120L158 472H244L280 436H350" />
+            <path d="M0 710H142L182 670H250L286 634H362" />
+
+            <path d="M1200 90H1110L1070 130H990L954 166H882" />
+            <path d="M1200 330H1090L1050 290H974V246H906L870 210H820" />
+            <path d="M1200 536H1090L1050 496H964L926 458H850" />
+            <path d="M1200 730H1058L1018 690H950L914 654H838" />
+          </g>
+
+          {/* Reverse-flow data pathways */}
+          <g
+            className="services-circuit-reverse"
+            stroke={primary}
+            strokeWidth="1.3"
+            strokeLinecap="round"
+            fill="none"
+            opacity="0.7"
+          >
+            <path d="M0 146H60L100 186V260H178L214 296H300" />
+            <path d="M0 630H74L116 588V542H190L224 508H270" />
+            <path d="M1200 170H1140L1098 212V270H1020L982 308H906" />
+            <path d="M1200 654H1128L1088 614V566H1012L974 528H918" />
+
+            <path d="M110 0V58L150 98V164" />
+            <path d="M1090 0V48L1050 88V146" />
+            <path d="M72 800V748L112 708V660" />
+            <path d="M1128 800V754L1088 714V668" />
+          </g>
+
+          {/* Glowing service nodes */}
+          <g
+            className="services-node-motion"
+            fill={primary}
+            filter="url(#services-node-glow)"
+          >
             <circle cx="126" cy="146" r="3" />
             <circle cx="224" cy="146" r="2.5" />
             <circle cx="178" cy="260" r="3" />
@@ -291,7 +480,14 @@ export default function Services({
             <circle cx="182" cy="670" r="3" />
             <circle cx="150" cy="98" r="2.5" />
             <circle cx="282" cy="98" r="3" />
+          </g>
 
+          <g
+            className="services-node-motion"
+            fill={primary}
+            filter="url(#services-node-glow)"
+            style={{ animationDelay: '-2s' }}
+          >
             <circle cx="1070" cy="130" r="3" />
             <circle cx="990" cy="130" r="2.5" />
             <circle cx="1020" cy="270" r="3" />
@@ -303,39 +499,106 @@ export default function Services({
             <circle cx="1018" cy="690" r="3" />
             <circle cx="1050" cy="88" r="2.5" />
             <circle cx="918" cy="96" r="3" />
-
-            <circle cx="376" cy="90" r="2.5" />
-            <circle cx="496" cy="126" r="3" />
-            <circle cx="510" cy="702" r="2.5" />
-            <circle cx="620" cy="668" r="3" />
           </g>
 
-          {/* Connection rings */}
-          <g stroke={primary} strokeWidth="1" strokeOpacity="0.65">
-            <circle cx="330" cy="206" r="7" />
-            <circle cx="330" cy="206" r="3" fill={primary} fillOpacity="0.5" />
-            <circle cx="350" cy="436" r="7" />
-            <circle cx="350" cy="436" r="3" fill={primary} fillOpacity="0.5" />
-            <circle cx="870" cy="210" r="7" />
-            <circle cx="870" cy="210" r="3" fill={primary} fillOpacity="0.5" />
-            <circle cx="850" cy="458" r="7" />
-            <circle cx="850" cy="458" r="3" fill={primary} fillOpacity="0.5" />
+          {/* Upper and lower service data pathways */}
+          <g
+            className="services-circuit-motion"
+            stroke={primary}
+            strokeWidth="1.3"
+            strokeLinecap="round"
+            fill="none"
+            opacity="0.65"
+          >
+            <path d="M340 0V54L376 90H460L496 126H550" />
+            <path d="M650 0V44L614 80H564L530 114" />
+            <path d="M470 800V742L510 702H586L620 668H680" />
+            <path d="M760 800V740L722 702H672L636 666" />
           </g>
 
-          {/* Central data flow — kept understated behind service cards */}
-          <g stroke="url(#services-data-flow)" strokeWidth="1">
+          {/* Central data flow behind the service cards */}
+          <g
+            className="services-circuit-reverse"
+            stroke="url(#services-data-flow)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            fill="none"
+          >
             <path d="M330 350H430L454 326H540" />
             <path d="M870 360H770L746 384H660" />
             <path d="M400 560H490L518 532H590" />
             <path d="M800 540H710L682 568H620" />
           </g>
 
+          {/* Connection rings */}
+          <g stroke={primary} strokeWidth="1" strokeOpacity="0.65">
+            <circle cx="330" cy="206" r="7" />
+            <circle cx="330" cy="206" r="3" fill={primary} fillOpacity="0.5" />
+
+            <circle cx="350" cy="436" r="7" />
+            <circle cx="350" cy="436" r="3" fill={primary} fillOpacity="0.5" />
+
+            <circle cx="870" cy="210" r="7" />
+            <circle cx="870" cy="210" r="3" fill={primary} fillOpacity="0.5" />
+
+            <circle cx="850" cy="458" r="7" />
+            <circle cx="850" cy="458" r="3" fill={primary} fillOpacity="0.5" />
+          </g>
+
+          {/* Rotating signal rings */}
+          <g
+            className="services-ring-motion"
+            fill="none"
+            stroke={primary}
+            strokeOpacity="0.22"
+            strokeWidth="1"
+          >
+            <circle cx="600" cy="400" r="145" strokeDasharray="2 12" />
+            <circle cx="600" cy="400" r="195" strokeDasharray="4 18" />
+            <circle cx="600" cy="400" r="250" strokeDasharray="1 20" />
+          </g>
+
+          <g
+            className="services-ring-reverse"
+            fill="none"
+            stroke={primary}
+            strokeOpacity="0.16"
+            strokeWidth="1"
+          >
+            <circle cx="600" cy="400" r="170" strokeDasharray="20 16 3 16" />
+            <circle cx="770" cy="400" r="3" fill={primary} stroke="none" />
+            <circle cx="430" cy="400" r="2" fill={primary} stroke="none" />
+          </g>
+
+          {/* Scanning indicator */}
+          <g className="services-scan">
+            <path
+              d="M360 400H840"
+              stroke={primary}
+              strokeOpacity="0.25"
+              strokeWidth="1"
+            />
+            <circle
+              cx="600"
+              cy="400"
+              r="3"
+              fill={primary}
+              filter="url(#services-node-glow)"
+            />
+          </g>
+
           {/* Fine scanning lines */}
-          <g stroke={primary} strokeOpacity="0.18" strokeWidth="0.7">
-            <path d="M40 350H220" strokeDasharray="2 8" />
-            <path d="M980 380H1160" strokeDasharray="2 8" />
-            <path d="M420 220H500" strokeDasharray="2 6" />
-            <path d="M700 610H780" strokeDasharray="2 6" />
+          <g
+            className="services-scan-line"
+            stroke={primary}
+            strokeOpacity="0.25"
+            strokeWidth="0.8"
+            fill="none"
+          >
+            <path d="M40 350H220" />
+            <path d="M980 380H1160" />
+            <path d="M420 220H500" />
+            <path d="M700 610H780" />
           </g>
 
           {/* Small signal markers */}
@@ -347,7 +610,10 @@ export default function Services({
             <rect x="516" y="530" width="3" height="3" rx="0.5" />
             <rect x="680" y="566" width="3" height="3" rx="0.5" />
           </g>
-        </svg>
+
+          {/* Fade the extreme edges */}
+          <rect width="1200" height="800" fill="url(#services-edge-fade)" />
+        </Box>
       </Box>
 
       <Container maxWidth="xl">
@@ -424,58 +690,120 @@ export default function Services({
                     display: 'flex',
                     flexDirection: 'column',
                     height: '100%',
-                    minHeight: 310,
+                    minHeight: 320,
                     p: { xs: 2.8, md: 3.2 },
                     overflow: 'hidden',
+                    isolation: 'isolate',
                     borderRadius: '22px',
                     border: `1px solid ${borderColor}`,
                     bgcolor: cardSurface,
                     transition:
-                      'transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease',
+                      'transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 280ms ease, box-shadow 280ms ease',
+
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      inset: 0,
+                      zIndex: -2,
+                      opacity: isDark ? 0.32 : 0.2,
+                      backgroundImage: `linear-gradient(${alpha(
+                        primary,
+                        isDark ? 0.1 : 0.07
+                      )} 1px, transparent 1px), linear-gradient(90deg, ${alpha(
+                        primary,
+                        isDark ? 0.1 : 0.07
+                      )} 1px, transparent 1px)`,
+                      backgroundSize: '34px 34px',
+                      maskImage:
+                        'linear-gradient(to bottom right, black, transparent 75%)',
+                      pointerEvents: 'none'
+                    },
+
+                    '&::after': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: '12%',
+                      right: '12%',
+                      height: '1px',
+                      background: `linear-gradient(90deg, transparent, ${alpha(
+                        primary,
+                        0.7
+                      )}, transparent)`,
+                      opacity: 0.5,
+                      transition: 'opacity 280ms ease',
+                      pointerEvents: 'none'
+                    },
+
                     '&:hover': {
                       transform: 'translateY(-6px)',
-                      borderColor: alpha(primary, 0.45),
-                      boxShadow: `0 20px 55px ${alpha(
+                      borderColor: alpha(primary, 0.48),
+                      boxShadow: `0 22px 55px ${alpha(
                         headingColor,
-                        isDark ? 0.13 : 0.07
-                      )}`
+                        isDark ? 0.16 : 0.075
+                      )}, 0 0 0 1px ${alpha(primary, 0.035)}`
                     },
+
+                    '&:hover::after': {
+                      opacity: 1
+                    },
+
                     '&:hover .service-icon': {
-                      transform: 'scale(1.06) rotate(-4deg)',
+                      transform: 'translateY(-2px) scale(1.04)',
+                      color: '#FFFFFF',
                       background: `linear-gradient(135deg, ${primary}, ${secondary})`,
-                      color: '#FFFFFF'
+                      borderColor: alpha(primary, 0.5),
+                      boxShadow: `0 8px 24px ${alpha(primary, 0.24)}`
                     },
-                    '&:hover .service-arrow': {
+
+                    '&:hover .service-number': {
                       color: primary,
-                      transform: 'translate(3px, -3px)'
+                      borderColor: alpha(primary, 0.28),
+                      backgroundColor: alpha(primary, isDark ? 0.12 : 0.07)
+                    },
+
+                    '&:hover .service-tag': {
+                      borderColor: alpha(primary, 0.22)
+                    },
+
+                    '@media (prefers-reduced-motion: reduce)': {
+                      transition: 'none',
+                      '&:hover': {
+                        transform: 'none'
+                      },
+                      '& .service-icon': {
+                        transition: 'none'
+                      }
                     }
                   }}
                 >
-                  {/* Corner accent */}
+                  {/* Ambient corner glow */}
                   <Box
                     aria-hidden="true"
                     sx={{
                       position: 'absolute',
-                      top: -65,
-                      right: -65,
-                      width: 150,
-                      height: 150,
+                      top: -85,
+                      right: -75,
+                      width: 200,
+                      height: 200,
                       borderRadius: '50%',
                       background: `radial-gradient(circle, ${alpha(
                         primary,
-                        isDark ? 0.12 : 0.07
+                        isDark ? 0.19 : 0.09
                       )} 0%, transparent 70%)`,
-                      pointerEvents: 'none'
+                      pointerEvents: 'none',
+                      zIndex: -1
                     }}
                   />
 
+                  {/* Header */}
                   <Stack
                     direction="row"
                     sx={{
                       position: 'relative',
-                      mb: 3.5,
+                      alignItems: 'center',
                       justifyContent: 'space-between',
-                      alignItems: 'flex-start'
+                      mb: 4
                     }}
                   >
                     <Box
@@ -483,80 +811,141 @@ export default function Services({
                       sx={{
                         display: 'grid',
                         placeItems: 'center',
-                        width: 54,
-                        height: 54,
-                        borderRadius: '16px',
+                        width: 56,
+                        height: 56,
+                        borderRadius: '17px',
                         color: primary,
-                        bgcolor: alpha(primary, isDark ? 0.13 : 0.08),
-                        border: `1px solid ${alpha(primary, 0.12)}`,
+                        bgcolor: alpha(primary, isDark ? 0.12 : 0.07),
+                        border: `1px solid ${alpha(primary, 0.16)}`,
                         transition:
-                          'transform 220ms ease, background 220ms ease, color 220ms ease'
+                          'transform 280ms ease, background 280ms ease, color 280ms ease, border-color 280ms ease, box-shadow 280ms ease',
+
+                        '& svg': {
+                          fontSize: 27
+                        }
                       }}
                     >
-                      <Icon sx={{ fontSize: 27 }} />
+                      <Icon />
                     </Box>
 
-                    <Typography
+                    <Box
+                      className="service-number"
                       sx={{
-                        color: alpha(mutedColor, 0.7),
-                        fontFamily: 'monospace',
-                        fontSize: '0.78rem',
-                        letterSpacing: '0.04em'
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.8,
+                        px: 1.2,
+                        py: 0.65,
+                        borderRadius: '9px',
+                        border: `1px solid ${borderColor}`,
+                        bgcolor: alpha(headingColor, isDark ? 0.035 : 0.025),
+                        transition:
+                          'color 220ms ease, background-color 220ms ease, border-color 220ms ease'
                       }}
                     >
-                      /{service.number}
-                    </Typography>
+                      <Box
+                        sx={{
+                          width: 5,
+                          height: 5,
+                          borderRadius: '50%',
+                          bgcolor: primary,
+                          boxShadow: `0 0 9px ${alpha(primary, 0.5)}`
+                        }}
+                      />
+
+                      <Typography
+                        sx={{
+                          color: alpha(mutedColor, 0.85),
+                          fontFamily: 'monospace',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          letterSpacing: '0.06em',
+                          fontVariantNumeric: 'tabular-nums'
+                        }}
+                      >
+                        {`/${String(service.number).padStart(2, '0')}`}
+                      </Typography>
+                    </Box>
                   </Stack>
 
+                  {/* Service title */}
                   <Typography
                     component="h3"
                     sx={{
                       position: 'relative',
+                      color: headingColor,
                       fontWeight: 750,
-                      fontSize: '1.2rem',
-                      letterSpacing: '-0.025em',
+                      fontSize: { xs: '1.18rem', md: '1.25rem' },
+                      letterSpacing: '-0.035em',
                       lineHeight: 1.4,
-                      mb: 1.5
+                      mb: 1.3
                     }}
                   >
                     {service.title}
                   </Typography>
 
+                  {/* Description */}
                   <Typography
                     sx={{
                       position: 'relative',
                       color: mutedColor,
                       fontSize: '0.9rem',
-                      lineHeight: 1.85,
-                      mb: 3
+                      lineHeight: 1.9,
+                      mb: 3.5,
+                      maxWidth: '38rem'
                     }}
                   >
                     {service.description}
                   </Typography>
 
-                  <Box sx={{ flexGrow: 1 }} />
+                  <Box sx={{ flexGrow: 1, minHeight: 12 }} />
+
+                  {/* Divider */}
+                  <Box
+                    aria-hidden="true"
+                    sx={{
+                      height: '1px',
+                      width: '100%',
+                      mb: 2.2,
+                      background: `linear-gradient(90deg, ${alpha(
+                        primary,
+                        0.3
+                      )}, ${alpha(headingColor, isDark ? 0.1 : 0.07)} 65%, transparent)`
+                    }}
+                  />
 
                   {/* Service tags */}
                   <Stack
                     direction="row"
-                    sx={{ mb: 2.5, flexWrap: 'wrap', gap: 0.8 }}
+                    sx={{
+                      flexWrap: 'wrap',
+                      gap: 0.9,
+                      alignItems: 'center'
+                    }}
                   >
                     {service.tags.map((tag) => (
                       <Box
                         key={tag}
+                        className="service-tag"
                         sx={{
-                          px: 1.1,
-                          py: 0.55,
-                          borderRadius: '7px',
-                          bgcolor: alpha(headingColor, isDark ? 0.06 : 0.035),
-                          border: `1px solid ${borderColor}`
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          px: 1.15,
+                          py: 0.65,
+                          borderRadius: '8px',
+                          bgcolor: alpha(headingColor, isDark ? 0.045 : 0.025),
+                          border: `1px solid ${borderColor}`,
+                          transition:
+                            'border-color 220ms ease, background-color 220ms ease'
                         }}
                       >
                         <Typography
                           sx={{
-                            fontSize: '0.7rem',
                             color: mutedColor,
-                            fontWeight: 600
+                            fontSize: '0.7rem',
+                            fontWeight: 600,
+                            lineHeight: 1.4,
+                            letterSpacing: '0.01em'
                           }}
                         >
                           {tag}
@@ -564,35 +953,6 @@ export default function Services({
                       </Box>
                     ))}
                   </Stack>
-
-                  {/* <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      pt: 2,
-                      borderTop: `1px solid ${borderColor}`
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        color: mutedColor,
-                        fontSize: '0.78rem',
-                        fontWeight: 600
-                      }}
-                    >
-                      Explore service
-                    </Typography>
-
-                    <ArrowOutwardRoundedIcon
-                      className="service-arrow"
-                      sx={{
-                        color: mutedColor,
-                        fontSize: 19,
-                        transition: 'transform 180ms ease, color 180ms ease'
-                      }}
-                    />
-                  </Box> */}
                 </Box>
               </Grid>
             );

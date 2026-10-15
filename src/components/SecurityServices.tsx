@@ -154,6 +154,7 @@ export default function SecurityServices() {
       }}
     >
       {/* Cybersecurity circuit background */}
+
       <Box
         aria-hidden="true"
         sx={{
@@ -161,11 +162,116 @@ export default function SecurityServices() {
           inset: 0,
           zIndex: -1,
           pointerEvents: 'none',
+          overflow: 'hidden',
           opacity: isDark ? 0.32 : 0.13,
           maskImage:
             'linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)',
           WebkitMaskImage:
-            'linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)'
+            'linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)',
+
+          '& .security-grid': {
+            animation: 'securityGridMove 35s linear infinite'
+          },
+
+          '& .security-circuit': {
+            strokeDasharray: '7 13',
+            animation: 'securityCircuitFlow 16s linear infinite'
+          },
+
+          '& .security-circuit-reverse': {
+            strokeDasharray: '5 17',
+            animation: 'securityCircuitReverse 22s linear infinite'
+          },
+
+          '& .security-node': {
+            transformBox: 'fill-box',
+            transformOrigin: 'center',
+            animation: 'securityNodePulse 4s ease-in-out infinite'
+          },
+
+          '& .security-node:nth-child(2n)': {
+            animationDelay: '-1.7s'
+          },
+
+          '& .security-shield': {
+            transformBox: 'fill-box',
+            transformOrigin: 'center',
+            animation: 'securityShieldPulse 6s ease-in-out infinite'
+          },
+
+          '& .security-check': {
+            strokeDasharray: '110',
+            strokeDashoffset: '110',
+            animation: 'securityCheckDraw 2s ease-out 0.5s forwards'
+          },
+
+          '& .security-ring': {
+            transformBox: 'view-box',
+            transformOrigin: '600px 450px',
+            animation: 'securityRingRotate 60s linear infinite'
+          },
+
+          '& .security-ring-reverse': {
+            transformBox: 'view-box',
+            transformOrigin: '600px 450px',
+            animation: 'securityRingReverse 75s linear infinite'
+          },
+
+          '& .security-glow': {
+            transformBox: 'fill-box',
+            transformOrigin: 'center',
+            animation: 'securityGlowPulse 8s ease-in-out infinite alternate'
+          },
+
+          '@keyframes securityGridMove': {
+            from: { transform: 'translate3d(0, 0, 0)' },
+            to: { transform: 'translate3d(36px, 36px, 0)' }
+          },
+
+          '@keyframes securityCircuitFlow': {
+            from: { strokeDashoffset: 0 },
+            to: { strokeDashoffset: -160 }
+          },
+
+          '@keyframes securityCircuitReverse': {
+            from: { strokeDashoffset: 0 },
+            to: { strokeDashoffset: 176 }
+          },
+
+          '@keyframes securityNodePulse': {
+            '0%, 100%': { opacity: 0.45, transform: 'scale(0.85)' },
+            '50%': { opacity: 1, transform: 'scale(1.3)' }
+          },
+
+          '@keyframes securityShieldPulse': {
+            '0%, 100%': { opacity: 0.65, transform: 'scale(0.98)' },
+            '50%': { opacity: 1, transform: 'scale(1.025)' }
+          },
+
+          '@keyframes securityCheckDraw': {
+            to: { strokeDashoffset: 0 }
+          },
+
+          '@keyframes securityRingRotate': {
+            from: { transform: 'rotate(0deg)' },
+            to: { transform: 'rotate(360deg)' }
+          },
+
+          '@keyframes securityRingReverse': {
+            from: { transform: 'rotate(360deg)' },
+            to: { transform: 'rotate(0deg)' }
+          },
+
+          '@keyframes securityGlowPulse': {
+            from: { opacity: 0.55, transform: 'scale(0.92)' },
+            to: { opacity: 1, transform: 'scale(1.12)' }
+          },
+
+          '@media (prefers-reduced-motion: reduce)': {
+            '& *, & *::before, & *::after': {
+              animation: 'none !important'
+            }
+          }
         }}
       >
         <svg
@@ -175,6 +281,7 @@ export default function SecurityServices() {
           height="100%"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          style={{ display: 'block' }}
         >
           <defs>
             <pattern
@@ -203,106 +310,219 @@ export default function SecurityServices() {
               <stop stopColor={primary} stopOpacity="0.22" />
               <stop offset="1" stopColor={primary} stopOpacity="0" />
             </radialGradient>
+
+            <radialGradient id="security-center-glow">
+              <stop stopColor={primary} stopOpacity="0.2" />
+              <stop offset="1" stopColor={primary} stopOpacity="0" />
+            </radialGradient>
+
+            <filter
+              id="security-blur"
+              x="-100%"
+              y="-100%"
+              width="300%"
+              height="300%"
+            >
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
+
+            <clipPath id="security-clip">
+              <rect width="1200" height="900" />
+            </clipPath>
           </defs>
 
-          <rect width="1200" height="900" fill="url(#security-grid)" />
+          <g clipPath="url(#security-clip)">
+            {/* Animated technical grid */}
+            <g className="security-grid">
+              <rect
+                x="-36"
+                y="-36"
+                width="1272"
+                height="972"
+                fill="url(#security-grid)"
+              />
+            </g>
 
-          <ellipse
-            cx="1050"
-            cy="250"
-            rx="350"
-            ry="300"
-            fill="url(#security-glow)"
-          />
-
-          <ellipse
-            cx="120"
-            cy="700"
-            rx="300"
-            ry="280"
-            fill="url(#security-glow)"
-          />
-
-          <g
-            stroke="url(#security-lines)"
-            strokeWidth="1.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M0 100H100L145 145H245L285 185H350" />
-            <path d="M0 220H75L115 260V315H200L245 360H320" />
-            <path d="M0 420H115L155 380H235V330H305L345 290H390" />
-            <path d="M0 610H100L140 650H220L260 690H345" />
-            <path d="M0 790H120L160 750H245L285 710H350" />
-
-            <path d="M1200 120H1100L1060 160H970L930 200H860" />
-            <path d="M1200 280H1120L1080 320V370H1000L960 410H880" />
-            <path d="M1200 470H1090L1050 430H970V390H910L870 350H820" />
-            <path d="M1200 650H1110L1070 690H980L940 730H850" />
-            <path d="M1200 800H1090L1050 760H970L930 720H870" />
-
-            <path d="M100 0V70L140 110V160" />
-            <path d="M300 0V55L340 95V150" />
-            <path d="M1100 0V70L1060 110V165" />
-            <path d="M900 0V55L860 95V150" />
-
-            <path d="M150 900V830L190 790V740" />
-            <path d="M1050 900V830L1010 790V740" />
-            <path d="M300 900V850L340 810V770" />
-            <path d="M900 900V850L860 810V770" />
-
-            <path d="M0 500H55L85 530H140" />
-            <path d="M1200 560H1140L1110 590H1060" />
-          </g>
-
-          <g fill={primary} fillOpacity="0.8">
-            <circle cx="145" cy="145" r="3" />
-            <circle cx="245" cy="145" r="2.5" />
-            <circle cx="200" cy="315" r="3" />
-            <circle cx="235" cy="330" r="2.5" />
-            <circle cx="155" cy="650" r="3" />
-            <circle cx="260" cy="690" r="2.5" />
-
-            <circle cx="1060" cy="160" r="3" />
-            <circle cx="970" cy="160" r="2.5" />
-            <circle cx="1000" cy="370" r="3" />
-            <circle cx="970" cy="390" r="2.5" />
-            <circle cx="1070" cy="690" r="3" />
-            <circle cx="980" cy="730" r="2.5" />
-          </g>
-
-          {/* Shield outline */}
-          <g
-            transform="translate(600 450)"
-            stroke={primary}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path
-              d="M0 -145L105 -105V-20C105 50 60 105 0 140C-60 105 -105 50 -105 -20V-105Z"
-              strokeOpacity="0.14"
-              strokeWidth="1.5"
+            {/* Breathing ambient glows */}
+            <ellipse
+              className="security-glow"
+              cx="1050"
+              cy="250"
+              rx="350"
+              ry="300"
+              fill="url(#security-glow)"
             />
 
-            <path
-              d="M0 -125L85 -93V-20C85 38 49 83 0 112C-49 83 -85 38 -85 -20V-93Z"
-              strokeOpacity="0.1"
+            <ellipse
+              className="security-glow"
+              cx="120"
+              cy="700"
+              rx="300"
+              ry="280"
+              fill="url(#security-glow)"
+              style={{ animationDelay: '-4s' }}
+            />
+
+            <circle
+              cx="600"
+              cy="450"
+              r="330"
+              fill="url(#security-center-glow)"
+            />
+
+            {/* Circuit board connections */}
+            <g
+              stroke="url(#security-lines)"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M0 100H100L145 145H245L285 185H350" />
+              <path d="M0 220H75L115 260V315H200L245 360H320" />
+              <path d="M0 420H115L155 380H235V330H305L345 290H390" />
+              <path d="M0 610H100L140 650H220L260 690H345" />
+              <path d="M0 790H120L160 750H245L285 710H350" />
+
+              <path d="M1200 120H1100L1060 160H970L930 200H860" />
+              <path d="M1200 280H1120L1080 320V370H1000L960 410H880" />
+              <path d="M1200 470H1090L1050 430H970V390H910L870 350H820" />
+              <path d="M1200 650H1110L1070 690H980L940 730H850" />
+              <path d="M1200 800H1090L1050 760H970L930 720H870" />
+
+              <path d="M100 0V70L140 110V160" />
+              <path d="M300 0V55L340 95V150" />
+              <path d="M1100 0V70L1060 110V165" />
+              <path d="M900 0V55L860 95V150" />
+
+              <path d="M150 900V830L190 790V740" />
+              <path d="M1050 900V830L1010 790V740" />
+              <path d="M300 900V850L340 810V770" />
+              <path d="M900 900V850L860 810V770" />
+
+              <path d="M0 500H55L85 530H140" />
+              <path d="M1200 560H1140L1110 590H1060" />
+            </g>
+
+            {/* Data pulses moving through circuit paths */}
+            <g
+              className="security-circuit"
+              stroke={primary}
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              opacity="0.85"
+            >
+              <path d="M0 100H100L145 145H245L285 185H350" />
+              <path d="M0 420H115L155 380H235V330H305L345 290H390" />
+              <path d="M0 610H100L140 650H220L260 690H345" />
+              <path d="M1200 120H1100L1060 160H970L930 200H860" />
+              <path d="M1200 470H1090L1050 430H970V390H910L870 350H820" />
+              <path d="M1200 650H1110L1070 690H980L940 730H850" />
+            </g>
+
+            <g
+              className="security-circuit-reverse"
+              stroke={primary}
+              strokeWidth="1.3"
+              strokeLinecap="round"
+              opacity="0.65"
+            >
+              <path d="M0 220H75L115 260V315H200L245 360H320" />
+              <path d="M0 790H120L160 750H245L285 710H350" />
+              <path d="M1200 280H1120L1080 320V370H1000L960 410H880" />
+              <path d="M1200 800H1090L1050 760H970L930 720H870" />
+              <path d="M100 0V70L140 110V160" />
+              <path d="M1100 0V70L1060 110V165" />
+              <path d="M150 900V830L190 790V740" />
+              <path d="M1050 900V830L1010 790V740" />
+            </g>
+
+            {/* Pulsing connection nodes */}
+            <g fill={primary} className="security-node">
+              <circle cx="145" cy="145" r="3" />
+              <circle cx="245" cy="145" r="2.5" />
+              <circle cx="200" cy="315" r="3" />
+              <circle cx="235" cy="330" r="2.5" />
+              <circle cx="155" cy="650" r="3" />
+              <circle cx="260" cy="690" r="2.5" />
+            </g>
+
+            <g
+              fill={primary}
+              className="security-node"
+              style={{ animationDelay: '-2s' }}
+            >
+              <circle cx="1060" cy="160" r="3" />
+              <circle cx="970" cy="160" r="2.5" />
+              <circle cx="1000" cy="370" r="3" />
+              <circle cx="970" cy="390" r="2.5" />
+              <circle cx="1070" cy="690" r="3" />
+              <circle cx="980" cy="730" r="2.5" />
+            </g>
+
+            {/* Central security shield */}
+            <g className="security-shield">
+              <g
+                transform="translate(600 450)"
+                stroke={primary}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path
+                  d="M0 -145L105 -105V-20C105 50 60 105 0 140C-60 105 -105 50 -105 -20V-105Z"
+                  strokeOpacity="0.14"
+                  strokeWidth="1.5"
+                />
+
+                <path
+                  d="M0 -125L85 -93V-20C85 38 49 83 0 112C-49 83 -85 38 -85 -20V-93Z"
+                  strokeOpacity="0.1"
+                  strokeWidth="1"
+                  strokeDasharray="5 8"
+                />
+
+                {/* Draw-on load animation */}
+                <path
+                  className="security-check"
+                  d="M-36 0L-10 26L40 -30"
+                  strokeOpacity="0.65"
+                  strokeWidth="3"
+                />
+
+                <circle
+                  cx="0"
+                  cy="-12"
+                  r="57"
+                  stroke={primary}
+                  strokeOpacity="0.1"
+                  strokeWidth="1"
+                />
+              </g>
+            </g>
+
+            {/* Rotating signal rings */}
+            <g
+              className="security-ring"
+              stroke={primary}
+              strokeOpacity="0.24"
               strokeWidth="1"
-              strokeDasharray="5 8"
-            />
+            >
+              <circle cx="600" cy="450" r="190" strokeDasharray="2 10" />
+              <circle cx="600" cy="450" r="275" strokeDasharray="1 18" />
+              <circle cx="600" cy="450" r="230" strokeDasharray="4 16" />
+            </g>
 
-            <path
-              d="M-36 0L-10 26L40 -30"
-              strokeOpacity="0.2"
-              strokeWidth="3"
-            />
-          </g>
-
-          {/* Signal rings */}
-          <g stroke={primary} strokeOpacity="0.24" strokeWidth="1">
-            <circle cx="600" cy="450" r="190" strokeDasharray="2 10" />
-            <circle cx="600" cy="450" r="230" strokeDasharray="4 16" />
-            <circle cx="600" cy="450" r="275" strokeDasharray="1 18" />
+            {/* Opposite-direction inner ring */}
+            <g className="security-ring-reverse" fill="none" stroke={primary}>
+              <circle
+                cx="600"
+                cy="450"
+                r="155"
+                strokeOpacity="0.14"
+                strokeDasharray="24 18 3 18"
+              />
+              <circle cx="755" cy="450" r="3" fill={primary} stroke="none" />
+              <circle cx="445" cy="450" r="2" fill={primary} stroke="none" />
+            </g>
           </g>
         </svg>
       </Box>

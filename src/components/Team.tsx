@@ -203,6 +203,10 @@ function MemberAvatar({ member }: { member: TeamMember }) {
   const surface =
     theme.backgroundScale?.[2] ?? theme.palette.background.default;
 
+  const primary = theme.palette.primary.main;
+  const secondary = theme.palette.secondary.main;
+  const isDark = theme.palette.mode === 'dark';
+
   return (
     <Box
       sx={{
@@ -302,12 +306,45 @@ function MemberAvatar({ member }: { member: TeamMember }) {
         }
         alt={member.name}
         sx={{
-          width: 75,
-          height: 75,
-          margin: 'auto',
-          mt: 5,
-          mb: 5,
-          bgcolor: 'action.hover'
+          width: 84,
+          height: 84,
+          mx: 'auto',
+          mt: 4,
+          mb: 4,
+
+          fontSize: '1.5rem',
+          fontWeight: 750,
+          letterSpacing: '-0.04em',
+          color: '#FFFFFF',
+
+          bgcolor: alpha(member.accent, 0.14),
+          backgroundImage: `linear-gradient(135deg, ${alpha(member.accent, 0.9)}, ${alpha(member.accent, 0.9)})`,
+
+          border: `2px solid ${alpha(member.accent, 0.45)}`,
+          outline: `4px solid ${alpha(member.accent, 0.07)}`,
+          outlineOffset: 2,
+
+          boxShadow: `0 8px 28px ${alpha(member.accent, isDark ? 0.2 : 0.14)}`,
+
+          transition:
+            'transform 250ms ease, box-shadow 250ms ease, border-color 250ms ease',
+
+          '& img': {
+            objectFit: 'cover'
+          },
+
+          '&:hover': {
+            transform: 'translateY(-4px) scale(1.04)',
+            borderColor: member.accent,
+            boxShadow: `0 12px 34px ${alpha(member.accent, 0.28)}`
+          },
+
+          '@media (prefers-reduced-motion: reduce)': {
+            transition: 'none',
+            '&:hover': {
+              transform: 'none'
+            }
+          }
         }}
       >
         {member.initials}
@@ -615,7 +652,7 @@ export default function Team({
         }}
       />
 
-      {/* SVG network background */}
+      {/* Animated SVG network background */}
       <Box
         aria-hidden="true"
         sx={{
@@ -624,7 +661,130 @@ export default function Team({
           overflow: 'hidden',
           pointerEvents: 'none',
           zIndex: 0,
-          opacity: 0.2
+          opacity: 0.2,
+          isolation: 'isolate',
+
+          '& .team-grid': {
+            animation: 'teamGridDrift 35s linear infinite'
+          },
+
+          '& .team-glow': {
+            transformBox: 'fill-box',
+            transformOrigin: 'center',
+            animation: 'teamGlowPulse 9s ease-in-out infinite alternate'
+          },
+
+          '& .team-glow-right': {
+            animationDelay: '-4s'
+          },
+
+          '& .team-circuit': {
+            strokeDasharray: '8 12',
+            animation: 'teamCircuitFlow 18s linear infinite'
+          },
+
+          '& .team-circuit-reverse': {
+            strokeDasharray: '5 14',
+            animation: 'teamCircuitReverse 22s linear infinite'
+          },
+
+          '& .team-data-line': {
+            strokeDasharray: '2 26',
+            animation: 'teamDataFlow 7s linear infinite'
+          },
+
+          '& .team-data-line-delayed': {
+            animationDelay: '-3.5s'
+          },
+
+          '& .team-node': {
+            transformBox: 'fill-box',
+            transformOrigin: 'center',
+            animation: 'teamNodePulse 3.8s ease-in-out infinite'
+          },
+
+          '& .team-node:nth-of-type(3n)': {
+            animationDelay: '-1.3s'
+          },
+
+          '& .team-node:nth-of-type(4n)': {
+            animationDelay: '-2.4s'
+          },
+
+          '& .team-orbit': {
+            transformBox: 'view-box',
+            transformOrigin: '720px 350px',
+            animation: 'teamOrbitRotate 65s linear infinite'
+          },
+
+          '& .team-orbit-reverse': {
+            transformBox: 'view-box',
+            transformOrigin: '720px 350px',
+            animation: 'teamOrbitRotateReverse 85s linear infinite'
+          },
+
+          '& .team-orbit-dot': {
+            animation: 'teamNodePulse 2.6s ease-in-out infinite'
+          },
+
+          '@keyframes teamGridDrift': {
+            from: { transform: 'translate(0, 0)' },
+            to: { transform: 'translate(48px, 48px)' }
+          },
+
+          '@keyframes teamGlowPulse': {
+            '0%': {
+              opacity: 0.45,
+              transform: 'scale(0.9)'
+            },
+            '100%': {
+              opacity: 1,
+              transform: 'scale(1.12)'
+            }
+          },
+
+          '@keyframes teamCircuitFlow': {
+            from: { strokeDashoffset: 0 },
+            to: { strokeDashoffset: -200 }
+          },
+
+          '@keyframes teamCircuitReverse': {
+            from: { strokeDashoffset: 0 },
+            to: { strokeDashoffset: 200 }
+          },
+
+          '@keyframes teamDataFlow': {
+            from: { strokeDashoffset: 0 },
+            to: { strokeDashoffset: -112 }
+          },
+
+          '@keyframes teamNodePulse': {
+            '0%, 100%': {
+              opacity: 0.35,
+              transform: 'scale(0.8)'
+            },
+            '50%': {
+              opacity: 1,
+              transform: 'scale(1.4)'
+            }
+          },
+
+          '@keyframes teamOrbitRotate': {
+            from: { transform: 'rotate(0deg)' },
+            to: { transform: 'rotate(360deg)' }
+          },
+
+          '@keyframes teamOrbitRotateReverse': {
+            from: { transform: 'rotate(360deg)' },
+            to: { transform: 'rotate(0deg)' }
+          },
+
+          '@media (prefers-reduced-motion: reduce)': {
+            '& .team-grid, & .team-glow, & .team-circuit, & .team-circuit-reverse, & .team-data-line, & .team-node, & .team-orbit, & .team-orbit-reverse, & .team-orbit-dot':
+              {
+                animation: 'none !important'
+              }
+          }
         }}
       >
         <Box
@@ -636,87 +796,337 @@ export default function Team({
             inset: 0,
             width: '100%',
             height: '100%',
-            color: 'primary.main'
+            color: 'primary.main',
+            overflow: 'visible'
           }}
         >
           <defs>
+            {/* Ambient glows */}
             <radialGradient id="teamGlow">
-              <stop offset="0%" stopColor="currentColor" stopOpacity="0.12" />
+              <stop offset="0%" stopColor="currentColor" stopOpacity="0.32" />
+              <stop offset="55%" stopColor="currentColor" stopOpacity="0.1" />
               <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
             </radialGradient>
 
+            {/* Fine dot grid */}
             <pattern
               id="teamGrid"
               width="48"
               height="48"
               patternUnits="userSpaceOnUse"
             >
-              <circle cx="1" cy="1" r="1" fill="currentColor" opacity="0.2" />
+              <circle cx="1" cy="1" r="1" fill="currentColor" opacity="0.28" />
             </pattern>
+
+            {/* Circuit glow */}
+            <filter
+              id="teamNodeGlow"
+              x="-200%"
+              y="-200%"
+              width="400%"
+              height="400%"
+            >
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+
+            {/* Fade the edges */}
+            <linearGradient id="teamEdgeFade" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="white" stopOpacity="1" />
+              <stop offset="35%" stopColor="white" stopOpacity="0.35" />
+              <stop offset="50%" stopColor="white" stopOpacity="0.12" />
+              <stop offset="65%" stopColor="white" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="white" stopOpacity="1" />
+            </linearGradient>
+
+            <mask id="teamNetworkMask">
+              <rect width="1440" height="700" fill="url(#teamEdgeFade)" />
+            </mask>
           </defs>
 
-          <circle cx="180" cy="350" r="280" fill="url(#teamGlow)" />
-          <circle cx="1260" cy="320" r="300" fill="url(#teamGlow)" />
-
-          <rect width="1440" height="700" fill="url(#teamGrid)" />
-
-          {/* Left-side network */}
-          <g fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3">
-            <path d="M-30 180 L110 180 L190 260 L310 260 L390 180 L480 180" />
-            <path d="M30 420 L130 420 L210 340 L320 340 L400 420 L510 420" />
-            <path d="M110 180 L110 100 L220 100 L270 150" />
-            <path d="M210 340 L210 480 L300 570" />
-            <path d="M390 180 L390 100 L470 60" />
-            <path d="M320 340 L360 390 L360 490" />
+          {/* Ambient light */}
+          <g>
+            <circle
+              className="team-glow"
+              cx="170"
+              cy="350"
+              r="300"
+              fill="url(#teamGlow)"
+            />
+            <circle
+              className="team-glow team-glow-right"
+              cx="1270"
+              cy="340"
+              r="330"
+              fill="url(#teamGlow)"
+            />
+            <circle
+              className="team-glow"
+              cx="720"
+              cy="350"
+              r="260"
+              fill="url(#teamGlow)"
+              opacity="0.25"
+              style={{ animationDuration: '13s' }}
+            />
           </g>
 
-          {/* Right-side network */}
-          <g fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3">
-            <path d="M1470 170 L1330 170 L1250 250 L1130 250 L1050 170 L960 170" />
-            <path d="M1410 420 L1310 420 L1230 340 L1120 340 L1040 420 L930 420" />
-            <path d="M1330 170 L1330 90 L1220 90 L1170 140" />
-            <path d="M1230 340 L1230 480 L1140 570" />
-            <path d="M1050 170 L1050 100 L970 60" />
-            <path d="M1120 340 L1080 390 L1080 490" />
+          {/* Drifting technical grid */}
+          <g className="team-grid">
+            <rect
+              x="-48"
+              y="-48"
+              width="1536"
+              height="796"
+              fill="url(#teamGrid)"
+            />
           </g>
 
-          {/* Network nodes */}
-          <g fill="currentColor">
-            {[
-              [110, 180],
-              [190, 260],
-              [310, 260],
-              [390, 180],
-              [130, 420],
-              [210, 340],
-              [320, 340],
-              [400, 420],
-              [110, 100],
-              [220, 100],
-              [300, 570],
-              [360, 490],
-              [1330, 170],
-              [1250, 250],
-              [1130, 250],
-              [1050, 170],
-              [1310, 420],
-              [1230, 340],
-              [1120, 340],
-              [1040, 420],
-              [1330, 90],
-              [1220, 90],
-              [1140, 570],
-              [1080, 490]
-            ].map(([cx, cy], index) => (
-              <circle key={index} cx={cx} cy={cy} r="3" opacity="0.65" />
-            ))}
-          </g>
+          <g mask="url(#teamNetworkMask)">
+            {/* Left-side circuit framework */}
+            <g
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity="0.38"
+            >
+              <path d="M-30 180 H110 L190 260 H310 L390 180 H480" />
+              <path d="M30 420 H130 L210 340 H320 L400 420 H510" />
+              <path d="M110 180 V100 H220 L270 150" />
+              <path d="M210 340 V480 L300 570" />
+              <path d="M390 180 V100 L470 60" />
+              <path d="M320 340 L360 390 V490" />
+              <path d="M40 300 H100 L140 260" />
+              <path d="M250 520 L300 470 H390" />
+              <path d="M80 560 V510 L130 460" />
+            </g>
 
-          {/* Decorative orbit rings */}
-          <g fill="none" stroke="currentColor" strokeWidth="1" opacity="0.12">
-            <circle cx="720" cy="350" r="230" />
-            <circle cx="720" cy="350" r="270" strokeDasharray="4 12" />
-            <circle cx="720" cy="350" r="310" strokeDasharray="2 18" />
+            {/* Moving circuit highlights */}
+            <g
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              opacity="0.85"
+            >
+              <path
+                className="team-circuit"
+                d="M-30 180 H110 L190 260 H310 L390 180 H480"
+              />
+              <path
+                className="team-circuit-reverse"
+                d="M30 420 H130 L210 340 H320 L400 420 H510"
+              />
+              <path className="team-circuit" d="M110 180 V100 H220 L270 150" />
+              <path
+                className="team-circuit-reverse"
+                d="M210 340 V480 L300 570"
+              />
+              <path className="team-circuit" d="M320 340 L360 390 V490" />
+            </g>
+
+            {/* Right-side circuit framework */}
+            <g
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity="0.38"
+            >
+              <path d="M1470 170 H1330 L1250 250 H1130 L1050 170 H960" />
+              <path d="M1410 420 H1310 L1230 340 H1120 L1040 420 H930" />
+              <path d="M1330 170 V90 H1220 L1170 140" />
+              <path d="M1230 340 V480 L1140 570" />
+              <path d="M1050 170 V100 L970 60" />
+              <path d="M1120 340 L1080 390 V490" />
+              <path d="M1400 300 H1340 L1300 260" />
+              <path d="M1190 520 L1140 470 H1050" />
+              <path d="M1360 560 V510 L1310 460" />
+            </g>
+
+            {/* Moving circuit highlights */}
+            <g
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              opacity="0.85"
+            >
+              <path
+                className="team-circuit-reverse"
+                d="M1470 170 H1330 L1250 250 H1130 L1050 170 H960"
+              />
+              <path
+                className="team-circuit"
+                d="M1410 420 H1310 L1230 340 H1120 L1040 420 H930"
+              />
+              <path
+                className="team-circuit-reverse"
+                d="M1330 170 V90 H1220 L1170 140"
+              />
+              <path className="team-circuit" d="M1230 340 V480 L1140 570" />
+              <path
+                className="team-circuit-reverse"
+                d="M1120 340 L1080 390 V490"
+              />
+            </g>
+
+            {/* Moving data packets */}
+            <g
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              filter="url(#teamNodeGlow)"
+            >
+              <path
+                className="team-data-line"
+                d="M-30 180 H110 L190 260 H310 L390 180 H480"
+              />
+              <path
+                className="team-data-line team-data-line-delayed"
+                d="M30 420 H130 L210 340 H320 L400 420 H510"
+              />
+              <path
+                className="team-data-line"
+                d="M1470 170 H1330 L1250 250 H1130 L1050 170 H960"
+              />
+              <path
+                className="team-data-line team-data-line-delayed"
+                d="M1410 420 H1310 L1230 340 H1120 L1040 420 H930"
+              />
+            </g>
+
+            {/* Static network nodes */}
+            <g fill="currentColor" opacity="0.72">
+              {[
+                [110, 180],
+                [190, 260],
+                [310, 260],
+                [390, 180],
+                [130, 420],
+                [210, 340],
+                [320, 340],
+                [400, 420],
+                [110, 100],
+                [220, 100],
+                [300, 570],
+                [360, 490],
+                [470, 60],
+                [1330, 170],
+                [1250, 250],
+                [1130, 250],
+                [1050, 170],
+                [1310, 420],
+                [1230, 340],
+                [1120, 340],
+                [1040, 420],
+                [1330, 90],
+                [1220, 90],
+                [1140, 570],
+                [1080, 490],
+                [970, 60]
+              ].map(([cx, cy], index) => (
+                <circle key={index} cx={cx} cy={cy} r="2.4" />
+              ))}
+            </g>
+
+            {/* Pulsing active nodes */}
+            <g fill="currentColor" filter="url(#teamNodeGlow)">
+              {[
+                [110, 180],
+                [310, 260],
+                [210, 340],
+                [400, 420],
+                [220, 100],
+                [300, 570],
+                [1250, 250],
+                [1130, 250],
+                [1230, 340],
+                [1040, 420],
+                [1220, 90],
+                [1140, 570]
+              ].map(([cx, cy], index) => (
+                <circle
+                  key={index}
+                  className="team-node"
+                  cx={cx}
+                  cy={cy}
+                  r="3"
+                  style={{ animationDelay: `${(index % 5) * -0.65}s` }}
+                />
+              ))}
+            </g>
+
+            {/* Central orbital rings */}
+            <g fill="none" stroke="currentColor" strokeWidth="1" opacity="0.18">
+              <circle cx="720" cy="350" r="180" />
+              <circle cx="720" cy="350" r="230" />
+            </g>
+
+            <g
+              className="team-orbit"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1"
+              opacity="0.28"
+            >
+              <circle cx="720" cy="350" r="270" strokeDasharray="4 12" />
+              <circle cx="720" cy="350" r="310" strokeDasharray="2 18" />
+            </g>
+
+            <g
+              className="team-orbit-reverse"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              opacity="0.22"
+            >
+              <ellipse
+                cx="720"
+                cy="350"
+                rx="220"
+                ry="100"
+                strokeDasharray="3 14"
+              />
+            </g>
+
+            {/* Orbital signal markers */}
+            <g className="team-orbit" style={{ animationDuration: '32s' }}>
+              <circle
+                cx="720"
+                cy="80"
+                r="3.5"
+                fill="currentColor"
+                className="team-orbit-dot"
+              />
+              <circle
+                cx="720"
+                cy="40"
+                r="2"
+                fill="currentColor"
+                opacity="0.6"
+              />
+            </g>
+
+            <g
+              className="team-orbit-reverse"
+              style={{ animationDuration: '42s' }}
+            >
+              <circle
+                cx="720"
+                cy="80"
+                r="2.5"
+                fill="currentColor"
+                className="team-orbit-dot"
+              />
+            </g>
           </g>
         </Box>
       </Box>
@@ -738,7 +1148,6 @@ export default function Team({
           pointerEvents: 'none'
         }}
       />
-
       <Container
         maxWidth="xl"
         sx={{

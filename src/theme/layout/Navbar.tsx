@@ -229,19 +229,6 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
     textTransform: 'none',
     whiteSpace: 'nowrap',
 
-    background: active
-      ? `linear-gradient(
-          135deg,
-          ${alpha(primary, 0.5)},
-          ${alpha(secondary, 0.5)}
-        )`
-      : 'transparent',
-
-    border: '1px solid',
-    borderColor: active ? alpha(primary, 0.16) : 'transparent',
-
-    boxShadow: active ? `inset 0 0 0 1px ${alpha(primary, 0.035)}` : 'none',
-
     transition:
       'color 180ms ease, background-color 180ms ease, border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease',
 
@@ -251,12 +238,6 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
       inset: 0,
       zIndex: -1,
       borderRadius: 'inherit',
-
-      background: `linear-gradient(
-        135deg,
-        ${alpha(primary, 0.12)},
-        ${alpha(secondary, 0.09)}
-      )`,
 
       opacity: active ? 1 : 0,
       transform: active ? 'scale(1)' : 'scale(0.92)',
