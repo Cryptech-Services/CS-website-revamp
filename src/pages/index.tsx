@@ -906,6 +906,8 @@ export default function Home() {
       <Services />
 
       <SectionDivider />
+      <HomeMarquee />
+      <SectionDivider />
       <SecurityServices />
 
       <SectionDivider />

@@ -141,62 +141,6 @@ export default function FAQs({
         scrollMarginTop: '90px'
       }}
     >
-      {/* Decorative background glow */}
-      <Box
-        aria-hidden="true"
-        sx={{
-          position: 'absolute',
-          top: -180,
-          right: '-12%',
-          width: 440,
-          height: 440,
-          borderRadius: '50%',
-          background: `radial-gradient(
-            circle,
-            ${alpha(theme.palette.primary.main, 0.12)},
-            transparent 70%
-          )`,
-          pointerEvents: 'none'
-        }}
-      />
-
-      <Box
-        aria-hidden="true"
-        sx={{
-          position: 'absolute',
-          zIndex: 0,
-          bottom: 80,
-          right: '-8%',
-          width: { xs: 220, md: 380 },
-          height: { xs: 220, md: 380 },
-          borderRadius: '50%',
-          border: `2px solid ${alpha(primary, 0.3)}`,
-          boxShadow: `
-      0 0 0 40px ${alpha(primary, 0.09)},
-      0 0 0 80px ${alpha(primary, 0.055)}
-    `,
-          pointerEvents: 'none'
-        }}
-      />
-
-      <Box
-        aria-hidden="true"
-        sx={{
-          position: 'absolute',
-          zIndex: 0,
-          top: 80,
-          left: '-8%',
-          width: { xs: 220, md: 380 },
-          height: { xs: 220, md: 380 },
-          borderRadius: '50%',
-          border: `2px solid ${alpha(primary, 0.3)}`,
-          boxShadow: `
-      0 0 0 40px ${alpha(primary, 0.09)},
-      0 0 0 80px ${alpha(primary, 0.055)}
-    `,
-          pointerEvents: 'none'
-        }}
-      />
       <Box
         aria-hidden="true"
         sx={{
