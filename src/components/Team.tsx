@@ -199,47 +199,60 @@ const defaultMembers: TeamMember[] = [
 
 function MemberAvatar({ member }: { member: TeamMember }) {
   const theme = useTheme();
-
-  const surface =
-    theme.backgroundScale?.[2] ?? theme.palette.background.default;
-
-  const primary = theme.palette.primary.main;
-  const secondary = theme.palette.secondary.main;
   const isDark = theme.palette.mode === 'dark';
+
+  const avatarUrl =
+    member.discordId && member.discordAvatar
+      ? `https://cdn.discordapp.com/avatars/${member.discordId}/${member.discordAvatar}.${member.discordAvatar.startsWith('a_') ? 'gif' : 'png'}?size=256`
+      : member.image;
 
   return (
     <Box
       sx={{
         position: 'relative',
-        display: 'grid',
-        placeItems: 'center',
-        width: '100%',
-        aspectRatio: '1 / 0.65',
+        height: 150,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         overflow: 'hidden',
-        borderRadius: 2.5,
+        borderRadius: 2,
         background: `
           radial-gradient(
-            circle at 50% 35%,
-            ${alpha(member.accent, 0.22)},
+            circle at 50% 100%,
+            ${alpha(member.accent, isDark ? 0.2 : 0.12)},
             transparent 65%
           ),
-          linear-gradient(
-            145deg,
-            ${alpha(member.accent, 0.09)},
-            ${surface}
-          )
+          ${alpha(theme.palette.primary.main, isDark ? 0.045 : 0.025)}
         `,
-        border: `1px solid ${alpha(member.accent, 0.2)}`
+        border: `1px solid ${alpha(member.accent, 0.16)}`
       }}
     >
+      {/* Subtle technical background */}
       <Box
         aria-hidden="true"
         sx={{
           position: 'absolute',
-          width: '68%',
-          aspectRatio: '1',
+          inset: 0,
+          opacity: 0.45,
+          backgroundImage: `
+            linear-gradient(${alpha(member.accent, 0.07)} 1px, transparent 1px),
+            linear-gradient(90deg, ${alpha(member.accent, 0.07)} 1px, transparent 1px)
+          `,
+          backgroundSize: '24px 24px',
+          maskImage:
+            'linear-gradient(to bottom, transparent, black 35%, black 75%, transparent)'
+        }}
+      />
+
+      {/* Accent ring */}
+      <Box
+        aria-hidden="true"
+        sx={{
+          position: 'absolute',
+          width: 116,
+          height: 116,
           borderRadius: '50%',
-          border: `1px solid ${alpha(member.accent, 0.18)}`
+          border: `1px solid ${alpha(member.accent, 0.25)}`
         }}
       />
 
@@ -247,30 +260,12 @@ function MemberAvatar({ member }: { member: TeamMember }) {
         aria-hidden="true"
         sx={{
           position: 'absolute',
-          width: '48%',
-          aspectRatio: '1',
+          width: 96,
+          height: 96,
           borderRadius: '50%',
-          border: `1px dashed ${alpha(member.accent, 0.28)}`
+          border: `1px dashed ${alpha(member.accent, 0.25)}`
         }}
       />
-
-      {/* <Avatar
-        src={member.image}
-        alt={member.image ? member.name : undefined}
-        sx={{
-          width: { xs: 68, sm: 78 },
-          height: { xs: 68, sm: 78 },
-          zIndex: 1,
-          fontSize: '1.5rem',
-          fontWeight: 800,
-          color: member.accent,
-          backgroundColor: alpha(member.accent, 0.14),
-          border: `2px solid ${alpha(member.accent, 0.45)}`,
-          boxShadow: `0 0 35px ${alpha(member.accent, 0.12)}`
-        }}
-      >
-        {!member.image && member.initials}
-      </Avatar> */}
 
       {/* Floating connection nodes */}
       {[0, 1, 2, 3, 4, 5].map((node) => (
@@ -279,107 +274,105 @@ function MemberAvatar({ member }: { member: TeamMember }) {
           sx={{
             position: 'absolute',
             zIndex: 1,
-
             width: node % 2 === 0 ? 5 : 3,
             height: node % 2 === 0 ? 5 : 3,
-
             borderRadius: '50%',
             backgroundColor: member.accent,
-
             opacity: 0.8,
-
             left: `${12 + ((node * 17) % 78)}%`,
             top: `${15 + ((node * 23) % 65)}%`,
-
             boxShadow: `0 0 12px ${alpha(member.accent, 0.7)}`,
-
             pointerEvents: 'none'
           }}
         />
       ))}
 
       <Avatar
-        src={
-          member.discordId && member.discordAvatar
-            ? `https://cdn.discordapp.com/avatars/${member.discordId}/${member.discordAvatar}.${member.discordAvatar.startsWith('a_') ? 'gif' : 'png'}?size=256`
-            : undefined
-        }
+        src={avatarUrl}
         alt={member.name}
+        slotProps={{
+          img: {
+            loading: 'lazy'
+          }
+        }}
         sx={{
-          width: 84,
-          height: 84,
-          mx: 'auto',
-          mt: 4,
-          mb: 4,
-
-          fontSize: '1.5rem',
-          fontWeight: 750,
-          letterSpacing: '-0.04em',
-          color: '#FFFFFF',
-
-          bgcolor: alpha(member.accent, 0.14),
-          backgroundImage: `linear-gradient(135deg, ${alpha(member.accent, 0.9)}, ${alpha(member.accent, 0.9)})`,
-
-          border: `2px solid ${alpha(member.accent, 0.45)}`,
-          outline: `4px solid ${alpha(member.accent, 0.07)}`,
-          outlineOffset: 2,
-
-          boxShadow: `0 8px 28px ${alpha(member.accent, isDark ? 0.2 : 0.14)}`,
-
-          transition:
-            'transform 250ms ease, box-shadow 250ms ease, border-color 250ms ease',
-
+          position: 'relative',
+          zIndex: 1,
+          width: 80,
+          height: 80,
+          bgcolor: alpha(member.accent, 0.15),
+          color: member.accent,
+          fontSize: '1.4rem',
+          fontWeight: 800,
+          border: `2px solid ${alpha(member.accent, 0.65)}`,
+          boxShadow: `0 0 32px ${alpha(member.accent, 0.18)}`,
+          transition: 'transform 220ms ease, box-shadow 220ms ease',
           '& img': {
             objectFit: 'cover'
           },
-
-          '&:hover': {
-            transform: 'translateY(-4px) scale(1.04)',
-            borderColor: member.accent,
-            boxShadow: `0 12px 34px ${alpha(member.accent, 0.28)}`
+          '.team-card:hover &': {
+            transform: 'scale(1.06)',
+            boxShadow: `0 0 42px ${alpha(member.accent, 0.3)}`
           },
-
           '@media (prefers-reduced-motion: reduce)': {
-            transition: 'none',
-            '&:hover': {
-              transform: 'none'
-            }
+            transition: 'none'
           }
         }}
       >
         {member.initials}
       </Avatar>
 
-      <Box
+      {/* Bottom label */}
+      <Stack
+        direction="row"
+        spacing={0.75}
         sx={{
-          position: 'absolute',
-          left: 10,
-          bottom: 9,
-          display: 'flex',
           alignItems: 'center',
-          gap: 0.6
+          position: 'absolute',
+          bottom: 10,
+          left: 12,
+          zIndex: 1
         }}
       >
         <Box
           sx={{
-            width: 5,
-            height: 5,
-            flexShrink: 0,
+            width: 6,
+            height: 6,
             borderRadius: '50%',
-            backgroundColor: member.accent
+            bgcolor: member.accent
           }}
         />
-
         <Typography
           sx={{
-            color: 'text.secondary',
-            fontSize: '0.58rem',
             fontFamily: 'monospace',
-            letterSpacing: '0.08em'
+            fontSize: '0.6rem',
+            letterSpacing: '0.12em',
+            color: 'text.secondary'
           }}
         >
-          CRYPTECH TEAM
+          CRYPTECH SERVICES
         </Typography>
+      </Stack>
+
+      {/* Member role indicator */}
+      <Box
+        sx={{
+          position: 'absolute',
+          right: 10,
+          bottom: 9,
+          width: 25,
+          height: 25,
+          display: 'grid',
+          placeItems: 'center',
+          borderRadius: 1.5,
+          bgcolor: theme.palette.background.paper,
+          border: `1px solid ${theme.palette.divider}`,
+          color: member.accent,
+          fontSize: '0.65rem',
+          fontWeight: 800
+        }}
+      >
+        {member.initials.slice(0, 1)}
       </Box>
     </Box>
   );
@@ -387,112 +380,234 @@ function MemberAvatar({ member }: { member: TeamMember }) {
 
 function TeamMemberCard({ member }: { member: TeamMember }) {
   const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
 
-  const surface = theme.secondaryScale?.[4] ?? theme.palette.background.paper;
+  const cardSurface =
+    theme.secondaryScale?.[4] ?? theme.palette.background.paper;
 
   return (
     <Box
+      component="article"
+      className="team-card"
       sx={{
-        width: '100%',
-        maxWidth: 320,
-        height: '100%',
-        mx: 'auto',
+        position: 'relative',
         display: 'flex',
         flexDirection: 'column',
-        p: { xs: 1.5, sm: 1.75 },
+        width: '100%',
+        maxWidth: 340,
+        height: '100%',
+        mx: 'auto',
+        p: 1.5,
+        overflow: 'hidden',
         borderRadius: 3,
+        bgcolor: cardSurface,
         border: `1px solid ${theme.palette.divider}`,
-        backgroundColor: surface,
         transition:
           'transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease',
+
         '&:hover': {
-          transform: 'translateY(-4px)',
-          borderColor: alpha(member.accent, 0.55),
-          boxShadow: `0 14px 35px ${alpha(member.accent, 0.08)}`
+          transform: 'translateY(-5px)',
+          borderColor: alpha(member.accent, 0.6),
+          boxShadow: `0 18px 40px ${alpha(member.accent, isDark ? 0.09 : 0.07)}`
+        },
+
+        '@media (prefers-reduced-motion: reduce)': {
+          transition: 'none',
+          '&:hover': {
+            transform: 'none'
+          }
         }
       }}
     >
+      {/* Accent line */}
+      <Box
+        aria-hidden="true"
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: '15%',
+          right: '15%',
+          height: 2,
+          bgcolor: member.accent,
+          opacity: 0.8,
+          borderRadius: '0 0 4px 4px'
+        }}
+      />
+
       <MemberAvatar member={member} />
 
-      <Typography
-        variant="h6"
-        sx={{
-          mt: 1.75,
-          fontSize: '1.05rem',
-          fontWeight: 850,
-          lineHeight: 1.35,
-          letterSpacing: '-0.025em'
-        }}
-      >
-        {member.name}
-      </Typography>
+      {/* Member details */}
+      <Box sx={{ px: 0.5, pt: 2, pb: 0.5 }}>
+        <Stack
+          direction="row"
+          sx={{
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            spacing: 1
+          }}
+        >
+          <Box sx={{ minWidth: 0 }}>
+            <Typography
+              variant="h6"
+              sx={{
+                fontSize: '1.1rem',
+                fontWeight: 850,
+                lineHeight: 1.3,
+                letterSpacing: '-0.035em',
+                overflowWrap: 'anywhere'
+              }}
+            >
+              {member.name}
+            </Typography>
 
-      <Typography
-        sx={{
-          mt: 0.5,
-          color: member.accent,
-          fontSize: '0.78rem',
-          fontWeight: 750,
-          lineHeight: 1.5
-        }}
-      >
-        {member.role}
-      </Typography>
+            <Typography
+              sx={{
+                mt: 0.65,
+                color: member.accent,
+                fontSize: '0.75rem',
+                fontWeight: 750,
+                lineHeight: 1.5
+              }}
+            >
+              {member.role}
+            </Typography>
+          </Box>
 
-      <Typography
-        sx={{
-          mt: 1.25,
-          color: 'text.secondary',
-          fontSize: '0.8rem',
-          lineHeight: 1.7
-        }}
-      >
-        {member.description}
-      </Typography>
-
-      <Stack
-        direction="row"
-        sx={{
-          flexWrap: 'wrap',
-          gap: 0.5,
-          mt: 1.75
-        }}
-      >
-        {member.skills.map((skill) => (
           <Chip
-            key={skill}
-            label={skill}
+            label={member.category}
             size="small"
+            variant="outlined"
             sx={{
-              height: 24,
-              borderRadius: 1.25,
-              fontSize: '0.65rem',
-              fontWeight: 650,
+              flexShrink: 0,
+              height: 23,
+              borderRadius: 1.5,
               color: 'text.secondary',
-              backgroundColor: alpha(member.accent, 0.08),
-              border: `1px solid ${alpha(member.accent, 0.18)}`,
+              borderColor: theme.palette.divider,
+              fontSize: '0.62rem',
+              fontWeight: 650,
               '& .MuiChip-label': {
                 px: 0.9
               }
             }}
           />
-        ))}
-      </Stack>
+        </Stack>
 
-      <Box sx={{ flexGrow: 1, minHeight: 14 }} />
+        <Typography
+          sx={{
+            mt: 1.5,
+            minHeight: 67,
+            color: 'text.secondary',
+            fontSize: '0.79rem',
+            lineHeight: 1.75,
+            display: '-webkit-box',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden'
+          }}
+        >
+          {member.description}
+        </Typography>
 
+        {/* Skills */}
+        <Stack
+          direction="row"
+          useFlexGap
+          sx={{
+            flexWrap: 'wrap',
+            gap: 0.65,
+            mt: 1.75,
+            minHeight: 52,
+            alignContent: 'flex-start'
+          }}
+        >
+          {member.skills.slice(0, 3).map((skill) => (
+            <Chip
+              key={skill}
+              label={skill}
+              size="small"
+              sx={{
+                height: 24,
+                maxWidth: '100%',
+                borderRadius: 1.25,
+                bgcolor: alpha(member.accent, 0.08),
+                color: 'text.secondary',
+                border: `1px solid ${alpha(member.accent, 0.15)}`,
+                fontSize: '0.65rem',
+                '& .MuiChip-label': {
+                  px: 0.9,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }
+              }}
+            />
+          ))}
+
+          {member.skills.length > 3 && (
+            <Chip
+              label={`+${member.skills.length - 3}`}
+              size="small"
+              sx={{
+                height: 24,
+                borderRadius: 1.25,
+                bgcolor: alpha(theme.palette.text.primary, 0.04),
+                color: 'text.secondary',
+                fontSize: '0.65rem'
+              }}
+            />
+          )}
+        </Stack>
+      </Box>
+
+      <Box sx={{ flexGrow: 1 }} />
+
+      {/* Contact footer */}
       <Stack
         direction="row"
         sx={{
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: 1,
-          mt: 1.75,
+          mt: 1.5,
           pt: 1.5,
+          px: 0.5,
           borderTop: `1px solid ${theme.palette.divider}`
         }}
+        spacing={1}
       >
-        <Stack direction="row" spacing={0.75}>
+        <Stack
+          direction="row"
+          spacing={0.75}
+          sx={{ alignItems: 'center', minWidth: 0, flex: 1 }}
+        >
+          <EmailOutlinedIcon
+            sx={{
+              flexShrink: 0,
+              fontSize: 17,
+              color: member.accent
+            }}
+          />
+
+          <MuiLink
+            href={`mailto:${member.email}`}
+            underline="none"
+            title={member.email}
+            sx={{
+              minWidth: 0,
+              color: 'text.secondary',
+              fontSize: '0.7rem',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              transition: 'color 180ms ease',
+              '&:hover': {
+                color: member.accent
+              }
+            }}
+          >
+            {member.email}
+          </MuiLink>
+        </Stack>
+
+        <Stack direction="row" spacing={0.5} sx={{ flexShrink: 0 }}>
           {member.github && (
             <MuiLink
               href={member.github}
@@ -502,19 +617,17 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
               sx={{
                 display: 'grid',
                 placeItems: 'center',
-                width: 32,
-                height: 32,
+                width: 30,
+                height: 30,
                 borderRadius: 1.5,
                 color: 'text.secondary',
-                border: `1px solid ${theme.palette.divider}`,
-                transition: 'color 180ms ease, border-color 180ms ease',
                 '&:hover': {
                   color: member.accent,
-                  borderColor: member.accent
+                  bgcolor: alpha(member.accent, 0.1)
                 }
               }}
             >
-              <GitHubIcon sx={{ fontSize: 17 }} />
+              <GitHubIcon sx={{ fontSize: 18 }} />
             </MuiLink>
           )}
 
@@ -527,47 +640,38 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
               sx={{
                 display: 'grid',
                 placeItems: 'center',
-                width: 32,
-                height: 32,
+                width: 30,
+                height: 30,
                 borderRadius: 1.5,
                 color: 'text.secondary',
-                border: `1px solid ${theme.palette.divider}`,
-                transition: 'color 180ms ease, border-color 180ms ease',
                 '&:hover': {
                   color: member.accent,
-                  borderColor: member.accent
+                  bgcolor: alpha(member.accent, 0.1)
                 }
               }}
             >
-              <LinkedInIcon sx={{ fontSize: 17 }} />
+              <LinkedInIcon sx={{ fontSize: 18 }} />
             </MuiLink>
           )}
-        </Stack>
 
-        <Stack
-          direction="row"
-          spacing={1}
-          sx={{ alignItems: 'center', flexWrap: 'wrap' }}
-        >
-          <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center' }}>
-            <EmailOutlinedIcon fontSize="small" color="primary" />
-
-            <Typography
-              component="a"
-              href={`mailto:${member.email}`}
-              variant="body2"
-              sx={{
-                color: 'primary.main',
-                textDecoration: 'none',
-                overflowWrap: 'anywhere',
-                '&:hover': {
-                  textDecoration: 'underline'
-                }
-              }}
-            >
-              {member.email}
-            </Typography>
-          </Stack>
+          <MuiLink
+            href={`mailto:${member.email}`}
+            aria-label={`Email ${member.name}`}
+            sx={{
+              display: 'grid',
+              placeItems: 'center',
+              width: 30,
+              height: 30,
+              borderRadius: 1.5,
+              color: member.accent,
+              bgcolor: alpha(member.accent, 0.09),
+              '&:hover': {
+                bgcolor: alpha(member.accent, 0.18)
+              }
+            }}
+          >
+            <ArrowOutwardRoundedIcon sx={{ fontSize: 17 }} />
+          </MuiLink>
         </Stack>
       </Stack>
     </Box>

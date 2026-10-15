@@ -10,7 +10,6 @@ import {
   Button,
   Chip,
   Pagination,
-  Link as MuiLink,
   useTheme
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
@@ -18,10 +17,7 @@ import ArrowOutwardRoundedIcon from '@mui/icons-material/ArrowOutwardRounded';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LanguageRoundedIcon from '@mui/icons-material/LanguageRounded';
 import CodeRoundedIcon from '@mui/icons-material/CodeRounded';
-import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
-import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
-import SportsEsportsRoundedIcon from '@mui/icons-material/SportsEsportsRounded';
 import PageviewRoundedIcon from '@mui/icons-material/PageviewRounded';
 
 type ProjectType = 'web' | 'web3' | 'design' | 'game';
@@ -95,7 +91,6 @@ const defaultProjects: Project[] = [
     technologies: ['NFTs', 'MetrixCoin', 'Web3', 'Progressive Jackpot'],
     type: 'web3',
     liveUrl: 'https://arcana78.dev',
-    featured: false,
     banner: '/static/images/projects/arcana-splashart.png'
   },
   {
@@ -151,23 +146,18 @@ export default function Projects({
     () =>
       projects.filter((project) => {
         if (activeFilter === 'All') return true;
-
         if (activeFilter === 'Web Development') {
           return project.type === 'web';
         }
-
         if (activeFilter === 'Web3') {
           return project.type === 'web3';
         }
-
         if (activeFilter === 'Design') {
           return project.type === 'design';
         }
-
         if (activeFilter === 'Game Servers') {
           return project.type === 'game';
         }
-
         return true;
       }),
     [projects, activeFilter]
@@ -316,6 +306,7 @@ export default function Projects({
             {description}
           </Typography>
         </Stack>
+
         {/* Category filters */}
         <Stack
           direction="row"
@@ -363,8 +354,8 @@ export default function Projects({
             );
           })}
         </Stack>
-        {/* Paginated project grid */}
 
+        {/* Project cards */}
         <Grid container spacing={{ xs: 2.5, md: 3 }}>
           {visibleProjects.map((project) => (
             <Grid
@@ -375,508 +366,16 @@ export default function Projects({
                 lg: project.featured ? 12 : 4
               }}
             >
-              <Box
-                sx={{
-                  position: 'relative',
-                  display: 'flex',
-                  flexDirection: project.featured
-                    ? { xs: 'column', md: 'row' }
-                    : 'column',
-                  height: '100%',
-                  minHeight: project.featured ? { xs: 0, md: 390 } : 0,
-                  overflow: 'hidden',
-                  isolation: 'isolate',
-                  border: `1px solid ${borderColor}`,
-                  borderRadius: { xs: '20px', md: '24px' },
-                  bgcolor: alpha(cardSurface, isDark ? 0.96 : 0.99),
-                  transition:
-                    'transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 280ms ease, box-shadow 280ms ease',
-
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: '12%',
-                    right: '12%',
-                    height: '1px',
-                    background: `linear-gradient(90deg, transparent, ${alpha(
-                      primary,
-                      0.7
-                    )}, transparent)`,
-                    opacity: 0.35,
-                    transition: 'opacity 280ms ease',
-                    zIndex: 2,
-                    pointerEvents: 'none'
-                  },
-
-                  '&:hover': {
-                    transform: 'translateY(-5px)',
-                    borderColor: alpha(primary, 0.45),
-                    boxShadow: `0 22px 55px ${alpha(
-                      headingColor,
-                      isDark ? 0.16 : 0.075
-                    )}`
-                  },
-
-                  '&:hover::before': {
-                    opacity: 1
-                  },
-
-                  '&:hover .project-art': {
-                    transform: 'scale(1.035)'
-                  },
-
-                  '&:hover .project-art-overlay': {
-                    opacity: 0.65
-                  },
-
-                  '&:hover .project-arrow': {
-                    color: primary,
-                    transform: 'translate(3px, -3px)'
-                  },
-
-                  '&:hover .project-link': {
-                    borderColor: alpha(primary, 0.28),
-                    bgcolor: alpha(primary, isDark ? 0.1 : 0.055)
-                  },
-
-                  '@media (prefers-reduced-motion: reduce)': {
-                    transition: 'none',
-                    '&:hover': {
-                      transform: 'none'
-                    },
-                    '& .project-art, & .project-arrow': {
-                      transition: 'none'
-                    }
-                  }
-                }}
-              >
-                {/* Project artwork */}
-                <Box
-                  sx={{
-                    position: 'relative',
-                    flex: project.featured ? '1.15 1 0' : 'none',
-                    minWidth: 0,
-                    minHeight: project.featured
-                      ? { xs: 230, sm: 300, md: 0 }
-                      : { xs: 220, sm: 250 },
-                    aspectRatio: project.featured
-                      ? { xs: '16 / 9', md: 'auto' }
-                      : '16 / 10',
-                    overflow: 'hidden',
-                    bgcolor: alpha(primary, isDark ? 0.08 : 0.045),
-                    background:
-                      project.type === 'web3'
-                        ? `linear-gradient(145deg, ${alpha(
-                            secondary,
-                            0.2
-                          )}, ${alpha(primary, 0.08)})`
-                        : project.type === 'design'
-                          ? `linear-gradient(145deg, ${alpha(
-                              primary,
-                              0.15
-                            )}, ${alpha(secondary, 0.1)})`
-                          : project.type === 'game'
-                            ? `linear-gradient(145deg, ${alpha(
-                                secondary,
-                                0.17
-                              )}, ${alpha(primary, 0.1)})`
-                            : `linear-gradient(145deg, ${alpha(
-                                primary,
-                                0.15
-                              )}, ${alpha(secondary, 0.08)})`
-                  }}
-                >
-                  {/* Decorative grid */}
-                  <Box
-                    aria-hidden="true"
-                    sx={{
-                      position: 'absolute',
-                      inset: 0,
-                      zIndex: 1,
-                      pointerEvents: 'none',
-                      opacity: isDark ? 0.22 : 0.15,
-                      backgroundImage: `radial-gradient(${alpha(
-                        primary,
-                        0.65
-                      )} 0.8px, transparent 0.8px)`,
-                      backgroundSize: '22px 22px',
-                      maskImage:
-                        'linear-gradient(to bottom right, black, transparent 85%)'
-                    }}
-                  />
-
-                  {/* Artwork */}
-                  <Box
-                    className="project-art"
-                    sx={{
-                      position: 'absolute',
-                      inset: { xs: 12, sm: 16 },
-                      display: 'grid',
-                      placeItems: 'center',
-                      transition:
-                        'transform 450ms cubic-bezier(0.2, 0.8, 0.2, 1)'
-                    }}
-                  >
-                    <Box
-                      component="img"
-                      src={project.banner}
-                      alt={`${project.title} project preview`}
-                      loading="lazy"
-                      decoding="async"
-                      sx={{
-                        display: 'block',
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'contain',
-                        borderRadius: '14px',
-                        filter: isDark
-                          ? 'drop-shadow(0 12px 24px rgba(0, 0, 0, 0.22))'
-                          : 'drop-shadow(0 12px 24px rgba(0, 0, 0, 0.08))'
-                      }}
-                    />
-                  </Box>
-
-                  {/* Bottom artwork fade */}
-                  <Box
-                    className="project-art-overlay"
-                    sx={{
-                      position: 'absolute',
-                      inset: 0,
-                      zIndex: 1,
-                      pointerEvents: 'none',
-                      opacity: 0.4,
-                      background: `linear-gradient(to top, ${alpha(
-                        headingColor,
-                        isDark ? 0.2 : 0.12
-                      )}, transparent 55%)`,
-                      transition: 'opacity 280ms ease'
-                    }}
-                  />
-
-                  {/* Category */}
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      zIndex: 2,
-                      top: 16,
-                      left: 16,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 0.8,
-                      px: 1.25,
-                      py: 0.8,
-                      borderRadius: '9px',
-                      bgcolor: alpha(cardSurface, isDark ? 0.88 : 0.94),
-                      border: `1px solid ${alpha(headingColor, 0.1)}`,
-                      backdropFilter: 'blur(12px)',
-                      maxWidth: 'calc(100% - 32px)'
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 6,
-                        height: 6,
-                        flexShrink: 0,
-                        borderRadius: '50%',
-                        bgcolor: primary,
-                        boxShadow: `0 0 9px ${alpha(primary, 0.45)}`
-                      }}
-                    />
-
-                    <Typography
-                      sx={{
-                        color: headingColor,
-                        fontSize: '0.64rem',
-                        fontWeight: 800,
-                        letterSpacing: '0.09em',
-                        textTransform: 'uppercase',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      {project.category}
-                    </Typography>
-                  </Box>
-
-                  {/* Featured badge */}
-                  {project.featured && (
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        zIndex: 2,
-                        top: 16,
-                        right: 16,
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 0.7,
-                        px: 1.2,
-                        py: 0.8,
-                        borderRadius: '9px',
-                        bgcolor: alpha(primary, isDark ? 0.16 : 0.11),
-                        border: `1px solid ${alpha(primary, 0.3)}`,
-                        backdropFilter: 'blur(12px)'
-                      }}
-                    >
-                      <AutoAwesomeRoundedIcon
-                        sx={{ fontSize: 14, color: primary }}
-                      />
-
-                      <Typography
-                        sx={{
-                          color: primary,
-                          fontSize: '0.64rem',
-                          fontWeight: 800,
-                          letterSpacing: '0.08em'
-                        }}
-                      >
-                        FEATURED
-                      </Typography>
-                    </Box>
-                  )}
-
-                  {/* Project number */}
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      zIndex: 2,
-                      right: 16,
-                      bottom: 16,
-                      px: 1,
-                      py: 0.55,
-                      borderRadius: '7px',
-                      bgcolor: alpha(cardSurface, isDark ? 0.82 : 0.9),
-                      border: `1px solid ${alpha(headingColor, 0.1)}`,
-                      backdropFilter: 'blur(10px)'
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        color: mutedColor,
-                        fontFamily: 'monospace',
-                        fontSize: '0.68rem',
-                        fontWeight: 700,
-                        letterSpacing: '0.05em'
-                      }}
-                    >
-                      {`NO. ${String(project.number).padStart(2, '0')}`}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                {/* Project details */}
-                <Stack
-                  spacing={2.2}
-                  sx={{
-                    position: 'relative',
-                    flex: 1,
-                    minWidth: 0,
-                    p: { xs: 2.5, md: project.featured ? 3.5 : 3 },
-                    justifyContent: 'flex-start'
-                  }}
-                >
-                  {/* Eyebrow and arrow */}
-                  <Stack
-                    direction="row"
-                    sx={{
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      gap: 1
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        color: primary,
-                        fontFamily: 'monospace',
-                        fontSize: '0.7rem',
-                        fontWeight: 700,
-                        letterSpacing: '0.08em',
-                        textTransform: 'uppercase'
-                      }}
-                    >
-                      Selected work / {String(project.number).padStart(2, '0')}
-                    </Typography>
-
-                    <ArrowOutwardRoundedIcon
-                      className="project-arrow"
-                      sx={{
-                        flexShrink: 0,
-                        color: mutedColor,
-                        fontSize: 20,
-                        transition: 'transform 220ms ease, color 220ms ease'
-                      }}
-                    />
-                  </Stack>
-
-                  {/* Title */}
-                  <Typography
-                    component="h3"
-                    sx={{
-                      color: headingColor,
-                      fontSize: project.featured
-                        ? { xs: '1.55rem', sm: '1.8rem', md: '2rem' }
-                        : '1.3rem',
-                      fontWeight: 800,
-                      letterSpacing: '-0.04em',
-                      lineHeight: 1.3,
-                      overflowWrap: 'anywhere'
-                    }}
-                  >
-                    {project.title}
-                  </Typography>
-
-                  {/* Description */}
-                  <Typography
-                    sx={{
-                      color: mutedColor,
-                      fontSize: '0.875rem',
-                      lineHeight: 1.9,
-                      flexGrow: 1,
-                      display: '-webkit-box',
-                      WebkitBoxOrient: 'vertical',
-                      WebkitLineClamp: project.featured ? 5 : 4,
-                      overflow: 'hidden'
-                    }}
-                  >
-                    {project.description}
-                  </Typography>
-
-                  {/* Technology section */}
-                  <Box>
-                    <Typography
-                      sx={{
-                        mb: 1.1,
-                        color: alpha(mutedColor, 0.8),
-                        fontSize: '0.65rem',
-                        fontWeight: 800,
-                        letterSpacing: '0.12em',
-                        textTransform: 'uppercase'
-                      }}
-                    >
-                      Built with
-                    </Typography>
-
-                    <Stack
-                      direction="row"
-                      sx={{
-                        flexWrap: 'wrap',
-                        gap: 0.8
-                      }}
-                    >
-                      {project.technologies.map((technology) => (
-                        <Chip
-                          key={technology}
-                          label={technology}
-                          size="small"
-                          variant="outlined"
-                          sx={{
-                            height: 27,
-                            borderRadius: '8px',
-                            borderColor: alpha(secondary, 0.22),
-                            bgcolor: alpha(secondary, isDark ? 0.055 : 0.03),
-                            color: mutedColor,
-                            fontSize: '0.69rem',
-                            fontWeight: 600,
-                            transition:
-                              'border-color 220ms ease, background-color 220ms ease',
-                            '& .MuiChip-label': {
-                              px: 1.1
-                            }
-                          }}
-                        />
-                      ))}
-                    </Stack>
-                  </Box>
-
-                  {/* Project links */}
-                  {(project.liveUrl || project.sourceUrl) && (
-                    <Stack
-                      direction="row"
-                      spacing={1}
-                      sx={{
-                        flexWrap: 'wrap',
-                        gap: 1,
-                        pt: 2,
-                        borderTop: `1px solid ${borderColor}`
-                      }}
-                    >
-                      {project.liveUrl && (
-                        <MuiLink
-                          className="project-link"
-                          href={project.liveUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          underline="none"
-                          aria-label={`View live preview of ${project.title}`}
-                          sx={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: 0.8,
-                            minHeight: 38,
-                            px: 1.3,
-                            py: 0.8,
-                            border: `1px solid ${alpha(primary, 0.22)}`,
-                            borderRadius: '10px',
-                            bgcolor: alpha(primary, isDark ? 0.07 : 0.035),
-                            color: primary,
-                            fontSize: '0.78rem',
-                            fontWeight: 700,
-                            transition:
-                              'border-color 220ms ease, background-color 220ms ease',
-                            '&:hover': {
-                              color: primary
-                            }
-                          }}
-                        >
-                          <LanguageRoundedIcon sx={{ fontSize: 17 }} />
-                          Live Preview
-                          <ArrowOutwardRoundedIcon sx={{ fontSize: 14 }} />
-                        </MuiLink>
-                      )}
-
-                      {project.sourceUrl && (
-                        <MuiLink
-                          className="project-link"
-                          href={project.sourceUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          underline="none"
-                          aria-label={`View source code for ${project.title}`}
-                          sx={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: 0.8,
-                            minHeight: 38,
-                            px: 1.3,
-                            py: 0.8,
-                            border: `1px solid ${borderColor}`,
-                            borderRadius: '10px',
-                            bgcolor: alpha(
-                              headingColor,
-                              isDark ? 0.025 : 0.015
-                            ),
-                            color: mutedColor,
-                            fontSize: '0.78rem',
-                            fontWeight: 700,
-                            transition:
-                              'border-color 220ms ease, background-color 220ms ease, color 220ms ease',
-                            '&:hover': {
-                              color: primary
-                            }
-                          }}
-                        >
-                          <GitHubIcon sx={{ fontSize: 17 }} />
-                          Source Code
-                          <ArrowOutwardRoundedIcon sx={{ fontSize: 14 }} />
-                        </MuiLink>
-                      )}
-                    </Stack>
-                  )}
-                </Stack>
-              </Box>
+              <ProjectCard
+                project={project}
+                primary={primary}
+                secondary={secondary}
+                isDark={isDark}
+                headingColor={headingColor}
+                mutedColor={mutedColor}
+                cardSurface={cardSurface}
+                borderColor={borderColor}
+              />
             </Grid>
           ))}
 
@@ -942,7 +441,7 @@ export default function Projects({
           )}
         </Grid>
 
-        {/* Pagination controls */}
+        {/* Pagination */}
         {pageCount > 1 && (
           <Stack
             spacing={1.5}
@@ -994,266 +493,450 @@ export default function Projects({
   );
 }
 
-type ProjectArtworkProps = {
+type ProjectCardProps = {
   project: Project;
   primary: string;
   secondary: string;
   isDark: boolean;
   headingColor: string;
+  mutedColor: string;
   cardSurface: string;
   borderColor: string;
 };
 
-function ProjectArtwork({
+function ProjectCard({
   project,
   primary,
   secondary,
   isDark,
   headingColor,
+  mutedColor,
   cardSurface,
   borderColor
-}: ProjectArtworkProps) {
-  const { type, number, title } = project;
+}: ProjectCardProps) {
+  const {
+    number,
+    title,
+    category,
+    description,
+    technologies,
+    type,
+    liveUrl,
+    sourceUrl,
+    featured,
+    banner
+  } = project;
 
-  const Icon =
+  const projectAccent = type === 'web3' ? secondary : primary;
+
+  const projectTypeLabel =
     type === 'web3'
-      ? AccountBalanceWalletRoundedIcon
+      ? 'Blockchain'
       : type === 'design'
-        ? AutoAwesomeRoundedIcon
+        ? 'UI / UX Design'
         : type === 'game'
-          ? SportsEsportsRoundedIcon
-          : DashboardRoundedIcon;
+          ? 'Game Servers'
+          : 'Web Development';
 
   return (
     <Box
+      component="article"
       sx={{
         position: 'relative',
-        width: '100%',
-        maxWidth: 430,
-        aspectRatio: '1.5',
-        display: 'grid',
-        placeItems: 'center'
+        display: 'flex',
+        flexDirection: featured ? { xs: 'column', md: 'row' } : 'column',
+        height: '100%',
+        minWidth: 0,
+        overflow: 'hidden',
+        border: `1px solid ${borderColor}`,
+        borderRadius: { xs: 3, md: 4 },
+        bgcolor: cardSurface,
+        transition:
+          'transform 250ms ease, border-color 250ms ease, box-shadow 250ms ease',
+
+        '&:hover': {
+          transform: 'translateY(-5px)',
+          borderColor: alpha(projectAccent, 0.48),
+          boxShadow: `0 20px 48px ${alpha('#000000', isDark ? 0.22 : 0.075)}`
+        },
+
+        '&:hover .project-card-image': {
+          transform: 'scale(1.045)'
+        },
+
+        '&:hover .project-card-action': {
+          backgroundColor: alpha(projectAccent, isDark ? 0.16 : 0.09),
+          borderColor: alpha(projectAccent, 0.4)
+        },
+
+        '@media (prefers-reduced-motion: reduce)': {
+          transition: 'none',
+          '&:hover': { transform: 'none' },
+          '&:hover .project-card-image': { transform: 'none' }
+        }
       }}
     >
-      {/* Abstract geometric decoration */}
-      <Box
-        sx={{
-          position: 'absolute',
-          width: '70%',
-          aspectRatio: '1',
-          borderRadius:
-            type === 'design' ? '35%' : type === 'game' ? '24%' : '50%',
-          border: `1px solid ${alpha(primary, 0.24)}`,
-          transform: 'rotate(-18deg)'
-        }}
-      />
-
-      <Box
-        sx={{
-          position: 'absolute',
-          width: '54%',
-          aspectRatio: '1',
-          borderRadius: type === 'web3' ? '50%' : '24%',
-          border: `1px solid ${alpha(secondary, 0.32)}`,
-          transform: 'rotate(25deg)'
-        }}
-      />
-
-      {/* Browser and application mockup */}
+      {/* Preview artwork */}
       <Box
         sx={{
           position: 'relative',
-          width: '78%',
+          flex: featured ? '1.1 1 0' : 'none',
+          minWidth: 0,
+          minHeight: featured
+            ? { xs: 230, sm: 300, md: 0 }
+            : { xs: 210, sm: 235 },
+          aspectRatio: featured ? { xs: '16 / 9', md: 'auto' } : '16 / 10',
           overflow: 'hidden',
-          borderRadius: '12px',
-          border: `1px solid ${alpha(headingColor, 0.15)}`,
-          bgcolor: cardSurface,
-          boxShadow: `0 18px 45px ${alpha('#000000', isDark ? 0.24 : 0.1)}`,
-          transform: type === 'design' ? 'rotate(-3deg)' : 'rotate(2deg)'
+          bgcolor: alpha(projectAccent, isDark ? 0.1 : 0.055),
+          background: `linear-gradient(
+            135deg,
+            ${alpha(projectAccent, isDark ? 0.19 : 0.12)},
+            ${alpha(secondary, isDark ? 0.1 : 0.055)}
+          )`
         }}
       >
-        {/* Browser toolbar */}
-        <Stack
-          direction="row"
-          spacing={0.6}
+        {/* Technical background grid */}
+        <Box
+          aria-hidden="true"
           sx={{
-            px: 1.2,
-            py: 1,
-            borderBottom: `1px solid ${borderColor}`,
-            alignItems: 'center'
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: `radial-gradient(
+              ${alpha(projectAccent, 0.45)} 0.7px,
+              transparent 0.7px
+            )`,
+            backgroundSize: '20px 20px',
+            opacity: isDark ? 0.3 : 0.18,
+            maskImage: 'linear-gradient(135deg, black, transparent 85%)'
           }}
-        >
-          {['#F87171', '#FBBF24', '#34D399'].map((color) => (
-            <Box
-              key={color}
-              sx={{
-                width: 6,
-                height: 6,
-                borderRadius: '50%',
-                bgcolor: color
-              }}
-            />
-          ))}
+        />
 
+        {/* Actual project image */}
+        {banner ? (
           <Box
+            component="img"
+            className="project-card-image"
+            src={banner}
+            alt={`${title} project preview`}
+            loading="lazy"
+            decoding="async"
             sx={{
-              ml: 'auto',
-              width: '40%',
-              height: 5,
-              borderRadius: 3,
-              bgcolor: alpha(headingColor, 0.09)
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              p: { xs: 2, sm: 2.5 },
+              objectFit: 'contain',
+              transition: 'transform 400ms ease'
             }}
           />
-        </Stack>
-
-        {/* Mock interface */}
-        <Box
-          sx={{
-            p: { xs: 1.2, sm: 2 },
-            display: 'grid',
-            gridTemplateColumns: '0.8fr 1.2fr',
-            gap: 1.2,
-            minHeight: { xs: 105, sm: 145 }
-          }}
-        >
-          <Stack spacing={1} sx={{ justifyContent: 'center' }}>
-            <Typography
-              sx={{
-                fontSize: { xs: '0.58rem', sm: '0.68rem' },
-                fontWeight: 800,
-                letterSpacing: '-0.025em',
-                color: headingColor,
-                overflowWrap: 'anywhere'
-              }}
-            >
-              {title}
-            </Typography>
-
-            <Box
-              sx={{
-                width: '100%',
-                height: 5,
-                borderRadius: 3,
-                bgcolor: alpha(headingColor, 0.13)
-              }}
-            />
-
-            <Box
-              sx={{
-                width: '80%',
-                height: 5,
-                borderRadius: 3,
-                bgcolor: alpha(headingColor, 0.13)
-              }}
-            />
-
-            <Box
-              sx={{
-                mt: 0.5,
-                width: 65,
-                height: 20,
-                borderRadius: '6px',
-                background: `linear-gradient(110deg, ${primary}, ${secondary})`
-              }}
-            />
-          </Stack>
-
-          {/* Project icon panel */}
+        ) : (
           <Box
             sx={{
-              position: 'relative',
-              minHeight: 90,
-              borderRadius: '8px',
-              overflow: 'hidden',
-              background: `linear-gradient(
-                145deg,
-                ${alpha(primary, 0.17)},
-                ${alpha(secondary, 0.13)}
-              )`,
+              position: 'absolute',
+              inset: 0,
               display: 'grid',
               placeItems: 'center'
             }}
           >
-            <Box
+            <CodeRoundedIcon
               sx={{
-                position: 'absolute',
-                width: '75%',
-                height: '75%',
-                borderRadius:
-                  type === 'design' ? '28%' : type === 'game' ? '18%' : '50%',
-                border: `1px solid ${alpha(primary, 0.3)}`,
-                transform: 'rotate(25deg)'
-              }}
-            />
-
-            <Icon
-              sx={{
-                position: 'relative',
-                fontSize: { xs: 30, sm: 42 },
-                color: primary
+                fontSize: { xs: 64, md: 84 },
+                color: projectAccent,
+                opacity: 0.75
               }}
             />
           </Box>
-        </Box>
+        )}
 
-        {/* Small project identifier */}
+        {/* Image contrast overlay */}
         <Box
+          aria-hidden="true"
           sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            px: 1.5,
-            py: 0.9,
-            borderTop: `1px solid ${borderColor}`
-          }}
-        >
-          <Typography
-            sx={{
-              fontFamily: 'monospace',
-              fontSize: '0.62rem',
-              color: mutedArtworkColor(headingColor),
-              letterSpacing: '0.06em'
-            }}
-          >
-            PROJECT_{number}
-          </Typography>
-
-          <CodeRoundedIcon
-            sx={{
-              fontSize: 15,
-              color: secondary
-            }}
-          />
-        </Box>
-      </Box>
-
-      {/* Floating code accent */}
-      <Box
-        sx={{
-          position: 'absolute',
-          right: '3%',
-          bottom: '8%',
-          width: { xs: 32, sm: 44 },
-          height: { xs: 32, sm: 44 },
-          display: 'grid',
-          placeItems: 'center',
-          borderRadius: '12px',
-          bgcolor: cardSurface,
-          color: secondary,
-          border: `1px solid ${borderColor}`,
-          boxShadow: `0 8px 24px ${alpha('#000000', 0.08)}`
-        }}
-      >
-        <CodeRoundedIcon
-          sx={{
-            fontSize: { xs: 18, sm: 22 }
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+            background: `linear-gradient(
+              to top,
+              ${alpha('#000000', isDark ? 0.35 : 0.12)},
+              transparent 45%
+            )`
           }}
         />
+
+        {/* Category */}
+        <Chip
+          label={category}
+          size="small"
+          sx={{
+            position: 'absolute',
+            top: 14,
+            left: 14,
+            maxWidth: 'calc(100% - 100px)',
+            height: 29,
+            borderRadius: '8px',
+            bgcolor: alpha(cardSurface, isDark ? 0.92 : 0.96),
+            border: `1px solid ${alpha(headingColor, 0.1)}`,
+            color: headingColor,
+            fontSize: '0.63rem',
+            fontWeight: 800,
+            letterSpacing: '0.045em',
+            '& .MuiChip-label': {
+              px: 1.1,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }
+          }}
+        />
+
+        {/* Featured indicator */}
+        {featured && (
+          <Chip
+            icon={
+              <AutoAwesomeRoundedIcon
+                sx={{ color: `${projectAccent} !important` }}
+              />
+            }
+            label="FEATURED"
+            size="small"
+            sx={{
+              position: 'absolute',
+              top: 14,
+              right: 14,
+              height: 29,
+              borderRadius: '8px',
+              bgcolor: alpha(cardSurface, isDark ? 0.92 : 0.96),
+              border: `1px solid ${alpha(projectAccent, 0.28)}`,
+              color: projectAccent,
+              fontSize: '0.65rem',
+              fontWeight: 800,
+              '& .MuiChip-icon': {
+                ml: 0.8,
+                fontSize: 15
+              }
+            }}
+          />
+        )}
+
+        {/* Project number */}
+        <Typography
+          sx={{
+            position: 'absolute',
+            right: 16,
+            bottom: 14,
+            color: alpha('#FFFFFF', 0.9),
+            fontFamily: 'monospace',
+            fontSize: '0.7rem',
+            fontWeight: 800,
+            letterSpacing: '0.1em',
+            textShadow: '0 1px 8px rgba(0,0,0,0.45)'
+          }}
+        >
+          PROJECT / {String(number).padStart(2, '0')}
+        </Typography>
       </Box>
+
+      {/* Card details */}
+      <Stack
+        spacing={2}
+        sx={{
+          flex: 1,
+          minWidth: 0,
+          p: { xs: 2.5, md: featured ? 3.5 : 3 }
+        }}
+      >
+        {/* Project type */}
+        <Stack
+          direction="row"
+          sx={{
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 1
+          }}
+        >
+          <Stack direction="row" sx={{ alignItems: 'center' }} spacing={1}>
+            <Box
+              sx={{
+                width: 7,
+                height: 7,
+                flexShrink: 0,
+                borderRadius: '50%',
+                bgcolor: projectAccent,
+                boxShadow: `0 0 10px ${alpha(projectAccent, 0.5)}`
+              }}
+            />
+
+            <Typography
+              sx={{
+                color: mutedColor,
+                fontSize: '0.7rem',
+                fontWeight: 750,
+                letterSpacing: '0.09em',
+                textTransform: 'uppercase'
+              }}
+            >
+              {projectTypeLabel}
+            </Typography>
+          </Stack>
+
+          <ArrowOutwardRoundedIcon
+            sx={{
+              flexShrink: 0,
+              fontSize: 19,
+              color: projectAccent
+            }}
+          />
+        </Stack>
+
+        {/* Project title */}
+        <Typography
+          component="h3"
+          sx={{
+            color: headingColor,
+            fontSize: featured
+              ? { xs: '1.55rem', md: '1.9rem' }
+              : { xs: '1.3rem', md: '1.4rem' },
+            fontWeight: 850,
+            lineHeight: 1.25,
+            letterSpacing: '-0.045em',
+            overflowWrap: 'anywhere'
+          }}
+        >
+          {title}
+        </Typography>
+
+        {/* Description */}
+        <Typography
+          sx={{
+            color: mutedColor,
+            fontSize: '0.875rem',
+            lineHeight: 1.85,
+            display: '-webkit-box',
+            WebkitBoxOrient: 'vertical',
+            WebkitLineClamp: featured ? 5 : 4,
+            overflow: 'hidden'
+          }}
+        >
+          {description}
+        </Typography>
+
+        {/* Technologies */}
+        <Box sx={{ mt: 'auto !important', pt: 0.5 }}>
+          <Typography
+            sx={{
+              mb: 1.1,
+              color: mutedColor,
+              fontSize: '0.66rem',
+              fontWeight: 800,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase'
+            }}
+          >
+            Technologies
+          </Typography>
+
+          <Stack
+            direction="row"
+            useFlexGap
+            sx={{
+              flexWrap: 'wrap',
+              gap: 0.8
+            }}
+          >
+            {technologies.map((technology) => (
+              <Chip
+                key={technology}
+                label={technology}
+                size="small"
+                variant="outlined"
+                sx={{
+                  height: 27,
+                  borderRadius: '7px',
+                  borderColor: alpha(headingColor, 0.12),
+                  bgcolor: alpha(headingColor, isDark ? 0.035 : 0.02),
+                  color: mutedColor,
+                  fontSize: '0.69rem',
+                  fontWeight: 600,
+                  '& .MuiChip-label': {
+                    px: 1
+                  }
+                }}
+              />
+            ))}
+          </Stack>
+        </Box>
+
+        {/* Project actions */}
+        {(liveUrl || sourceUrl) && (
+          <Stack
+            direction="row"
+            useFlexGap
+            sx={{
+              flexWrap: 'wrap',
+              gap: 1,
+              pt: 2,
+              mt: 0.5,
+              borderTop: `1px solid ${borderColor}`
+            }}
+          >
+            {liveUrl && (
+              <Button
+                className="project-card-action"
+                component="a"
+                href={liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="outlined"
+                startIcon={<LanguageRoundedIcon />}
+                endIcon={<ArrowOutwardRoundedIcon />}
+                sx={{
+                  flex: '1 1 auto',
+                  minWidth: 0,
+                  minHeight: 40,
+                  px: 1.5,
+                  borderRadius: '10px',
+                  borderColor: alpha(projectAccent, 0.3),
+                  color: projectAccent,
+                  fontSize: '0.77rem',
+                  fontWeight: 750,
+                  textTransform: 'none',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                Live Preview
+              </Button>
+            )}
+
+            {sourceUrl && (
+              <Button
+                className="project-card-action"
+                component="a"
+                href={sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="outlined"
+                startIcon={<GitHubIcon />}
+                endIcon={<ArrowOutwardRoundedIcon />}
+                sx={{
+                  flex: '1 1 auto',
+                  minWidth: 0,
+                  minHeight: 40,
+                  px: 1.5,
+                  borderRadius: '10px',
+                  borderColor,
+                  color: mutedColor,
+                  fontSize: '0.77rem',
+                  fontWeight: 750,
+                  textTransform: 'none',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                Source Code
+              </Button>
+            )}
+          </Stack>
+        )}
+      </Stack>
     </Box>
   );
-}
-
-function mutedArtworkColor(color: string) {
-  return alpha(color, 0.6);
 }

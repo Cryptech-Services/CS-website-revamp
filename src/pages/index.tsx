@@ -11,15 +11,20 @@ import {
   Divider
 } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
+
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import NorthEastRoundedIcon from '@mui/icons-material/NorthEastRounded';
 import CodeRoundedIcon from '@mui/icons-material/CodeRounded';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import DevicesRoundedIcon from '@mui/icons-material/DevicesRounded';
 import HubRoundedIcon from '@mui/icons-material/HubRounded';
+import SecurityRoundedIcon from '@mui/icons-material/SecurityRounded';
+import TerminalRoundedIcon from '@mui/icons-material/TerminalRounded';
+
 import Navbar from '@/theme/layout/Navbar';
 import SkyEffects from '@/theme/common/SkyEffects';
 import { AppButton, AppChip } from '@/theme/components/CustomComponents';
+
 import Footer from '@/components/Footer';
 import AboutUs from '@/components/AboutUs';
 import Services from '@/components/Services';
@@ -27,24 +32,309 @@ import Projects from '@/components/Projects';
 import GameServers from '@/components/GameServers';
 import FAQs from '@/components/FAQS';
 import Team from '@/components/Team';
-import ContactCTA from '@/components/ContactCTA';
 import SecurityServices from '@/components/SecurityServices';
 import ContactUsPage from '@/components/ContactUsPage';
 import HomeMarquee from '@/components/HomeMarquee';
+import GithubSection from '@/components/GithubSection';
+
 import { useThemeContext } from '@/contexts/themeContext';
+
+/**
+ * Decorative section separator.
+ * Replaces the repeated full-width gradient bars with a softer transition.
+ */
+function SectionDivider() {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+
+  const primary = theme.colorScale?.[9] ?? theme.palette.primary.main;
+  const secondary = theme.secondaryScale?.[9] ?? theme.palette.secondary.main;
+
+  return (
+    <Box
+      aria-hidden="true"
+      sx={{
+        position: 'relative',
+        height: { xs: 24, md: 38 },
+        overflow: 'hidden',
+        pointerEvents: 'none',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          left: '8%',
+          right: '8%',
+          top: '50%',
+          height: '1px',
+          background: `linear-gradient(90deg, transparent, ${alpha(primary, 0.5)}, ${alpha(secondary, 0.5)}, transparent)`
+        },
+        '&::after': {
+          content: '""',
+          position: 'absolute',
+          width: 6,
+          height: 6,
+          top: 'calc(50% - 3px)',
+          left: '50%',
+          borderRadius: '50%',
+          backgroundColor: primary,
+          boxShadow: `0 0 14px ${alpha(primary, isDark ? 0.65 : 0.35)}`
+        }
+      }}
+    />
+  );
+}
+
+/**
+ * Lightweight animated circuit illustration.
+ * Uses inline SVG rather than a large image asset.
+ */
+function HeroCircuit({
+  primary,
+  secondary,
+  isDark
+}: {
+  primary: string;
+  secondary: string;
+  isDark: boolean;
+}) {
+  const opacity = isDark ? 0.75 : 0.9;
+
+  const traces = [
+    'M70 100 H145 V150 H205',
+    'M40 220 H105 V180 H165 V125',
+    'M340 45 V105 H285 V155 H245',
+    'M390 135 H330 V190 H275',
+    'M60 300 H130 V255 H195',
+    'M390 270 H320 V310 H260 V345',
+    'M110 35 V75 H175 V110',
+    'M365 360 V325 H320',
+    'M25 165 H75 V135 H120',
+    'M235 30 V70 H275 V105'
+  ];
+
+  const nodes = [
+    [145, 100],
+    [205, 150],
+    [105, 220],
+    [165, 180],
+    [165, 125],
+    [340, 105],
+    [285, 155],
+    [245, 155],
+    [130, 300],
+    [195, 255],
+    [320, 310],
+    [260, 345],
+    [175, 75],
+    [275, 105],
+    [75, 135],
+    [365, 325]
+  ];
+
+  return (
+    <Box
+      component="svg"
+      viewBox="0 0 420 390"
+      role="img"
+      aria-label="Abstract technology network illustration"
+      sx={{
+        display: 'block',
+        width: '100%',
+        maxWidth: 480,
+        height: 'auto',
+        overflow: 'visible',
+        color: primary,
+        opacity,
+        '& .hero-trace': {
+          strokeDasharray: '5 8',
+          animation: 'heroCircuitFlow 24s linear infinite'
+        },
+        '& .hero-node': {
+          transformBox: 'fill-box',
+          transformOrigin: 'center',
+          animation: 'heroNodePulse 4s ease-in-out infinite'
+        },
+        '@keyframes heroCircuitFlow': {
+          to: { strokeDashoffset: -180 }
+        },
+        '@keyframes heroNodePulse': {
+          '0%, 100%': { opacity: 0.45, transform: 'scale(0.85)' },
+          '50%': { opacity: 1, transform: 'scale(1.15)' }
+        },
+        '@media (prefers-reduced-motion: reduce)': {
+          '& .hero-trace, & .hero-node': {
+            animation: 'none'
+          }
+        }
+      }}
+    >
+      <defs>
+        <linearGradient id="heroCircuitGradient" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor={primary} />
+          <stop offset="100%" stopColor={secondary} />
+        </linearGradient>
+
+        <radialGradient id="heroCircuitGlow">
+          <stop
+            offset="0%"
+            stopColor={primary}
+            stopOpacity={isDark ? 0.22 : 0.13}
+          />
+          <stop offset="100%" stopColor={primary} stopOpacity="0" />
+        </radialGradient>
+
+        <pattern
+          id="heroCircuitGrid"
+          width="24"
+          height="24"
+          patternUnits="userSpaceOnUse"
+        >
+          <circle cx="1" cy="1" r="1" fill="currentColor" opacity="0.3" />
+        </pattern>
+      </defs>
+
+      <rect width="420" height="390" fill="url(#heroCircuitGrid)" />
+
+      <circle cx="220" cy="190" r="175" fill="url(#heroCircuitGlow)" />
+      <circle
+        cx="220"
+        cy="190"
+        r="125"
+        fill="none"
+        stroke="url(#heroCircuitGradient)"
+        strokeWidth="1"
+        opacity="0.28"
+      />
+      <circle
+        cx="220"
+        cy="190"
+        r="95"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1"
+        strokeDasharray="3 9"
+        opacity="0.35"
+      />
+
+      <g
+        fill="none"
+        stroke="url(#heroCircuitGradient)"
+        strokeWidth="1.25"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        {traces.map((path, index) => (
+          <path
+            key={path}
+            className="hero-trace"
+            d={path}
+            style={{ animationDelay: `${index * -1.3}s` }}
+          />
+        ))}
+      </g>
+
+      <g fill="currentColor">
+        {nodes.map(([cx, cy], index) => (
+          <circle
+            key={`${cx}-${cy}`}
+            className="hero-node"
+            cx={cx}
+            cy={cy}
+            r={index % 3 === 0 ? 3 : 1.8}
+            style={{ animationDelay: `${index * -0.25}s` }}
+          />
+        ))}
+      </g>
+
+      <g transform="translate(220 190)">
+        <circle
+          r="65"
+          fill={alpha(primary, isDark ? 0.09 : 0.055)}
+          stroke={alpha(primary, 0.6)}
+          strokeWidth="1.2"
+        />
+        <circle
+          r="48"
+          fill="none"
+          stroke={alpha(secondary, 0.7)}
+          strokeWidth="1"
+          strokeDasharray="4 7"
+        />
+        <path
+          d="M-27 0 H27 M0 -27 V27"
+          stroke="currentColor"
+          strokeWidth="1"
+          opacity="0.4"
+        />
+        <rect
+          x="-21"
+          y="-21"
+          width="42"
+          height="42"
+          rx="10"
+          fill={alpha(primary, isDark ? 0.2 : 0.1)}
+          stroke="url(#heroCircuitGradient)"
+          strokeWidth="1.5"
+          transform="rotate(45)"
+        />
+        <path
+          d="M-8 -8 L-2 -8 L-9 2 L0 2 L-5 11 L10 -4 L2 -4 L7 -11"
+          fill="none"
+          stroke={primary}
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </g>
+
+      <g fill="currentColor" fontFamily="monospace" fontSize="9" opacity="0.7">
+        <text x="22" y="25">
+          SYS / 001
+        </text>
+        <text x="302" y="35">
+          NETWORK_ACTIVE
+        </text>
+        <text x="260" y="370">
+          CONNECTED // 100%
+        </text>
+        <text x="18" y="360">
+          CRYPTECH_SERVICES
+        </text>
+      </g>
+    </Box>
+  );
+}
 
 export default function Home() {
   const theme = useTheme();
   const { toggleTheme } = useThemeContext();
   const isDark = theme.palette.mode === 'dark';
 
-  const primary = theme.colorScale[9];
-  const primaryStrong = theme.colorScale[8];
-  const secondary = theme.secondaryScale[9];
-  const background = theme.colorScale[1];
-  const surface = theme.backgroundScale[3];
-  const textPrimary = theme.grayScale[12];
-  const textSecondary = theme.grayScale[10];
+  const primary = theme.colorScale?.[9] ?? theme.palette.primary.main;
+  const primaryStrong = theme.colorScale?.[8] ?? theme.palette.primary.dark;
+  const secondary = theme.secondaryScale?.[9] ?? theme.palette.secondary.main;
+  const background =
+    theme.backgroundScale?.[1] ?? theme.palette.background.default;
+  const surface = theme.backgroundScale?.[3] ?? theme.palette.background.paper;
+  const textPrimary = theme.grayScale?.[12] ?? theme.palette.text.primary;
+  const textSecondary = theme.grayScale?.[10] ?? theme.palette.text.secondary;
+
+  const services = [
+    {
+      icon: <CodeRoundedIcon />,
+      title: 'Web & Software',
+      description: 'Modern websites and software built around your needs.'
+    },
+    {
+      icon: <SecurityRoundedIcon />,
+      title: 'Security & Infrastructure',
+      description: 'Practical security and reliable technical foundations.'
+    },
+    {
+      icon: <DevicesRoundedIcon />,
+      title: 'Digital Experiences',
+      description: 'Intuitive interfaces that make technology easier to use.'
+    }
+  ];
 
   return (
     <>
@@ -52,427 +342,131 @@ export default function Home() {
         <title>Cryptech Services | IT & Digital Solutions</title>
         <meta
           name="description"
-          content="Cryptech Services helps businesses build better digital experiences through web development, product design, and practical IT solutions."
+          content="Cryptech Services delivers web development, digital design, IT infrastructure, and security solutions for a connected world."
         />
         <meta name="theme-color" content={background} />
       </Head>
 
       <Navbar onToggleTheme={toggleTheme} />
 
+      {/* HERO */}
       <Box
         component="main"
         sx={{
           position: 'relative',
           isolation: 'isolate',
-          minHeight: { xs: 'calc(100svh - 64px)', lg: '95svh' },
+          overflow: 'hidden',
+          minHeight: '95vh',
           display: 'flex',
           alignItems: 'center',
-          overflow: 'hidden',
+          justifyContent: 'center',
           color: textPrimary,
           backgroundColor: background,
           backgroundImage: `
-            radial-gradient(ellipse at 75% 42%, ${alpha(primary, isDark ? 0.17 : 0.12)} 0%, transparent 38%),
-            radial-gradient(ellipse at 7% 90%, ${alpha(secondary, isDark ? 0.12 : 0.07)} 0%, transparent 34%)
-          `
+      radial-gradient(ellipse at 75% 38%, ${alpha(primary, isDark ? 0.17 : 0.11)} 0%, transparent 43%),
+      radial-gradient(ellipse at 5% 90%, ${alpha(secondary, isDark ? 0.12 : 0.07)} 0%, transparent 36%)
+    `
         }}
       >
-        {/* IT Network / Circuit Background */}
-
+        {/* Atmospheric background */}
         <Box
           aria-hidden="true"
           sx={{
             position: 'absolute',
             inset: 0,
-            zIndex: -1,
-            overflow: 'hidden',
-            pointerEvents: 'none',
-            opacity: isDark ? 0.25 : 0.28,
-            maskImage:
-              'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
-
-            '@keyframes circuitGridDrift': {
-              '0%, 100%': {
-                transform: 'translate3d(0, 0, 0)'
-              },
-              '50%': {
-                transform: 'translate3d(-12px, 8px, 0)'
-              }
-            },
-
-            '@keyframes circuitFlow': {
-              to: {
-                strokeDashoffset: -200
-              }
-            },
-
-            '@keyframes circuitPulse': {
-              '0%, 100%': {
-                opacity: 0.4
-              },
-              '50%': {
-                opacity: 1
-              }
-            },
-
-            '@keyframes circuitGlow': {
-              '0%, 100%': {
-                transform: 'translate(-20px, 10px) scale(0.95)'
-              },
-              '50%': {
-                transform: 'translate(20px, -15px) scale(1.08)'
-              }
-            },
-
-            '@keyframes circuitNodePulse': {
-              '0%, 100%': {
-                opacity: 0.45,
-                transform: 'scale(0.9)'
-              },
-              '50%': {
-                opacity: 1,
-                transform: 'scale(1.15)'
-              }
-            },
-
-            '@media (prefers-reduced-motion: reduce)': {
-              '& .circuit-grid, & .circuit-glow, & .circuit-traces, & .circuit-node, & .circuit-connection':
-                {
-                  animation: 'none !important'
-                }
-            }
-          }}
-        >
-          <Box
-            component="svg"
-            viewBox="0 0 1200 600"
-            preserveAspectRatio="xMidYMid slice"
-            sx={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              inset: 0,
-              color: primary,
-              overflow: 'visible',
-
-              '& .circuit-grid': {
-                animation: 'circuitGridDrift 24s ease-in-out infinite'
-              },
-
-              '& .circuit-glow': {
-                transformBox: 'fill-box',
-                transformOrigin: 'center',
-                animation: 'circuitGlow 18s ease-in-out infinite'
-              },
-
-              '& .circuit-traces': {
-                strokeDasharray: '8 12',
-                animation: 'circuitFlow 30s linear infinite'
-              },
-
-              '& .circuit-node': {
-                transformBox: 'fill-box',
-                transformOrigin: 'center',
-                animation: 'circuitNodePulse 4s ease-in-out infinite'
-              },
-
-              '& .circuit-connection': {
-                animation: 'circuitPulse 5s ease-in-out infinite'
-              }
-            }}
-          >
-            <defs>
-              <linearGradient
-                id="footer-circuit-gradient"
-                x1="0"
-                y1="0"
-                x2="1"
-                y2="1"
-              >
-                <stop offset="0%" stopColor={primary} stopOpacity="0.8" />
-                <stop offset="100%" stopColor={secondary} stopOpacity="0.2" />
-              </linearGradient>
-
-              <pattern
-                id="footer-tech-grid"
-                width="48"
-                height="48"
-                patternUnits="userSpaceOnUse"
-              >
-                <circle
-                  cx="2"
-                  cy="2"
-                  r="1"
-                  fill="currentColor"
-                  opacity="0.35"
-                />
-              </pattern>
-
-              <radialGradient id="footer-tech-glow">
-                <stop offset="0%" stopColor={primary} stopOpacity="0.18" />
-                <stop offset="100%" stopColor={primary} stopOpacity="0" />
-              </radialGradient>
-            </defs>
-
-            {/* Subtle moving technical grid */}
-            <g className="circuit-grid">
-              <rect
-                x="-48"
-                y="-48"
-                width="1296"
-                height="696"
-                fill="url(#footer-tech-grid)"
-              />
-            </g>
-
-            {/* Slowly drifting ambient glow */}
-            <ellipse
-              className="circuit-glow"
-              cx="940"
-              cy="270"
-              rx="350"
-              ry="270"
-              fill="url(#footer-tech-glow)"
-            />
-
-            {/* Animated circuit traces */}
-            <g
-              className="circuit-traces"
-              fill="none"
-              stroke="url(#footer-circuit-gradient)"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M640 0 V90 H720 V145 H810 V205 H910" />
-              <path d="M790 0 V65 H850 V110 H980 V165 H1090" />
-              <path d="M1200 80 H1110 V130 H1040 V230 H970 V280" />
-              <path d="M1200 340 H1090 V300 H1030 V360 H930 V410 H840" />
-              <path d="M1200 480 H1130 V430 H1060 V470 H960 V530 H890" />
-              <path d="M700 600 V510 H770 V450 H840 V410" />
-              <path d="M550 600 V540 H620 V490 H700 V450" />
-              <path d="M0 430 H100 V380 H190 V330 H280" />
-              <path d="M0 510 H150 V460 H230 V420 H320 V370" />
-              <path d="M0 150 H90 V200 H170 V250 H250" />
-              <path d="M250 0 V70 H320 V120 H400 V180" />
-            </g>
-
-            {/* Pulsing network nodes */}
-            <g fill="currentColor">
-              {[
-                [640, 90],
-                [720, 145],
-                [810, 205],
-                [910, 205],
-                [790, 65],
-                [850, 110],
-                [980, 165],
-                [1090, 165],
-                [1110, 130],
-                [1040, 230],
-                [970, 280],
-                [1090, 300],
-                [1030, 360],
-                [930, 410],
-                [840, 410],
-                [1130, 430],
-                [1060, 470],
-                [960, 530],
-                [890, 530],
-                [700, 510],
-                [770, 450],
-                [620, 490],
-                [100, 380],
-                [190, 330],
-                [280, 330],
-                [150, 460],
-                [230, 420],
-                [320, 370],
-                [90, 200],
-                [170, 250],
-                [250, 250],
-                [320, 70],
-                [400, 120],
-                [400, 180]
-              ].map(([cx, cy], index) => (
-                <circle
-                  key={`${cx}-${cy}`}
-                  className="circuit-node"
-                  style={{
-                    animationDelay: `${(index % 8) * -0.5}s`,
-                    animationDuration: `${3 + (index % 4)}s`
-                  }}
-                  cx={cx}
-                  cy={cy}
-                  r={index % 4 === 0 ? 3 : 1.8}
-                  opacity={index % 4 === 0 ? 0.85 : 0.5}
-                />
-              ))}
-            </g>
-
-            {/* Larger pulsing connection points */}
-            <g
-              className="circuit-connection"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1"
-            >
-              <circle cx="910" cy="205" r="8" opacity="0.45" />
-              <circle cx="910" cy="205" r="15" opacity="0.18" />
-
-              <circle cx="320" cy="370" r="7" opacity="0.4" />
-              <circle cx="320" cy="370" r="13" opacity="0.16" />
-
-              <circle cx="840" cy="410" r="7" opacity="0.4" />
-              <circle cx="840" cy="410" r="13" opacity="0.16" />
-            </g>
-
-            {/* Minimal technical accents */}
-            <g
-              fill="currentColor"
-              fontSize="10"
-              fontFamily="monospace"
-              opacity="0.5"
-            >
-              <text x="865" y="245">
-                01 / 10
-              </text>
-              <text x="1000" y="390">
-                SYS_NODE
-              </text>
-              <text x="155" y="300">
-                0x01
-              </text>
-              <text x="680" y="475">
-                CONNECTED
-              </text>
-            </g>
-          </Box>
-        </Box>
-
-        <Box
-          sx={{
-            position: 'absolute',
-            inset: 0,
-
-            opacity: isDark ? 0.15 : 0.1,
-
-            backgroundImage: `
-                      linear-gradient(
-                        ${alpha(primaryStrong, 1)} 1px,
-                        transparent 1px
-                      ),
-                      linear-gradient(
-                        90deg,
-                        ${alpha(primaryStrong, 1)} 1px,
-                        transparent 1px
-                      )
-                    `,
-
-            backgroundSize: '50px 50px',
-
-            maskImage: 'linear-gradient(to bottom, black, transparent 90%)',
-
-            WebkitMaskImage:
-              'linear-gradient(to bottom, black, transparent 90%)',
-
-            pointerEvents: 'none'
-          }}
-        />
-        <Box
-          sx={{
-            position: 'absolute',
-            inset: 0,
             zIndex: -2,
-            overflow: 'hidden'
+            overflow: 'hidden',
+            pointerEvents: 'none'
           }}
         >
           <Box sx={{ display: { xs: 'none', md: 'block' } }}>
             <SkyEffects color={primary} />
           </Box>
+
           <Box
-            aria-hidden="true"
             sx={{
               position: 'absolute',
               inset: 0,
-              opacity: isDark ? 0.1 : 0.055,
+              opacity: isDark ? 0.12 : 0.07,
               backgroundImage: `
-                linear-gradient(${alpha(primaryStrong, 0.55)} 1px, transparent 1px),
-                linear-gradient(90deg, ${alpha(primaryStrong, 0.55)} 1px, transparent 1px)
+                linear-gradient(${alpha(primaryStrong, 0.5)} 1px, transparent 1px),
+                linear-gradient(90deg, ${alpha(primaryStrong, 0.5)} 1px, transparent 1px)
               `,
               backgroundSize: '54px 54px',
               maskImage:
-                'linear-gradient(to bottom, black 0%, transparent 85%)',
+                'linear-gradient(to bottom, black 0%, transparent 88%)',
               WebkitMaskImage:
-                'linear-gradient(to bottom, black 0%, transparent 85%)',
-              pointerEvents: 'none'
+                'linear-gradient(to bottom, black 0%, transparent 88%)'
             }}
           />
         </Box>
+
         <Container
           maxWidth="xl"
           sx={{
             position: 'relative',
-            zIndex: 1,
-            py: { xs: 7, sm: 9, md: 11, lg: 12 }
+            py: { xs: 7, sm: 9, md: 12, lg: 14 }
           }}
         >
           <Box
             sx={{
               display: 'grid',
               gridTemplateColumns: {
-                xs: '1fr',
-                md: 'minmax(0, 1.08fr) minmax(320px, 0.92fr)'
+                xs: 'minmax(0, 1fr)',
+                md: 'minmax(0, 1.08fr) minmax(0, 0.92fr)'
               },
               alignItems: 'center',
-              gap: { xs: 6, md: 5, lg: 8 }
+              gap: { xs: 5, md: 4, lg: 7 }
             }}
           >
-            <Stack spacing={{ xs: 3, md: 3.25 }} sx={{ maxWidth: 760 }}>
+            {/* Hero copy */}
+            <Stack
+              spacing={{ xs: 2.5, md: 3 }}
+              sx={{ position: 'relative', zIndex: 1, maxWidth: 760 }}
+            >
               <Stack
                 direction="row"
-                sx={{
-                  alignItems: 'center',
-                  display: { xs: 'none', md: 'flex' }
-                }}
                 spacing={1.25}
+                sx={{ alignItems: 'center' }}
               >
                 <Box
                   sx={{
-                    width: 34,
-                    height: 1,
-                    bgcolor: primary
+                    width: 32,
+                    height: 2,
+                    borderRadius: 2,
+                    background: `linear-gradient(90deg, ${primary}, ${secondary})`
                   }}
                 />
                 <Typography
                   sx={{
                     color: textSecondary,
-                    fontSize: '0.73rem',
+                    fontSize: '0.72rem',
                     fontWeight: 800,
-                    letterSpacing: '0.17em',
+                    letterSpacing: '0.16em',
                     textTransform: 'uppercase'
                   }}
                 >
-                  Cryptech Services · IT Solutions Group
+                  Cryptech Services / IT Solutions Group
                 </Typography>
               </Stack>
 
               <Typography
                 component="h1"
                 sx={{
-                  fontWeight: 850,
                   fontSize: {
-                    xs: 'clamp(2.8rem, 11vw, 4rem)',
-                    sm: '4.25rem',
-                    md: 'clamp(3.6rem, 5.2vw, 5.15rem)',
-                    xl: '5.65rem'
+                    xs: 'clamp(2.65rem, 10vw, 4rem)',
+                    sm: '4.4rem',
+                    md: 'clamp(3.4rem, 5vw, 5.4rem)',
+                    xl: '5.8rem'
                   },
-                  lineHeight: { xs: 0.99, md: 0.98 },
-                  letterSpacing: '-0.065em',
-                  maxWidth: 790,
-                  '& .hero-accent': {
+                  lineHeight: { xs: 1.02, md: 0.99 },
+                  letterSpacing: '-0.068em',
+                  fontWeight: 850,
+                  maxWidth: 780,
+                  '& .hero-highlight': {
                     display: 'block',
                     color: primary,
-                    background: `linear-gradient(105deg, ${primary}, ${secondary})`,
+                    background: `linear-gradient(105deg, ${primary} 10%, ${secondary} 95%)`,
                     backgroundClip: 'text',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent'
@@ -480,17 +474,17 @@ export default function Home() {
                 }}
               >
                 Technology that
-                <Box component="span" className="hero-accent">
+                <Box component="span" className="hero-highlight">
                   moves you forward.
                 </Box>
               </Typography>
 
               <Typography
                 sx={{
-                  maxWidth: 570,
+                  maxWidth: 555,
                   color: textSecondary,
-                  fontSize: { xs: '1rem', md: '1.12rem' },
-                  lineHeight: 1.85
+                  fontSize: { xs: '1rem', md: '1.1rem' },
+                  lineHeight: 1.9
                 }}
               >
                 We design, develop, and deliver digital solutions that help
@@ -503,8 +497,7 @@ export default function Home() {
                 spacing={1.5}
                 sx={{
                   alignItems: { xs: 'stretch', sm: 'center' },
-                  pt: 0.5,
-                  display: { xs: 'none', md: 'flex' }
+                  pt: 0.5
                 }}
               >
                 <AppButton
@@ -515,14 +508,15 @@ export default function Home() {
                   size="large"
                   endIcon={<ArrowForwardRoundedIcon />}
                   sx={{
-                    minHeight: 54,
-                    px: 3,
+                    minHeight: 52,
+                    px: 2.75,
                     borderRadius: 2,
-                    boxShadow: `0 12px 34px ${alpha(primary, isDark ? 0.22 : 0.25)}`
+                    boxShadow: `0 10px 30px ${alpha(primary, isDark ? 0.24 : 0.22)}`
                   }}
                 >
                   Start a Project
                 </AppButton>
+
                 <AppButton
                   component="a"
                   href="#services"
@@ -531,64 +525,49 @@ export default function Home() {
                   size="large"
                   endIcon={<NorthEastRoundedIcon />}
                   sx={{
-                    minHeight: 54,
-                    px: 3,
+                    minHeight: 52,
+                    px: 2.75,
                     borderRadius: 2,
-                    borderColor: alpha(secondary, 0.42)
+                    borderColor: alpha(secondary, 0.4)
                   }}
                 >
-                  Discover What We Do
+                  Explore Our Services
                 </AppButton>
               </Stack>
 
               <Divider
                 sx={{
-                  maxWidth: 540,
-                  borderColor: alpha(secondary, 0.18),
-                  my: 0.75
+                  maxWidth: 520,
+                  my: { xs: 0.5, md: 1 },
+                  borderColor: alpha(secondary, 0.18)
                 }}
               />
 
               <Stack
                 direction="row"
-                spacing={{ xs: 2, sm: 3 }}
+                spacing={2.5}
                 useFlexGap
-                sx={{
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  display: { xs: 'none', md: 'flex' }
-                }}
+                sx={{ flexWrap: 'wrap', alignItems: 'center' }}
               >
                 {[
-                  { icon: <CodeRoundedIcon />, label: 'Web & Software' },
-                  {
-                    icon: <DevicesRoundedIcon />,
-                    label: 'Digital Experiences'
-                  },
-                  { icon: <HubRoundedIcon />, label: 'IT Solutions' }
+                  { icon: <CodeRoundedIcon />, label: 'Development' },
+                  { icon: <HubRoundedIcon />, label: 'IT Solutions' },
+                  { icon: <SecurityRoundedIcon />, label: 'Security' }
                 ].map((item) => (
                   <Stack
                     key={item.label}
                     direction="row"
                     spacing={0.8}
-                    sx={{
-                      alignItems: 'center'
-                    }}
+                    sx={{ alignItems: 'center' }}
                   >
-                    <Box
-                      sx={{
-                        display: 'grid',
-                        placeItems: 'center',
-                        color: primary
-                      }}
-                    >
+                    <Box sx={{ display: 'flex', color: primary }}>
                       {item.icon}
                     </Box>
                     <Typography
                       sx={{
                         color: textSecondary,
-                        fontSize: '0.8rem',
-                        fontWeight: 600
+                        fontSize: '0.78rem',
+                        fontWeight: 650
                       }}
                     >
                       {item.label}
@@ -598,49 +577,28 @@ export default function Home() {
               </Stack>
             </Stack>
 
+            {/* Hero visual */}
             <Box
               sx={{
                 position: 'relative',
                 width: '100%',
-                maxWidth: 570,
-                justifySelf: { xs: 'center', md: 'end' },
+                maxWidth: 560,
                 minWidth: 0,
-                py: { xs: 1, md: 3 }
+                justifySelf: { xs: 'center', md: 'end' }
               }}
             >
               <Box
                 aria-hidden="true"
                 sx={{
                   position: 'absolute',
-                  width: '80%',
+                  width: '85%',
                   aspectRatio: '1',
-                  top: '50%',
                   left: '50%',
+                  top: '50%',
                   transform: 'translate(-50%, -50%)',
                   borderRadius: '50%',
-                  background: `radial-gradient(circle, ${alpha(primary, isDark ? 0.2 : 0.14)} 0%, ${alpha(secondary, isDark ? 0.07 : 0.04)} 42%, transparent 70%)`,
-                  filter: { xs: 'none', md: 'blur(8px)' }
-                }}
-              />
-
-              <Box
-                aria-hidden="true"
-                sx={{
-                  position: 'absolute',
-                  inset: '7% 5%',
-                  border: `1px solid ${alpha(primary, 0.22)}`,
-                  borderRadius: '50%',
-                  transform: 'rotate(-24deg) scaleY(0.72)'
-                }}
-              />
-              <Box
-                aria-hidden="true"
-                sx={{
-                  position: 'absolute',
-                  inset: '7% 5%',
-                  border: `1px solid ${alpha(secondary, 0.22)}`,
-                  borderRadius: '50%',
-                  transform: 'rotate(36deg) scaleY(0.72)'
+                  background: `radial-gradient(circle, ${alpha(primary, isDark ? 0.16 : 0.1)} 0%, ${alpha(secondary, 0.05)} 45%, transparent 72%)`,
+                  filter: { xs: 'none', md: 'blur(12px)' }
                 }}
               />
 
@@ -648,175 +606,131 @@ export default function Home() {
                 elevation={0}
                 sx={{
                   position: 'relative',
-                  mx: { xs: 1, sm: 2, md: 0 },
-                  p: { xs: 2, sm: 2.5 },
-                  borderRadius: { xs: 3, md: 4 },
                   overflow: 'hidden',
-                  backgroundColor: alpha(surface, isDark ? 0.76 : 0.82),
+                  p: { xs: 2, sm: 2.5, md: 3 },
+                  borderRadius: { xs: 3, md: 4 },
+                  backgroundColor: alpha(surface, isDark ? 0.82 : 0.88),
                   border: `1px solid ${alpha(secondary, 0.22)}`,
-                  backdropFilter: { xs: 'none', md: 'blur(18px)' },
-                  boxShadow: `0 28px 80px ${alpha('#000000', isDark ? 0.24 : 0.1)}`,
-                  transform: { xs: 'none', md: 'rotate(1deg)' },
-                  transition: 'transform 300ms ease, border-color 300ms ease',
+                  backdropFilter: { xs: 'none', md: 'blur(16px)' },
+                  boxShadow: `0 28px 80px ${alpha('#000000', isDark ? 0.2 : 0.08)}`,
+                  transition: 'border-color 250ms ease, transform 250ms ease',
                   '&:hover': {
-                    transform: {
-                      xs: 'none',
-                      md: 'rotate(0deg) translateY(-4px)'
-                    },
-                    borderColor: alpha(primary, 0.42)
+                    borderColor: alpha(primary, 0.45),
+                    transform: { xs: 'none', md: 'translateY(-4px)' }
                   }
                 }}
               >
-                <Stack spacing={2}>
+                <Stack spacing={2.25}>
                   <Stack
                     direction="row"
                     sx={{
                       alignItems: 'center',
-                      justifyContent: 'space-between'
+                      justifyContent: 'space-between',
+                      gap: 1
                     }}
                   >
                     <Stack
                       direction="row"
-                      sx={{
-                        alignItems: 'center'
-                      }}
-                      spacing={1.1}
+                      spacing={1.2}
+                      sx={{ alignItems: 'center', minWidth: 0 }}
                     >
                       <Box
                         sx={{
-                          width: 38,
-                          height: 38,
+                          width: 42,
+                          height: 42,
+                          flexShrink: 0,
                           borderRadius: 2,
                           display: 'grid',
                           placeItems: 'center',
                           color: '#fff',
-                          bgcolor: primary,
-                          boxShadow: `0 8px 22px ${alpha(primary, 0.3)}`
+                          background: `linear-gradient(135deg, ${primary}, ${secondary})`,
+                          boxShadow: `0 8px 24px ${alpha(primary, 0.25)}`
                         }}
                       >
                         <AutoAwesomeRoundedIcon />
                       </Box>
-                      <Box>
+
+                      <Box sx={{ minWidth: 0 }}>
                         <Typography
-                          sx={{ fontWeight: 800, fontSize: '0.88rem' }}
+                          sx={{ fontWeight: 800, fontSize: '0.9rem' }}
                         >
                           Digital solutions
                         </Typography>
                         <Typography
-                          sx={{ color: textSecondary, fontSize: '0.72rem' }}
+                          sx={{ color: textSecondary, fontSize: '0.73rem' }}
                         >
-                          Designed for what&apos;s next
+                          Engineered for what&apos;s next
                         </Typography>
                       </Box>
                     </Stack>
+
                     <AppChip label="INNOVATION" color="primary" />
                   </Stack>
 
                   <Box
                     sx={{
                       position: 'relative',
-                      minHeight: { xs: 230, sm: 290 },
-                      p: { xs: 2, sm: 3 },
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
                       overflow: 'hidden',
                       borderRadius: 3,
-                      background: `linear-gradient(145deg, ${alpha(primary, isDark ? 0.22 : 0.12)}, ${alpha(secondary, isDark ? 0.16 : 0.09)}), ${background}`,
-                      border: `1px solid ${alpha(primary, 0.16)}`
+                      border: `1px solid ${alpha(primary, 0.18)}`,
+                      background: `linear-gradient(145deg, ${alpha(primary, isDark ? 0.11 : 0.07)}, ${alpha(secondary, isDark ? 0.1 : 0.05)}), ${background}`
                     }}
                   >
-                    <Box
-                      aria-hidden="true"
-                      sx={{
-                        position: 'absolute',
-                        width: 210,
-                        height: 210,
-                        borderRadius: '50%',
-                        border: `1px solid ${alpha(primary, 0.25)}`,
-                        right: '-8%',
-                        top: '5%'
-                      }}
+                    <HeroCircuit
+                      primary={primary}
+                      secondary={secondary}
+                      isDark={isDark}
                     />
-                    <Box
-                      aria-hidden="true"
-                      sx={{
-                        position: 'absolute',
-                        width: 150,
-                        height: 150,
-                        borderRadius: '50%',
-                        border: `1px solid ${alpha(secondary, 0.3)}`,
-                        right: '5%',
-                        top: '17%'
-                      }}
-                    />
-                    <Box
-                      aria-hidden="true"
-                      sx={{
-                        position: 'absolute',
-                        width: 78,
-                        height: 78,
-                        borderRadius: 3,
-                        border: `1px solid ${alpha(primary, 0.5)}`,
-                        bgcolor: alpha(primary, 0.08),
-                        transform: 'rotate(24deg)',
-                        right: '18%',
-                        top: '30%'
-                      }}
-                    />
-                    <Stack spacing={1} sx={{ position: 'relative', zIndex: 1 }}>
-                      <Typography
-                        sx={{
-                          color: primary,
-                          fontSize: '0.7rem',
-                          fontWeight: 800,
-                          letterSpacing: '0.16em'
-                        }}
-                      >
-                        IDEAS, ENGINEERED
-                      </Typography>
-                      <Typography
-                        sx={{
-                          maxWidth: 290,
-                          fontWeight: 850,
-                          fontSize: { xs: '2rem', sm: '2.65rem' },
-                          lineHeight: 1.02,
-                          letterSpacing: '-0.055em'
-                        }}
-                      >
-                        Built for
-                        <Box
-                          component="span"
-                          sx={{ display: 'block', color: primary }}
-                        >
-                          real impact.
-                        </Box>
-                      </Typography>
-                    </Stack>
 
-                    <Stack
-                      direction="row"
-                      spacing={1}
-                      sx={{ position: 'relative', zIndex: 1, flexWrap: 'wrap' }}
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        left: 12,
+                        bottom: 12,
+                        px: 1.25,
+                        py: 0.8,
+                        borderRadius: 1.5,
+                        bgcolor: alpha(surface, 0.9),
+                        border: `1px solid ${alpha(primary, 0.2)}`
+                      }}
                     >
-                      {['Design', 'Development', 'Technology'].map((label) => (
+                      <Stack
+                        direction="row"
+                        spacing={0.8}
+                        sx={{ alignItems: 'center' }}
+                      >
                         <Box
-                          key={label}
                           sx={{
-                            px: 1.15,
-                            py: 0.7,
-                            borderRadius: 1.5,
-                            border: `1px solid ${alpha(secondary, 0.2)}`,
-                            bgcolor: alpha(surface, 0.78),
-                            color: textSecondary,
-                            fontSize: '0.7rem',
-                            fontWeight: 700
+                            width: 7,
+                            height: 7,
+                            borderRadius: '50%',
+                            bgcolor: '#30A46C'
+                          }}
+                        />
+                        <Typography
+                          sx={{
+                            fontSize: '0.66rem',
+                            fontWeight: 800,
+                            letterSpacing: '0.08em'
                           }}
                         >
-                          {label}
-                        </Box>
-                      ))}
-                    </Stack>
+                          SYSTEMS CONNECTED
+                        </Typography>
+                      </Stack>
+                    </Box>
+
+                    <Typography
+                      sx={{
+                        position: 'absolute',
+                        right: 12,
+                        bottom: 13,
+                        color: textSecondary,
+                        fontSize: '0.64rem',
+                        fontFamily: 'monospace'
+                      }}
+                    >
+                      CTS / 001
+                    </Typography>
                   </Box>
 
                   <Stack
@@ -825,16 +739,20 @@ export default function Home() {
                     sx={{ alignItems: 'center' }}
                   >
                     <Box
-                      sx={{ display: 'flex', alignItems: 'center', pl: 0.25 }}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        pl: 0.25
+                      }}
                     >
                       {[primary, secondary, alpha(primary, 0.55)].map(
                         (color, index) => (
                           <Box
                             key={index}
                             sx={{
-                              width: 28,
-                              height: 28,
-                              ml: index === 0 ? 0 : -0.7,
+                              width: 27,
+                              height: 27,
+                              ml: index === 0 ? 0 : -0.65,
                               borderRadius: '50%',
                               bgcolor: color,
                               border: `2px solid ${surface}`
@@ -843,6 +761,7 @@ export default function Home() {
                         )
                       )}
                     </Box>
+
                     <Box sx={{ minWidth: 0 }}>
                       <Typography sx={{ fontWeight: 800, fontSize: '0.8rem' }}>
                         One team. Connected solutions.
@@ -857,6 +776,7 @@ export default function Home() {
                 </Stack>
               </Paper>
 
+              {/* Floating information card */}
               <Paper
                 elevation={0}
                 sx={{
@@ -864,20 +784,20 @@ export default function Home() {
                   display: { xs: 'none', sm: 'flex' },
                   alignItems: 'center',
                   gap: 1.1,
-                  left: { sm: -18, md: -34 },
-                  bottom: { sm: 18, md: -50 },
+                  left: { sm: -12, md: 300 },
+                  bottom: { sm: 22, md: -20 },
                   px: 1.5,
                   py: 1.25,
                   borderRadius: 2.5,
                   bgcolor: surface,
                   border: `1px solid ${alpha(primary, 0.25)}`,
-                  boxShadow: `0 14px 38px ${alpha('#000000', 0.12)}`
+                  boxShadow: `0 12px 34px ${alpha('#000000', 0.1)}`
                 }}
               >
                 <Box
                   sx={{
-                    width: 35,
-                    height: 35,
+                    width: 36,
+                    height: 36,
                     display: 'grid',
                     placeItems: 'center',
                     borderRadius: 1.5,
@@ -885,14 +805,15 @@ export default function Home() {
                     color: primary
                   }}
                 >
-                  <HubRoundedIcon />
+                  <TerminalRoundedIcon />
                 </Box>
+
                 <Box>
                   <Typography sx={{ fontWeight: 800, fontSize: '0.76rem' }}>
                     Technology with purpose
                   </Typography>
                   <Typography
-                    sx={{ color: textSecondary, fontSize: '0.67rem' }}
+                    sx={{ color: textSecondary, fontSize: '0.68rem' }}
                   >
                     Practical by design
                   </Typography>
@@ -900,230 +821,111 @@ export default function Home() {
               </Paper>
             </Box>
           </Box>
+
+          {/* Service highlights */}
+          <Box
+            sx={{
+              mt: { xs: 7, md: 10 },
+              pt: { xs: 3, md: 4 },
+              borderTop: `1px solid ${alpha(secondary, 0.18)}`
+            }}
+          >
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: {
+                  xs: '1fr',
+                  sm: 'repeat(3, minmax(0, 1fr))'
+                },
+                gap: { xs: 2, md: 3 }
+              }}
+            >
+              {services.map((service, index) => (
+                <Stack
+                  key={service.title}
+                  direction="row"
+                  spacing={1.5}
+                  sx={{
+                    alignItems: 'flex-start',
+                    p: { xs: 1.5, md: 2 },
+                    borderRadius: 2.5,
+                    transition: 'background-color 200ms ease',
+                    '&:hover': {
+                      bgcolor: alpha(primary, isDark ? 0.07 : 0.045)
+                    }
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 42,
+                      height: 42,
+                      flexShrink: 0,
+                      display: 'grid',
+                      placeItems: 'center',
+                      borderRadius: 2,
+                      color: index === 1 ? secondary : primary,
+                      bgcolor: alpha(index === 1 ? secondary : primary, 0.1)
+                    }}
+                  >
+                    {service.icon}
+                  </Box>
+
+                  <Box>
+                    <Typography
+                      sx={{
+                        mb: 0.5,
+                        fontWeight: 800,
+                        fontSize: '0.9rem'
+                      }}
+                    >
+                      {service.title}
+                    </Typography>
+
+                    <Typography
+                      sx={{
+                        color: textSecondary,
+                        fontSize: '0.79rem',
+                        lineHeight: 1.7
+                      }}
+                    >
+                      {service.description}
+                    </Typography>
+                  </Box>
+                </Stack>
+              ))}
+            </Box>
+          </Box>
         </Container>
       </Box>
 
-      <Box
-        component="section"
-        aria-label="Our technology services"
-        sx={{
-          position: 'absolute',
-          width: '100%',
-          height: { xs: '3.5rem', md: '3rem' },
-          zIndex: 2
-        }}
-      >
-        <Box
-          aria-hidden="true"
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            overflow: 'hidden',
-            transform: 'skewY(1deg)',
-            transformOrigin: 'right center',
-            background: `linear-gradient(90deg, ${primary}, ${secondary})`,
-            opacity: isDark ? 0.95 : 0.9
-          }}
-        />
-      </Box>
-
+      {/* MAIN CONTENT */}
       <HomeMarquee />
       <AboutUs />
-      <Box
-        component="section"
-        aria-label="Our technology services"
-        sx={{
-          position: 'relative',
-          width: '100%',
-          height: { xs: '3.5rem', md: '3rem' },
-          zIndex: 2,
-          marginTop: { xs: 0, md: 2 }
-        }}
-      >
-        <Box
-          aria-hidden="true"
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            overflow: 'hidden',
-            transform: 'skewY(-1deg)',
-            transformOrigin: 'left center',
-            background: `linear-gradient(90deg, ${primary}, ${secondary})`,
-            opacity: isDark ? 0.95 : 0.9
-          }}
-        />
-      </Box>
+
+      <SectionDivider />
       <Services />
 
-      <Box
-        component="section"
-        aria-label="Our technology services"
-        sx={{
-          position: 'relative',
-          width: '100%',
-          height: { xs: '3.5rem', md: '3rem' },
-          zIndex: 2
-        }}
-      >
-        <Box
-          aria-hidden="true"
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            overflow: 'hidden',
-            transformOrigin: 'left center',
-            background: `linear-gradient(90deg, ${primary}, ${secondary})`,
-            opacity: isDark ? 0.95 : 0.9
-          }}
-        />
-      </Box>
+      <SectionDivider />
       <SecurityServices />
 
-      <Box
-        component="section"
-        aria-label="Our technology services"
-        sx={{
-          position: 'relative',
-          width: '100%',
-          height: { xs: '3.5rem', md: '3rem' },
-          zIndex: 2
-        }}
-      >
-        <Box
-          aria-hidden="true"
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            overflow: 'hidden',
-            transform: 'skewY(1deg)',
-            transformOrigin: 'left center',
-            background: `linear-gradient(90deg, ${primary}, ${secondary})`,
-            opacity: isDark ? 0.95 : 0.9
-          }}
-        />
-      </Box>
+      <SectionDivider />
       <Projects />
 
-      <Box
-        component="section"
-        aria-label="Our technology services"
-        sx={{
-          position: 'relative',
-          width: '100%',
-          height: { xs: '3.5rem', md: '3rem' },
-          zIndex: 2
-        }}
-      >
-        <Box
-          aria-hidden="true"
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            overflow: 'hidden',
-            transform: 'skewY(-1deg)',
-            transformOrigin: 'left center',
-            background: `linear-gradient(90deg, ${primary}, ${secondary})`,
-            opacity: isDark ? 0.95 : 0.9
-          }}
-        />
-      </Box>
+      <SectionDivider />
       <GameServers />
 
-      <Box
-        component="section"
-        aria-label="Our technology services"
-        sx={{
-          position: 'relative',
-          width: '100%',
-          height: { xs: '3.5rem', md: '3rem' },
-          zIndex: 2
-        }}
-      >
-        <Box
-          aria-hidden="true"
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            overflow: 'hidden',
-            transformOrigin: 'left center',
-            background: `linear-gradient(90deg, ${primary}, ${secondary})`,
-            opacity: isDark ? 0.95 : 0.9
-          }}
-        />
-      </Box>
+      <SectionDivider />
       <Team />
 
-      <Box
-        component="section"
-        aria-label="Our technology services"
-        sx={{
-          position: 'relative',
-          width: '100%',
-          height: { xs: '3.5rem', md: '3rem' },
-          zIndex: 2
-        }}
-      >
-        <Box
-          aria-hidden="true"
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            overflow: 'hidden',
-            transformOrigin: 'left center',
-            background: `linear-gradient(90deg, ${primary}, ${secondary})`,
-            opacity: isDark ? 0.95 : 0.9
-          }}
-        />
-      </Box>
+      <SectionDivider />
+      <GithubSection />
+
+      <SectionDivider />
       <FAQs />
 
-      <Box
-        component="section"
-        aria-label="Our technology services"
-        sx={{
-          position: 'relative',
-          width: '100%',
-          height: { xs: '3.5rem', md: '3rem' },
-          zIndex: 2
-        }}
-      >
-        <Box
-          aria-hidden="true"
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            overflow: 'hidden',
-            transform: 'skewY(-1deg)',
-            transformOrigin: 'left center',
-            background: `linear-gradient(90deg, ${primary}, ${secondary})`,
-            opacity: isDark ? 0.95 : 0.9
-          }}
-        />
-      </Box>
+      <SectionDivider />
       <ContactUsPage />
 
-      <Box
-        component="section"
-        aria-label="Our technology services"
-        sx={{
-          position: 'relative',
-          width: '100%',
-          height: { xs: '3.5rem', md: '3rem' },
-          zIndex: 2
-        }}
-      >
-        <Box
-          aria-hidden="true"
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            overflow: 'hidden',
-            transformOrigin: 'left center',
-            background: `linear-gradient(90deg, ${primary}, ${secondary})`,
-            opacity: isDark ? 0.95 : 0.9
-          }}
-        />
-      </Box>
       <Footer />
     </>
   );

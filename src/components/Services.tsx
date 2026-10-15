@@ -86,6 +86,355 @@ const services = [
   }
 ];
 
+type ServiceBannerProps = {
+  serviceNumber: string;
+  accent: string;
+  isDark: boolean;
+};
+
+/** Decorative, per-service SVG artwork used as a compact card banner. */
+function ServiceBanner({ serviceNumber, accent, isDark }: ServiceBannerProps) {
+  const muted = isDark ? '#D7E5FF' : '#334155';
+  const panel = isDark ? '#071326' : '#F4F8FF';
+  const secondary = isDark ? '#172A49' : '#E2EAF8';
+
+  return (
+    <Box
+      aria-hidden="true"
+      sx={{
+        position: 'relative',
+        height: { xs: 112, md: 126 },
+        mx: { xs: -2.6, md: -3.1 },
+        mt: { xs: -2.6, md: -3.1 },
+        mb: 3,
+        overflow: 'hidden',
+        borderBottom: `1px solid ${alpha(accent, 0.22)}`,
+        background: `linear-gradient(120deg, ${alpha(accent, isDark ? 0.16 : 0.11)}, ${alpha(panel, 0.2)} 60%, ${alpha(secondary, isDark ? 0.16 : 0.5)})`,
+        '& svg': { display: 'block', width: '100%', height: '100%' },
+        '& .banner-drift': {
+          transformBox: 'fill-box',
+          transformOrigin: 'center',
+          animation: 'serviceBannerFloat 7s ease-in-out infinite alternate'
+        },
+        '@keyframes serviceBannerFloat': {
+          from: { transform: 'translateY(-2px)' },
+          to: { transform: 'translateY(3px)' }
+        },
+        '@media (prefers-reduced-motion: reduce)': {
+          '& .banner-drift': { animation: 'none' }
+        }
+      }}
+    >
+      <Box
+        component="svg"
+        viewBox="0 0 420 150"
+        preserveAspectRatio="xMidYMid slice"
+      >
+        <defs>
+          <linearGradient
+            id={`service-banner-${serviceNumber}`}
+            x1="0"
+            y1="0"
+            x2="1"
+            y2="1"
+          >
+            <stop offset="0%" stopColor={accent} stopOpacity="0.35" />
+            <stop offset="100%" stopColor={accent} stopOpacity="0.015" />
+          </linearGradient>
+          <pattern
+            id={`service-banner-grid-${serviceNumber}`}
+            width="18"
+            height="18"
+            patternUnits="userSpaceOnUse"
+          >
+            <circle cx="1" cy="1" r="1" fill={accent} fillOpacity="0.28" />
+          </pattern>
+        </defs>
+        <rect
+          width="420"
+          height="150"
+          fill={`url(#service-banner-${serviceNumber})`}
+        />
+        <rect
+          width="420"
+          height="150"
+          fill={`url(#service-banner-grid-${serviceNumber})`}
+        />
+        <path
+          d="M0 118H76L95 99H150M420 30H350L330 50H285M28 0V30L48 50H88M370 150V119L350 99H320"
+          fill="none"
+          stroke={accent}
+          strokeOpacity="0.45"
+          strokeWidth="1.2"
+        />
+        <path
+          d="M0 132H115L134 113H182M420 16H318L299 35H270"
+          fill="none"
+          stroke={accent}
+          strokeOpacity="0.25"
+          strokeDasharray="3 6"
+        />
+        <g
+          className="banner-drift"
+          stroke={accent}
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        >
+          {serviceNumber === '01' && (
+            <>
+              <rect
+                x="142"
+                y="25"
+                width="138"
+                height="94"
+                rx="9"
+                fill={panel}
+                fillOpacity="0.88"
+                strokeOpacity="0.75"
+              />
+              <path d="M142 43H280" strokeOpacity="0.5" />
+              <circle cx="154" cy="34" r="2" fill={accent} stroke="none" />
+              <circle
+                cx="163"
+                cy="34"
+                r="2"
+                fill={accent}
+                fillOpacity="0.65"
+                stroke="none"
+              />
+              <circle
+                cx="172"
+                cy="34"
+                r="2"
+                fill={accent}
+                fillOpacity="0.4"
+                stroke="none"
+              />
+              <path
+                d="M176 60L162 72L176 84M246 60L260 72L246 84M220 55L202 89"
+                fill="none"
+                strokeWidth="3"
+              />
+              <path
+                d="M157 101H202M157 108H185M221 101H262M221 108H249"
+                strokeOpacity="0.45"
+              />
+            </>
+          )}
+          {serviceNumber === '02' && (
+            <>
+              <circle
+                cx="210"
+                cy="73"
+                r="43"
+                fill={panel}
+                fillOpacity="0.6"
+                strokeOpacity="0.3"
+                strokeDasharray="4 6"
+              />
+              <path
+                d="M210 38L241 56V91L210 109L179 91V56Z"
+                fill={accent}
+                fillOpacity="0.12"
+              />
+              <path
+                d="M210 38L241 56L210 74L179 56Z"
+                fill={accent}
+                fillOpacity="0.35"
+              />
+              <path
+                d="M179 56L210 74V109L179 91Z"
+                fill={accent}
+                fillOpacity="0.16"
+              />
+              <path
+                d="M241 56L210 74V109L241 91Z"
+                fill={accent}
+                fillOpacity="0.25"
+              />
+              <path d="M210 74V109M179 56L210 74L241 56" fill="none" />
+              <circle cx="147" cy="44" r="4" fill={accent} />
+              <circle cx="275" cy="102" r="4" fill={accent} />
+              <path
+                d="M151 45L177 57M244 89L271 101"
+                fill="none"
+                strokeOpacity="0.55"
+              />
+            </>
+          )}
+          {serviceNumber === '03' && (
+            <>
+              <rect
+                x="145"
+                y="25"
+                width="130"
+                height="98"
+                rx="9"
+                fill={panel}
+                fillOpacity="0.85"
+                strokeOpacity="0.6"
+              />
+              <path d="M145 45H275" strokeOpacity="0.45" />
+              <path
+                d="M166 62H189L198 72L189 82H166M208 62H250M208 73H240M208 84H246M166 99H223"
+                fill="none"
+                strokeWidth="2.5"
+              />
+              <path d="M160 34H180M160 39H171" strokeOpacity="0.5" />
+              <circle cx="258" cy="99" r="8" fill={accent} fillOpacity="0.18" />
+              <path d="M254 99L257 102L263 95" fill="none" strokeWidth="2" />
+            </>
+          )}
+          {serviceNumber === '04' && (
+            <>
+              <rect
+                x="138"
+                y="23"
+                width="144"
+                height="100"
+                rx="10"
+                fill={panel}
+                fillOpacity="0.88"
+                strokeOpacity="0.7"
+              />
+              <path d="M138 44H282" strokeOpacity="0.5" />
+              <rect
+                x="151"
+                y="55"
+                width="118"
+                height="55"
+                rx="4"
+                fill={accent}
+                fillOpacity="0.1"
+              />
+              <rect
+                x="159"
+                y="62"
+                width="43"
+                height="40"
+                rx="3"
+                fill={accent}
+                fillOpacity="0.35"
+                strokeOpacity="0.45"
+              />
+              <path
+                d="M210 64H258M210 73H250M210 82H258M210 96H244"
+                strokeOpacity="0.7"
+              />
+              <circle cx="151" cy="34" r="2" fill={accent} stroke="none" />
+              <circle
+                cx="160"
+                cy="34"
+                r="2"
+                fill={accent}
+                fillOpacity="0.6"
+                stroke="none"
+              />
+            </>
+          )}
+          {serviceNumber === '05' && (
+            <>
+              <rect
+                x="146"
+                y="24"
+                width="128"
+                height="100"
+                rx="10"
+                fill={panel}
+                fillOpacity="0.78"
+                strokeOpacity="0.55"
+              />
+              <circle
+                cx="210"
+                cy="72"
+                r="31"
+                fill={accent}
+                fillOpacity="0.12"
+              />
+              <path
+                d="M210 48C195 48 184 59 184 73C184 87 194 96 207 96H212C217 96 220 92 218 88C216 84 220 81 225 81C235 81 239 74 236 65C232 55 222 48 210 48Z"
+                fill={accent}
+                fillOpacity="0.35"
+              />
+              <circle cx="198" cy="64" r="3" fill={panel} stroke="none" />
+              <circle cx="210" cy="59" r="3" fill={panel} stroke="none" />
+              <circle cx="222" cy="65" r="3" fill={panel} stroke="none" />
+              <circle cx="198" cy="76" r="3" fill={panel} stroke="none" />
+              <path d="M164 106H190M230 106H256" strokeOpacity="0.5" />
+            </>
+          )}
+          {serviceNumber === '06' && (
+            <>
+              <circle
+                cx="210"
+                cy="73"
+                r="43"
+                fill={panel}
+                fillOpacity="0.62"
+                strokeOpacity="0.45"
+              />
+              <path
+                d="M179 75V68C179 51 192 40 210 40S241 51 241 68V75"
+                fill="none"
+                strokeWidth="4"
+              />
+              <rect
+                x="173"
+                y="68"
+                width="15"
+                height="26"
+                rx="6"
+                fill={accent}
+                fillOpacity="0.35"
+              />
+              <rect
+                x="232"
+                y="68"
+                width="15"
+                height="26"
+                rx="6"
+                fill={accent}
+                fillOpacity="0.35"
+              />
+              <path
+                d="M240 91C234 103 223 107 211 107H202"
+                fill="none"
+                strokeWidth="2.5"
+              />
+              <rect
+                x="194"
+                y="101"
+                width="20"
+                height="9"
+                rx="4"
+                fill={accent}
+                fillOpacity="0.5"
+              />
+              <circle
+                cx="210"
+                cy="73"
+                r="15"
+                fill={accent}
+                fillOpacity="0.1"
+                strokeOpacity="0.35"
+              />
+            </>
+          )}
+        </g>
+        <g fill={accent}>
+          <circle cx="105" cy="42" r="2.5" />
+          <circle cx="310" cy="105" r="2.5" />
+          <circle cx="330" cy="25" r="1.8" />
+        </g>
+        <g fill="none" stroke={muted} strokeOpacity="0.35">
+          <path d="M22 62H75M22 70H59M345 75H396M360 83H396" />
+        </g>
+      </Box>
+    </Box>
+  );
+}
+
 export default function Services({
   eyebrow = 'OUR SERVICES',
   title = 'The right technology for your next big idea.',
@@ -677,133 +1026,158 @@ export default function Services({
           </Typography>
         </Stack>
 
-        {/* Service cards */}
-        <Grid container spacing={2.5}>
+        {/* Redesigned service cards */}
+        <Grid
+          container
+          spacing={{ xs: 2, md: 2.5 }}
+          sx={{ alignItems: 'stretch' }}
+        >
           {services.map((service) => {
             const Icon = service.icon;
+            const accentColors = [
+              primary,
+              secondary,
+              '#18C7BE',
+              '#E879F9',
+              '#F6B942',
+              '#38BDF8'
+            ];
+            const accent = accentColors[Number(service.number) - 1] ?? primary;
 
             return (
               <Grid key={service.number} size={{ xs: 12, sm: 6, lg: 4 }}>
                 <Box
+                  component="article"
                   sx={{
+                    '--service-accent': accent,
                     position: 'relative',
                     display: 'flex',
                     flexDirection: 'column',
                     height: '100%',
-                    minHeight: 320,
-                    p: { xs: 2.8, md: 3.2 },
+                    minHeight: { xs: 310, md: 335 },
+                    p: { xs: 2.6, md: 3.1 },
                     overflow: 'hidden',
                     isolation: 'isolate',
-                    borderRadius: '22px',
-                    border: `1px solid ${borderColor}`,
-                    bgcolor: cardSurface,
+                    borderRadius: { xs: '20px', md: '24px' },
+                    border: `1px solid ${alpha(accent, isDark ? 0.38 : 0.27)}`,
+                    background: `linear-gradient(145deg, ${alpha(
+                      accent,
+                      isDark ? 0.105 : 0.065
+                    )} 0%, ${alpha(cardSurface, 0.97)} 42%, ${alpha(
+                      cardSurface,
+                      0.99
+                    )} 100%)`,
+                    boxShadow: `0 12px 36px ${alpha(
+                      '#000000',
+                      isDark ? 0.12 : 0.035
+                    )}`,
                     transition:
-                      'transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 280ms ease, box-shadow 280ms ease',
-
+                      'transform 260ms ease, border-color 260ms ease, box-shadow 260ms ease',
                     '&::before': {
                       content: '""',
                       position: 'absolute',
                       inset: 0,
-                      zIndex: -2,
-                      opacity: isDark ? 0.32 : 0.2,
+                      zIndex: -1,
+                      opacity: isDark ? 0.36 : 0.22,
                       backgroundImage: `linear-gradient(${alpha(
-                        primary,
-                        isDark ? 0.1 : 0.07
+                        accent,
+                        0.1
                       )} 1px, transparent 1px), linear-gradient(90deg, ${alpha(
-                        primary,
-                        isDark ? 0.1 : 0.07
+                        accent,
+                        0.1
                       )} 1px, transparent 1px)`,
-                      backgroundSize: '34px 34px',
+                      backgroundSize: '28px 28px',
                       maskImage:
-                        'linear-gradient(to bottom right, black, transparent 75%)',
+                        'linear-gradient(135deg, black 0%, transparent 68%)',
                       pointerEvents: 'none'
                     },
-
                     '&::after': {
                       content: '""',
                       position: 'absolute',
                       top: 0,
-                      left: '12%',
-                      right: '12%',
-                      height: '1px',
-                      background: `linear-gradient(90deg, transparent, ${alpha(
-                        primary,
-                        0.7
-                      )}, transparent)`,
-                      opacity: 0.5,
-                      transition: 'opacity 280ms ease',
+                      left: '9%',
+                      width: '42%',
+                      height: '2px',
+                      borderRadius: '50%',
+                      background: `linear-gradient(90deg, ${accent}, transparent)`,
+                      boxShadow: `0 0 18px ${alpha(accent, 0.6)}`,
+                      opacity: 0.85,
                       pointerEvents: 'none'
                     },
-
                     '&:hover': {
-                      transform: 'translateY(-6px)',
-                      borderColor: alpha(primary, 0.48),
-                      boxShadow: `0 22px 55px ${alpha(
-                        headingColor,
-                        isDark ? 0.16 : 0.075
-                      )}, 0 0 0 1px ${alpha(primary, 0.035)}`
+                      transform: 'translateY(-7px)',
+                      borderColor: alpha(accent, 0.72),
+                      boxShadow: `0 22px 50px ${alpha(
+                        accent,
+                        isDark ? 0.12 : 0.09
+                      )}, 0 8px 24px ${alpha('#000000', 0.08)}`
                     },
-
-                    '&:hover::after': {
-                      opacity: 1
-                    },
-
                     '&:hover .service-icon': {
-                      transform: 'translateY(-2px) scale(1.04)',
+                      transform: 'translateY(-3px) rotate(-4deg)',
                       color: '#FFFFFF',
-                      background: `linear-gradient(135deg, ${primary}, ${secondary})`,
-                      borderColor: alpha(primary, 0.5),
-                      boxShadow: `0 8px 24px ${alpha(primary, 0.24)}`
+                      background: `linear-gradient(135deg, ${accent}, ${alpha(
+                        accent,
+                        0.58
+                      )})`,
+                      borderColor: alpha(accent, 0.8),
+                      boxShadow: `0 10px 26px ${alpha(accent, 0.3)}`
                     },
-
-                    '&:hover .service-number': {
-                      color: primary,
-                      borderColor: alpha(primary, 0.28),
-                      backgroundColor: alpha(primary, isDark ? 0.12 : 0.07)
+                    '&:hover .service-arrow': {
+                      color: '#FFFFFF',
+                      bgcolor: accent,
+                      borderColor: accent,
+                      transform: 'translate(2px, -2px)'
                     },
-
-                    '&:hover .service-tag': {
-                      borderColor: alpha(primary, 0.22)
+                    '&:hover .service-watermark': {
+                      opacity: 0.11,
+                      transform: 'translate(-3px, 3px) scale(1.04)'
                     },
-
                     '@media (prefers-reduced-motion: reduce)': {
                       transition: 'none',
-                      '&:hover': {
-                        transform: 'none'
-                      },
-                      '& .service-icon': {
-                        transition: 'none'
-                      }
+                      '&:hover': { transform: 'none' },
+                      '& .service-icon, & .service-arrow, & .service-watermark':
+                        {
+                          transition: 'none'
+                        }
                     }
                   }}
                 >
-                  {/* Ambient corner glow */}
-                  <Box
-                    aria-hidden="true"
-                    sx={{
-                      position: 'absolute',
-                      top: -85,
-                      right: -75,
-                      width: 200,
-                      height: 200,
-                      borderRadius: '50%',
-                      background: `radial-gradient(circle, ${alpha(
-                        primary,
-                        isDark ? 0.19 : 0.09
-                      )} 0%, transparent 70%)`,
-                      pointerEvents: 'none',
-                      zIndex: -1
-                    }}
+                  <ServiceBanner
+                    serviceNumber={service.number}
+                    accent={accent}
+                    isDark={isDark}
                   />
 
-                  {/* Header */}
+                  {/* Decorative oversized service number */}
+                  <Typography
+                    aria-hidden="true"
+                    className="service-watermark"
+                    sx={{
+                      position: 'absolute',
+                      top: -24,
+                      right: -5,
+                      zIndex: -1,
+                      color: accent,
+                      opacity: isDark ? 0.055 : 0.045,
+                      fontSize: { xs: '8.5rem', md: '10rem' },
+                      fontWeight: 900,
+                      lineHeight: 1,
+                      letterSpacing: '-0.09em',
+                      transition: 'opacity 260ms ease, transform 260ms ease',
+                      pointerEvents: 'none',
+                      userSelect: 'none'
+                    }}
+                  >
+                    {service.number}
+                  </Typography>
+
+                  {/* Card top row */}
                   <Stack
                     direction="row"
                     sx={{
-                      position: 'relative',
+                      mb: { xs: 3, md: 3.5 },
                       alignItems: 'center',
-                      justifyContent: 'space-between',
-                      mb: 4
+                      justifyContent: 'space-between'
                     }}
                   >
                     <Box
@@ -811,147 +1185,155 @@ export default function Services({
                       sx={{
                         display: 'grid',
                         placeItems: 'center',
-                        width: 56,
-                        height: 56,
-                        borderRadius: '17px',
-                        color: primary,
-                        bgcolor: alpha(primary, isDark ? 0.12 : 0.07),
-                        border: `1px solid ${alpha(primary, 0.16)}`,
+                        width: 58,
+                        height: 58,
+                        borderRadius: '18px',
+                        color: accent,
+                        bgcolor: alpha(accent, isDark ? 0.13 : 0.09),
+                        border: `1px solid ${alpha(accent, 0.3)}`,
                         transition:
-                          'transform 280ms ease, background 280ms ease, color 280ms ease, border-color 280ms ease, box-shadow 280ms ease',
-
-                        '& svg': {
-                          fontSize: 27
-                        }
+                          'transform 260ms ease, background 260ms ease, color 260ms ease, border-color 260ms ease, box-shadow 260ms ease',
+                        '& svg': { fontSize: 28 }
                       }}
                     >
                       <Icon />
                     </Box>
 
-                    <Box
-                      className="service-number"
+                    <Stack
+                      direction="row"
+                      spacing={0.9}
                       sx={{
-                        display: 'flex',
+                        color: accent,
                         alignItems: 'center',
-                        gap: 0.8,
-                        px: 1.2,
-                        py: 0.65,
-                        borderRadius: '9px',
-                        border: `1px solid ${borderColor}`,
-                        bgcolor: alpha(headingColor, isDark ? 0.035 : 0.025),
-                        transition:
-                          'color 220ms ease, background-color 220ms ease, border-color 220ms ease'
+                        fontFamily: 'monospace',
+                        fontSize: '0.76rem',
+                        fontWeight: 800,
+                        letterSpacing: '0.12em'
                       }}
                     >
                       <Box
+                        component="span"
                         sx={{
-                          width: 5,
-                          height: 5,
+                          width: 6,
+                          height: 6,
                           borderRadius: '50%',
-                          bgcolor: primary,
-                          boxShadow: `0 0 9px ${alpha(primary, 0.5)}`
+                          bgcolor: accent,
+                          boxShadow: `0 0 12px ${alpha(accent, 0.8)}`
                         }}
                       />
-
-                      <Typography
-                        sx={{
-                          color: alpha(mutedColor, 0.85),
-                          fontFamily: 'monospace',
-                          fontSize: '0.75rem',
-                          fontWeight: 600,
-                          letterSpacing: '0.06em',
-                          fontVariantNumeric: 'tabular-nums'
-                        }}
-                      >
-                        {`/${String(service.number).padStart(2, '0')}`}
-                      </Typography>
-                    </Box>
+                      SERVICE {service.number}
+                    </Stack>
                   </Stack>
 
-                  {/* Service title */}
                   <Typography
                     component="h3"
                     sx={{
-                      position: 'relative',
                       color: headingColor,
-                      fontWeight: 750,
-                      fontSize: { xs: '1.18rem', md: '1.25rem' },
-                      letterSpacing: '-0.035em',
-                      lineHeight: 1.4,
-                      mb: 1.3
+                      fontWeight: 800,
+                      fontSize: { xs: '1.2rem', md: '1.3rem' },
+                      letterSpacing: '-0.04em',
+                      lineHeight: 1.3,
+                      maxWidth: '19rem',
+                      mb: 1.5
                     }}
                   >
                     {service.title}
                   </Typography>
 
-                  {/* Description */}
+                  <Box
+                    aria-hidden="true"
+                    sx={{
+                      width: 38,
+                      height: 3,
+                      borderRadius: 99,
+                      bgcolor: accent,
+                      boxShadow: `0 0 14px ${alpha(accent, 0.48)}`,
+                      mb: 2
+                    }}
+                  />
+
                   <Typography
                     sx={{
-                      position: 'relative',
                       color: mutedColor,
                       fontSize: '0.9rem',
-                      lineHeight: 1.9,
-                      mb: 3.5,
+                      lineHeight: 1.85,
+                      mb: 3,
                       maxWidth: '38rem'
                     }}
                   >
                     {service.description}
                   </Typography>
 
-                  <Box sx={{ flexGrow: 1, minHeight: 12 }} />
+                  <Box sx={{ flexGrow: 1, minHeight: 10 }} />
 
-                  {/* Divider */}
-                  <Box
-                    aria-hidden="true"
-                    sx={{
-                      height: '1px',
-                      width: '100%',
-                      mb: 2.2,
-                      background: `linear-gradient(90deg, ${alpha(
-                        primary,
-                        0.3
-                      )}, ${alpha(headingColor, isDark ? 0.1 : 0.07)} 65%, transparent)`
-                    }}
-                  />
-
-                  {/* Service tags */}
                   <Stack
                     direction="row"
+                    spacing={1.5}
                     sx={{
-                      flexWrap: 'wrap',
-                      gap: 0.9,
-                      alignItems: 'center'
+                      pt: 2,
+                      mt: 1,
+                      borderTop: `1px solid ${alpha(accent, 0.2)}`,
+                      alignItems: 'flex-end',
+                      justifyContent: 'space-between'
                     }}
                   >
-                    {service.tags.map((tag) => (
-                      <Box
-                        key={tag}
-                        className="service-tag"
-                        sx={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          px: 1.15,
-                          py: 0.65,
-                          borderRadius: '8px',
-                          bgcolor: alpha(headingColor, isDark ? 0.045 : 0.025),
-                          border: `1px solid ${borderColor}`,
-                          transition:
-                            'border-color 220ms ease, background-color 220ms ease'
-                        }}
-                      >
-                        <Typography
+                    <Stack
+                      direction="row"
+                      sx={{ minWidth: 0, flex: 1, flexWrap: 'wrap', gap: 0.8 }}
+                    >
+                      {service.tags.map((tag) => (
+                        <Box
+                          key={tag}
                           sx={{
-                            color: mutedColor,
-                            fontSize: '0.7rem',
-                            fontWeight: 600,
-                            lineHeight: 1.4,
-                            letterSpacing: '0.01em'
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            px: 1.1,
+                            py: 0.6,
+                            borderRadius: 99,
+                            color: accent,
+                            bgcolor: alpha(accent, isDark ? 0.1 : 0.07),
+                            border: `1px solid ${alpha(accent, 0.25)}`
                           }}
                         >
-                          {tag}
-                        </Typography>
-                      </Box>
-                    ))}
+                          <Typography
+                            sx={{
+                              fontSize: '0.7rem',
+                              fontWeight: 700,
+                              lineHeight: 1.35,
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            {tag}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Stack>
+
+                    <Button
+                      className="service-arrow"
+                      component="a"
+                      href={`mailto:${email}?subject=${encodeURIComponent(
+                        `Inquiry: ${service.title}`
+                      )}`}
+                      aria-label={`Ask about ${service.title}`}
+                      title={`Ask about ${service.title}`}
+                      sx={{
+                        flexShrink: 0,
+                        minWidth: 38,
+                        width: 38,
+                        height: 38,
+                        p: 0,
+                        borderRadius: '50%',
+                        color: accent,
+                        border: `1px solid ${alpha(accent, 0.6)}`,
+                        bgcolor: alpha(accent, 0.06),
+                        transition:
+                          'transform 220ms ease, color 220ms ease, background-color 220ms ease, border-color 220ms ease',
+                        '&:hover': { bgcolor: alpha(accent, 0.12) }
+                      }}
+                    >
+                      <ArrowOutwardRoundedIcon sx={{ fontSize: 20 }} />
+                    </Button>
                   </Stack>
                 </Box>
               </Grid>
