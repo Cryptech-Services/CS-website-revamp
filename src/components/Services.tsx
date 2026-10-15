@@ -465,6 +465,7 @@ function ServicesBackground({
       aria-hidden="true"
       sx={{
         position: 'absolute',
+        display: { xs: 'none', md: 'block' },
         inset: 0,
         zIndex: 0,
         overflow: 'hidden',
