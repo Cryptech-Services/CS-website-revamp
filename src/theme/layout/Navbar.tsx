@@ -35,6 +35,11 @@ import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
 import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
 import PaletteRoundedIcon from '@mui/icons-material/PaletteRounded';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
+import ShieldRoundedIcon from '@mui/icons-material/ShieldRounded';
+import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded';
+import SportsEsportsRoundedIcon from '@mui/icons-material/SportsEsportsRounded';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import FolderOpenRoundedIcon from '@mui/icons-material/FolderOpenRounded';
 
 import { useThemeContext } from '@/contexts/themeContext';
 import { THEME_SETS } from '@/theme/theme';
@@ -43,7 +48,18 @@ interface NavbarProps {
   onToggleTheme: () => void;
 }
 
+/**
+ * Update this URL to your actual GitHub organization or profile.
+ */
+const GITHUB_URL = 'https://github.com/CryptechServices';
+
 const navItems = [
+  {
+    label: 'About',
+    href: '/#about',
+    section: 'about',
+    icon: BusinessCenterRoundedIcon
+  },
   {
     label: 'Services',
     href: '/#services',
@@ -51,10 +67,28 @@ const navItems = [
     icon: DesignServicesRoundedIcon
   },
   {
-    label: 'About',
-    href: '/#about',
-    section: 'about',
-    icon: BusinessCenterRoundedIcon
+    label: 'Security',
+    href: '/#security',
+    section: 'security',
+    icon: ShieldRoundedIcon
+  },
+  // {
+  //   label: 'Projects',
+  //   href: '#work',
+  //   section: 'projects',
+  //   icon: FolderOpenRoundedIcon
+  // },
+  // {
+  //   label: 'Games',
+  //   href: '#game-servers',
+  //   section: 'games',
+  //   icon: SportsEsportsRoundedIcon
+  // },
+  {
+    label: 'Team',
+    href: '/#team',
+    section: 'team',
+    icon: GroupsRoundedIcon
   },
   {
     label: 'FAQs',
@@ -63,7 +97,6 @@ const navItems = [
     icon: HelpOutlineRoundedIcon
   }
 ];
-
 type ThemeKey = keyof typeof THEME_SETS;
 
 export default function Navbar({ onToggleTheme }: NavbarProps) {
@@ -71,13 +104,19 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
   const pathname = usePathname();
 
   const isDark = theme.palette.mode === 'dark';
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // Use the drawer on tablets as well as mobile devices.
+  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
 
   const primary = theme.colorScale?.[9] ?? theme.palette.primary.main;
+
   const secondary = theme.secondaryScale?.[9] ?? theme.palette.secondary.main;
+
   const headingColor = theme.grayScale?.[12] ?? theme.palette.text.primary;
+
   const mutedColor = theme.grayScale?.[10] ?? theme.palette.text.secondary;
-  const surface = theme.backgroundScale?.[3] ?? theme.palette.background.paper;
+
+  const surface = theme.secondaryScale?.[3] ?? theme.palette.background.paper;
 
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [activeSection, setActiveSection] = React.useState('');
@@ -86,6 +125,22 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
     React.useState<HTMLElement | null>(null);
 
   const { themeSet, setThemeSet } = useThemeContext();
+
+  const [scrolled, setScrolled] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+
+    handleScroll();
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   const openThemeMenu = (event: React.MouseEvent<HTMLElement>) => {
     setThemeMenuAnchor(event.currentTarget);
@@ -106,6 +161,10 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
 
   /*
    * Active section detection.
+   *
+   * Supports Services, Security, Games, Team, About and FAQs.
+   * GitHub is an external link and does not participate in
+   * section tracking.
    */
   React.useEffect(() => {
     if (pathname !== '/') {
@@ -128,16 +187,6 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
     };
 
     updateFromHash();
-
-    if (sections.length === 0) {
-      window.addEventListener('hashchange', updateFromHash);
-      window.addEventListener('popstate', updateFromHash);
-
-      return () => {
-        window.removeEventListener('hashchange', updateFromHash);
-        window.removeEventListener('popstate', updateFromHash);
-      };
-    }
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -174,6 +223,11 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
 
   /*
    * Smooth navigation for same-page section links.
+   *
+   * Native navigation is preserved when:
+   * - The target page is different.
+   * - The target section does not exist.
+   * - The link is not a same-page hash link.
    */
   const handleNavigation = (
     event: React.MouseEvent<HTMLAnchorElement>,
@@ -197,9 +251,9 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
 
     window.history.pushState(null, '', `/#${hash}`);
 
-    if (navItems.some((item) => item.section === hash)) {
-      setActiveSection(hash);
-    }
+    setActiveSection(
+      navItems.some((item) => item.section === hash) ? hash : ''
+    );
 
     target.scrollIntoView({
       behavior: 'smooth',
@@ -213,6 +267,11 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
   };
 
   /*
+   * Shared gradient used by the logo and CTA buttons.
+   */
+  const gradient = `linear-gradient(135deg, ${primary}, ${secondary})`;
+
+  /*
    * Desktop navigation styling.
    */
   const navButtonSx = (active: boolean) => ({
@@ -221,29 +280,36 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
     overflow: 'hidden',
 
     minHeight: 42,
-    px: 3,
+    px: { lg: 1.1, xl: 1.4 },
+
     borderRadius: 1.5,
 
     color: active ? headingColor : mutedColor,
-    fontSize: '0.875rem',
+
+    fontSize: '0.82rem',
+    fontWeight: active ? 800 : 650,
+
     textTransform: 'none',
     whiteSpace: 'nowrap',
 
     transition:
-      'color 180ms ease, background-color 180ms ease, border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease',
+      'color 180ms ease, background-color 180ms ease, transform 180ms ease, box-shadow 180ms ease',
 
-    '&::before': {
-      content: '""',
-      position: 'absolute',
-      inset: 0,
-      zIndex: -1,
-      borderRadius: 'inherit',
+    // '&::before': {
+    //   content: '""',
+    //   position: 'absolute',
+    //   inset: 0,
+    //   zIndex: -1,
 
-      opacity: active ? 1 : 0,
-      transform: active ? 'scale(1)' : 'scale(0.92)',
+    //   borderRadius: 'inherit',
 
-      transition: 'opacity 180ms ease, transform 180ms ease'
-    },
+    //   opacity: active ? 1 : 0,
+    //   transform: active ? 'scale(1)' : 'scale(0.92)',
+
+    //   backgroundColor: alpha(primary, 0.06),
+
+    //   transition: 'opacity 180ms ease, transform 180ms ease'
+    // },
 
     '&::after': {
       content: '""',
@@ -252,16 +318,11 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
       left: '50%',
       bottom: 3,
 
-      width: active ? '55%' : 0,
+      width: active ? '100%' : 0,
       height: 2,
 
       borderRadius: 999,
-
-      background: `linear-gradient(
-        90deg,
-        ${primary},
-        ${secondary}
-      )`,
+      background: gradient,
 
       transform: 'translateX(-50%)',
       transition: 'width 220ms ease'
@@ -270,16 +331,20 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
     '& .MuiButton-startIcon': {
       position: 'relative',
       zIndex: 1,
-      mr: 0.9,
+
+      mr: 0.65,
+
       color: active ? primary : mutedColor,
+
       transition: 'color 180ms ease, transform 180ms ease'
     },
 
     '&:hover': {
       color: headingColor,
       backgroundColor: alpha(primary, 0.07),
-      borderColor: alpha(primary, 0.13),
+
       transform: 'translateY(-1px)',
+
       boxShadow: `inset 0 0 0 1px ${alpha(primary, 0.06)}`,
 
       '&::before': {
@@ -307,21 +372,17 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
    */
   const projectButtonSx = {
     minHeight: 42,
-    px: 2,
+    px: 1.75,
 
     borderRadius: 1.5,
-    gap: 0.75,
+    gap: 0.5,
 
     color: '#ffffff',
+    background: gradient,
 
-    background: `linear-gradient(
-      135deg,
-      ${primary},
-      ${secondary}
-    )`,
-
-    fontSize: '0.875rem',
+    fontSize: '0.84rem',
     fontWeight: 800,
+
     textTransform: 'none',
     whiteSpace: 'nowrap',
 
@@ -333,11 +394,7 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
       'background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease',
 
     '&:hover': {
-      background: `linear-gradient(
-        135deg,
-        ${secondary},
-        ${primary}
-      )`,
+      background: `linear-gradient(135deg, ${secondary}, ${primary})`,
 
       boxShadow: `0 8px 24px ${alpha(primary, 0.28)}`,
 
@@ -380,7 +437,9 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
       color: primary,
       backgroundColor: alpha(primary, 0.12),
       borderColor: alpha(primary, 0.45),
+
       transform: 'translateY(-1px)',
+
       boxShadow: `0 0 18px ${alpha(primary, 0.12)}`
     },
 
@@ -392,7 +451,7 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
   const ThemeIcon = isDark ? LightModeRoundedIcon : DarkModeRoundedIcon;
 
   /*
-   * Theme preset selector.
+   * Reusable theme preset selector.
    */
   const themeMenu = (
     <Menu
@@ -411,8 +470,10 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
         paper: {
           sx: {
             mt: 1,
+
             minWidth: 240,
             maxHeight: 420,
+
             overflowY: 'auto',
 
             borderRadius: 2.5,
@@ -421,6 +482,7 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
 
             backgroundColor: surface,
             backgroundImage: 'none',
+
             color: headingColor,
 
             boxShadow: `0 12px 36px ${alpha(
@@ -437,6 +499,7 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
             fontSize: '0.68rem',
             fontWeight: 800,
             letterSpacing: '0.12em',
+
             color: mutedColor,
             textTransform: 'uppercase'
           }}
@@ -500,145 +563,368 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
     </Menu>
   );
 
+  /*
+   * Brand component shared by desktop and mobile navigation.
+   */
+  const brand = (
+    <Box
+      component="a"
+      href="/"
+      aria-label="Cryptech Services home"
+      onClick={closeMobileMenu}
+      sx={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 1.25,
+
+        minWidth: 0,
+        flexShrink: 0,
+
+        color: 'inherit',
+        textDecoration: 'none'
+      }}
+    >
+      <Box
+        sx={{
+          position: 'relative',
+
+          display: 'grid',
+          placeItems: 'center',
+
+          width: { xs: 40, md: 44 },
+          height: { xs: 40, md: 44 },
+
+          borderRadius: 2,
+
+          color: primary,
+
+          background: `linear-gradient(
+            145deg,
+            ${alpha(primary, 0.16)},
+            ${alpha(secondary, 0.08)}
+          )`,
+
+          border: `1px solid ${alpha(primary, 0.22)}`,
+
+          flexShrink: 0,
+
+          transition: 'transform 180ms ease, box-shadow 180ms ease',
+
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            inset: -4,
+
+            borderRadius: 2.5,
+
+            border: `1px solid ${alpha(primary, 0.08)}`,
+
+            pointerEvents: 'none'
+          },
+
+          '& .MuiSvgIcon-root': {
+            fontSize: { xs: 23, md: 27 }
+          },
+
+          'a:hover &': {
+            transform: 'translateY(-1px)',
+            boxShadow: `0 5px 16px ${alpha(primary, 0.12)}`
+          }
+        }}
+      >
+        <Typography
+          sx={{
+            fontSize: { xs: '1.55rem', md: '1.8rem' },
+            fontWeight: 900,
+            lineHeight: 1
+          }}
+        >
+          ❖
+        </Typography>
+      </Box>
+
+      <Box sx={{ minWidth: 0 }}>
+        <Typography
+          sx={{
+            color: headingColor,
+
+            fontSize: {
+              xs: '0.9rem',
+              sm: '0.95rem',
+              md: '1.02rem'
+            },
+
+            fontWeight: 850,
+            letterSpacing: '-0.035em',
+            lineHeight: 1.2,
+
+            whiteSpace: 'nowrap'
+          }}
+        >
+          Cryptech Services
+        </Typography>
+
+        <Typography
+          sx={{
+            mt: 0.45,
+
+            color: mutedColor,
+
+            fontSize: '0.62rem',
+            fontWeight: 700,
+            letterSpacing: '0.12em',
+            lineHeight: 1,
+
+            textTransform: 'uppercase',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          Digital Solutions
+        </Typography>
+      </Box>
+    </Box>
+  );
+
+  /*
+   * Navigation item renderer.
+   */
+  const renderNavItems = (mobile = false) =>
+    navItems.map((item) => {
+      const Icon = item.icon;
+      const active = isActive(item.section);
+
+      return (
+        <Button
+          key={item.section}
+          component="a"
+          href={item.href}
+          onClick={(event) => handleNavigation(event, item.href)}
+          startIcon={<Icon />}
+          aria-current={active ? 'location' : undefined}
+          sx={
+            mobile
+              ? {
+                  position: 'relative',
+                  isolation: 'isolate',
+                  overflow: 'hidden',
+
+                  justifyContent: 'flex-start',
+
+                  width: '100%',
+                  minHeight: 50,
+                  px: 1.5,
+
+                  borderRadius: 1.5,
+
+                  color: active ? headingColor : mutedColor,
+
+                  fontSize: '0.9rem',
+                  fontWeight: active ? 800 : 650,
+
+                  textTransform: 'none',
+
+                  background: active
+                    ? `linear-gradient(
+                        135deg,
+                        ${alpha(primary, 0.16)},
+                        ${alpha(secondary, 0.12)}
+                      )`
+                    : 'transparent',
+
+                  border: '1px solid',
+                  borderColor: active ? alpha(primary, 0.2) : 'transparent',
+
+                  boxShadow: active
+                    ? `inset 0 0 0 1px ${alpha(primary, 0.04)}`
+                    : 'none',
+
+                  transition:
+                    'background-color 180ms ease, border-color 180ms ease, transform 180ms ease',
+
+                  '&::before': {
+                    content: '""',
+
+                    position: 'absolute',
+                    left: 0,
+                    top: 7,
+                    bottom: 7,
+
+                    width: 3,
+
+                    borderRadius: '0 4px 4px 0',
+                    background: `linear-gradient(to bottom, ${primary}, ${secondary})`,
+
+                    opacity: active ? 1 : 0,
+
+                    transition: 'opacity 180ms ease'
+                  },
+
+                  '& .MuiButton-startIcon': {
+                    position: 'relative',
+                    zIndex: 1,
+
+                    mr: 1.25,
+
+                    color: active ? primary : mutedColor,
+
+                    transition: 'color 180ms ease, transform 180ms ease'
+                  },
+
+                  '&:hover': {
+                    color: headingColor,
+
+                    background: `linear-gradient(
+                      135deg,
+                      ${alpha(primary, 0.1)},
+                      ${alpha(secondary, 0.06)}
+                    )`,
+
+                    borderColor: alpha(primary, 0.17),
+                    transform: 'translateX(2px)',
+
+                    '& .MuiButton-startIcon': {
+                      color: primary,
+                      transform: 'scale(1.08)'
+                    }
+                  },
+
+                  '&:active': {
+                    transform: 'scale(0.99)'
+                  }
+                }
+              : navButtonSx(active)
+          }
+        >
+          {item.label}
+        </Button>
+      );
+    });
+
+  /*
+   * GitHub link renderer.
+   */
+  const githubLink = (mobile = false) => (
+    <Button
+      component="a"
+      href={GITHUB_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      startIcon={<GitHubIcon />}
+      endIcon={mobile ? <ArrowOutwardRoundedIcon /> : undefined}
+      onClick={mobile ? closeMobileMenu : undefined}
+      aria-label="Visit Cryptech Services on GitHub"
+      sx={
+        mobile
+          ? {
+              justifyContent: 'flex-start',
+
+              minHeight: 48,
+              px: 1.5,
+
+              borderRadius: 1.5,
+
+              color: headingColor,
+
+              fontWeight: 700,
+              textTransform: 'none',
+
+              background: `linear-gradient(
+                135deg,
+                ${alpha(primary, 0.1)},
+                ${alpha(secondary, 0.06)}
+              )`,
+
+              border: `1px solid ${alpha(primary, 0.17)}`,
+
+              '& .MuiButton-startIcon': {
+                color: primary
+              },
+
+              '& .MuiButton-endIcon': {
+                ml: 'auto',
+                color: mutedColor
+              },
+
+              '&:hover': {
+                backgroundColor: alpha(primary, 0.12),
+                borderColor: alpha(primary, 0.35)
+              }
+            }
+          : {
+              ...navButtonSx(false),
+
+              px: { lg: 1, xl: 1.2 },
+
+              '& .MuiButton-startIcon': {
+                color: mutedColor,
+                mr: 0.55
+              },
+
+              '&:hover .MuiButton-startIcon': {
+                color: primary
+              }
+            }
+      }
+    >
+      GitHub
+    </Button>
+  );
+
   return (
     <>
       <AppBar
-        position="absolute"
+        position="sticky"
         elevation={0}
         color="transparent"
         sx={{
           top: 0,
-
           px: { xs: 1.5, sm: 2.5, md: 3 },
 
           zIndex: theme.zIndex.appBar,
 
           color: headingColor,
 
-          backgroundImage: 'none'
+          backgroundImage: 'none',
+
+          backgroundColor: scrolled
+            ? alpha(surface, isDark ? 1 : 1)
+            : 'transparent',
+
+          backdropFilter: scrolled ? 'blur(18px) saturate(160%)' : 'none',
+          WebkitBackdropFilter: scrolled ? 'blur(18px) saturate(160%)' : 'none',
+
+          borderBottom: scrolled
+            ? `1px solid ${alpha(primary, isDark ? 0.2 : 0.12)}`
+            : '1px solid transparent',
+
+          boxShadow: scrolled
+            ? `0 8px 30px ${alpha(
+                theme.palette.common.black,
+                isDark ? 0.16 : 0.045
+              )}`
+            : 'none',
+
+          transition: [
+            'background-color 220ms ease',
+            'backdrop-filter 220ms ease',
+            'border-color 220ms ease',
+            'box-shadow 220ms ease'
+          ].join(', ')
         }}
       >
         <Toolbar
           disableGutters
           sx={{
             minHeight: { xs: 68, md: 78 },
-            gap: { xs: 1, md: 2 },
+
+            gap: { xs: 1, md: 1.5 },
+
             justifyContent: 'space-between'
           }}
         >
           {/* BRAND */}
 
-          <Box
-            component="a"
-            href="/"
-            aria-label="Cryptech Services home"
-            sx={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 1.25,
-
-              minWidth: 0,
-              flexShrink: 0,
-
-              color: 'inherit',
-              textDecoration: 'none'
-            }}
-          >
-            <Box
-              sx={{
-                position: 'relative',
-
-                display: 'grid',
-                placeItems: 'center',
-
-                width: { xs: 40, md: 46 },
-                height: { xs: 40, md: 46 },
-
-                borderRadius: 2,
-
-                color: primary,
-
-                background: `linear-gradient(
-                  145deg,
-                  ${alpha(primary, 0.16)},
-                  ${alpha(secondary, 0.08)}
-                )`,
-
-                border: `1px solid ${alpha(primary, 0.22)}`,
-
-                flexShrink: 0,
-
-                transition: 'transform 180ms ease, box-shadow 180ms ease',
-
-                '&::after': {
-                  content: '""',
-                  position: 'absolute',
-                  inset: -4,
-                  borderRadius: 2.5,
-                  border: `1px solid ${alpha(primary, 0.08)}`,
-                  pointerEvents: 'none'
-                },
-
-                '& .MuiSvgIcon-root': {
-                  fontSize: { xs: 23, md: 28 }
-                },
-
-                'a:hover &': {
-                  transform: 'translateY(-1px)',
-                  boxShadow: `0 5px 16px ${alpha(primary, 0.12)}`
-                }
-              }}
-            >
-              <Typography
-                sx={{
-                  fontSize: {
-                    md: '1.8rem'
-                  }
-                }}
-              >
-                ❖
-              </Typography>
-            </Box>
-
-            <Box sx={{ minWidth: 0 }}>
-              <Typography
-                sx={{
-                  color: headingColor,
-
-                  fontSize: {
-                    xs: '0.9rem',
-                    sm: '0.95rem',
-                    md: '1.05rem'
-                  },
-
-                  fontWeight: 850,
-                  letterSpacing: '-0.035em',
-                  lineHeight: 1.2,
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                Cryptech Services
-              </Typography>
-
-              <Typography
-                sx={{
-                  mt: 0.45,
-
-                  color: mutedColor,
-
-                  fontSize: '0.62rem',
-                  fontWeight: 700,
-                  letterSpacing: '0.12em',
-                  lineHeight: 1,
-
-                  textTransform: 'uppercase',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                Digital Solutions
-              </Typography>
-            </Box>
-          </Box>
+          {brand}
 
           {/* DESKTOP NAVIGATION */}
 
@@ -647,30 +933,17 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
               component="nav"
               aria-label="Main navigation"
               direction="row"
-              spacing={4}
+              spacing={{ lg: 0.15, xl: 2 }}
               sx={{
                 alignItems: 'center',
-                p: 0.5
+                justifyContent: 'center',
+                minWidth: 0,
+                flex: 1,
+                px: { lg: 0.5, xl: 1 }
               }}
             >
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const active = isActive(item.section);
-
-                return (
-                  <Button
-                    key={item.section}
-                    component="a"
-                    href={item.href}
-                    onClick={(event) => handleNavigation(event, item.href)}
-                    startIcon={<Icon />}
-                    aria-current={active ? 'location' : undefined}
-                    sx={navButtonSx(active)}
-                  >
-                    {item.label}
-                  </Button>
-                );
-              })}
+              {renderNavItems()}
+              {githubLink()}
             </Stack>
           )}
 
@@ -698,7 +971,7 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
               </IconButton>
             </Tooltip>
 
-            {/* DESKTOP SELECT THEME */}
+            {/* DESKTOP THEME SELECTOR */}
 
             {!isMobile && (
               <Tooltip title="Select Theme">
@@ -707,12 +980,13 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
                   startIcon={<PaletteRoundedIcon />}
                   sx={{
                     minHeight: 42,
-                    px: 1.5,
+                    px: { lg: 1, xl: 1.5 },
 
                     borderRadius: 1.5,
 
                     textTransform: 'none',
                     fontWeight: 700,
+                    fontSize: '0.82rem',
                     whiteSpace: 'nowrap',
 
                     color: headingColor,
@@ -723,7 +997,8 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
                     transition: 'all 180ms ease',
 
                     '& .MuiButton-startIcon': {
-                      color: primary
+                      color: primary,
+                      mr: 0.6
                     },
 
                     '&:hover': {
@@ -733,7 +1008,7 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
                     }
                   }}
                 >
-                  Select Theme
+                  Theme
                 </Button>
               </Tooltip>
             )}
@@ -766,7 +1041,7 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
         </Toolbar>
       </AppBar>
 
-      {/* THEME MENU */}
+      {/* THEME PRESET MENU */}
 
       {themeMenu}
 
@@ -815,67 +1090,7 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
               pb: 2
             }}
           >
-            <Stack
-              direction="row"
-              spacing={1.25}
-              sx={{
-                alignItems: 'center',
-                minWidth: 0
-              }}
-            >
-              <Box
-                sx={{
-                  display: 'grid',
-                  placeItems: 'center',
-
-                  width: 42,
-                  height: 42,
-
-                  flexShrink: 0,
-                  borderRadius: 2,
-
-                  color: primary,
-
-                  background: `linear-gradient(
-                    145deg,
-                    ${alpha(primary, 0.16)},
-                    ${alpha(secondary, 0.08)}
-                  )`,
-
-                  border: `1px solid ${alpha(primary, 0.22)}`
-                }}
-              >
-                <CodeRoundedIcon />
-              </Box>
-
-              <Box sx={{ minWidth: 0 }}>
-                <Typography
-                  sx={{
-                    fontSize: '0.95rem',
-                    fontWeight: 850,
-                    letterSpacing: '-0.025em',
-                    lineHeight: 1.3
-                  }}
-                >
-                  Cryptech Services
-                </Typography>
-
-                <Typography
-                  sx={{
-                    mt: 0.35,
-
-                    color: mutedColor,
-
-                    fontSize: '0.65rem',
-                    fontWeight: 650,
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase'
-                  }}
-                >
-                  Digital Solutions
-                </Typography>
-              </Box>
-            </Stack>
+            {brand}
 
             <IconButton
               onClick={closeMobileMenu}
@@ -904,120 +1119,20 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
               textTransform: 'uppercase'
             }}
           >
-            Navigation
+            Explore Cryptech
           </Typography>
 
           <Stack component="nav" aria-label="Mobile navigation" spacing={0.75}>
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.section);
-
-              return (
-                <Button
-                  key={item.section}
-                  component="a"
-                  href={item.href}
-                  onClick={(event) => handleNavigation(event, item.href)}
-                  startIcon={<Icon />}
-                  aria-current={active ? 'location' : undefined}
-                  sx={{
-                    position: 'relative',
-                    isolation: 'isolate',
-                    overflow: 'hidden',
-
-                    justifyContent: 'flex-start',
-
-                    width: '100%',
-                    minHeight: 50,
-                    px: 1.5,
-
-                    borderRadius: 1.5,
-
-                    color: active ? headingColor : mutedColor,
-
-                    fontSize: '0.9rem',
-                    fontWeight: active ? 800 : 650,
-                    textTransform: 'none',
-
-                    background: active
-                      ? `linear-gradient(
-                          135deg,
-                          ${alpha(primary, 0.16)},
-                          ${alpha(secondary, 0.12)}
-                        )`
-                      : 'transparent',
-
-                    border: '1px solid',
-                    borderColor: active ? alpha(primary, 0.2) : 'transparent',
-
-                    boxShadow: active
-                      ? `inset 0 0 0 1px ${alpha(primary, 0.04)}`
-                      : 'none',
-
-                    transition:
-                      'background-color 180ms ease, border-color 180ms ease, transform 180ms ease',
-
-                    '&::before': {
-                      content: '""',
-
-                      position: 'absolute',
-                      left: 0,
-                      top: 7,
-                      bottom: 7,
-
-                      width: 3,
-
-                      borderRadius: '0 4px 4px 0',
-
-                      background: `linear-gradient(
-                        to bottom,
-                        ${primary},
-                        ${secondary}
-                      )`,
-
-                      opacity: active ? 1 : 0,
-                      transition: 'opacity 180ms ease'
-                    },
-
-                    '& .MuiButton-startIcon': {
-                      position: 'relative',
-                      zIndex: 1,
-
-                      mr: 1.25,
-
-                      color: active ? primary : mutedColor,
-
-                      transition: 'color 180ms ease, transform 180ms ease'
-                    },
-
-                    '&:hover': {
-                      color: headingColor,
-
-                      background: `linear-gradient(
-                        135deg,
-                        ${alpha(primary, 0.1)},
-                        ${alpha(secondary, 0.06)}
-                      )`,
-
-                      borderColor: alpha(primary, 0.17),
-                      transform: 'translateX(2px)',
-
-                      '& .MuiButton-startIcon': {
-                        color: primary,
-                        transform: 'scale(1.08)'
-                      }
-                    },
-
-                    '&:active': {
-                      transform: 'scale(0.99)'
-                    }
-                  }}
-                >
-                  {item.label}
-                </Button>
-              );
-            })}
+            {renderNavItems(true)}
+            {githubLink(true)}
           </Stack>
+
+          <Divider
+            sx={{
+              my: 2,
+              borderColor: alpha(primary, 0.15)
+            }}
+          />
 
           {/* MOBILE DARK/LIGHT TOGGLE */}
 
@@ -1028,7 +1143,6 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
               justifyContent: 'flex-start',
 
               minHeight: 48,
-              mt: 1.5,
               px: 1.5,
 
               borderRadius: 1.5,
@@ -1059,7 +1173,7 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
             {isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           </Button>
 
-          {/* MOBILE SELECT THEME */}
+          {/* MOBILE THEME SELECTOR */}
 
           <Button
             onClick={(event) => {
@@ -1074,6 +1188,7 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
 
               minHeight: 48,
               mt: 1,
+
               px: 1.5,
 
               borderRadius: 1.5,
@@ -1109,7 +1224,7 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
             Select Theme
           </Button>
 
-          <Box sx={{ flex: 1, minHeight: 36 }} />
+          <Box sx={{ flex: 1, minHeight: 32 }} />
 
           {/* MOBILE CONTACT CARD */}
 
@@ -1145,6 +1260,7 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
                   height: 34,
 
                   flexShrink: 0,
+
                   borderRadius: 1.5,
 
                   color: primary,

@@ -201,25 +201,6 @@ export default function Projects({
         color: headingColor
       }}
     >
-      {/* Background accents */}
-      <Box
-        aria-hidden="true"
-        sx={{
-          position: 'absolute',
-          top: -220,
-          right: '-12%',
-          width: 500,
-          height: 500,
-          borderRadius: '50%',
-          background: `radial-gradient(
-            circle,
-            ${alpha(primary, isDark ? 0.12 : 0.08)},
-            transparent 70%
-          )`,
-          pointerEvents: 'none'
-        }}
-      />
-
       <Box
         aria-hidden="true"
         sx={{
