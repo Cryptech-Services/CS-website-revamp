@@ -1017,7 +1017,6 @@ export default function Services({
           <Typography
             sx={{
               color: mutedColor,
-              fontSize: { xs: '0.98rem', md: '1.05rem' },
               lineHeight: 1.9,
               maxWidth: 650
             }}

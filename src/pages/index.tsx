@@ -928,6 +928,7 @@ export default function Home() {
       <SectionDivider />
       <ContactUsPage />
 
+      <SectionDivider />
       <Footer />
     </>
   );

@@ -673,8 +673,7 @@ export default function SecurityServices() {
             sx={{
               color: mutedColor,
               maxWidth: 660,
-              lineHeight: 1.9,
-              fontSize: { xs: '0.95rem', md: '1.08rem' }
+              lineHeight: 1.9
             }}
           >
             From essential vulnerability assessments to ongoing server security
