@@ -67,6 +67,7 @@ import QueryStatsRoundedIcon from '@mui/icons-material/QueryStatsRounded';
 import LayersRoundedIcon from '@mui/icons-material/LayersRounded';
 import TerminalRoundedIcon from '@mui/icons-material/TerminalRounded';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
+import HistoryRoundedIcon from '@mui/icons-material/HistoryRounded';
 
 type JsonRecord = Record<string, unknown>;
 
@@ -83,6 +84,14 @@ type AdminTable = {
 type EditorState = {
   mode: 'create' | 'edit';
   record: JsonRecord;
+};
+
+type EditHistoryEntry = {
+  id: string;
+  action: 'CREATE' | 'UPDATE' | 'DELETE';
+  table: string;
+  recordId: string;
+  timestamp: string;
 };
 
 const ADMIN_TABLES: AdminTable[] = [
@@ -230,6 +239,7 @@ function AdminStat({
   loading?: boolean;
 }) {
   const theme = useTheme();
+  const customTheme = theme;
 
   return (
     <Paper
@@ -241,7 +251,7 @@ function AdminStat({
         minWidth: 0,
         borderRadius: 4,
         borderColor: 'divider',
-        bgcolor: 'background.paper',
+        bgcolor: customTheme.secondaryScale?.[4],
         transition:
           'transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease',
         '&:hover': {
@@ -374,6 +384,8 @@ export default function AdminPage() {
 
 function AdminDashboard() {
   const theme = useTheme();
+  const customTheme = theme;
+
   const router = useRouter();
   const isDark = theme.palette.mode === 'dark';
 
@@ -414,6 +426,28 @@ function AdminDashboard() {
   const [deleteTarget, setDeleteTarget] = React.useState<JsonRecord | null>(
     null
   );
+
+  // Edit history for the current page session.
+  const [editHistory, setEditHistory] = React.useState<EditHistoryEntry[]>([]);
+
+  const addHistoryEntry = (
+    action: EditHistoryEntry['action'],
+    table: string,
+    recordId: unknown
+  ) => {
+    setEditHistory((previous) =>
+      [
+        {
+          id: `${Date.now()}-${Math.random()}`,
+          action,
+          table,
+          recordId: formatValue(recordId),
+          timestamp: new Date().toISOString()
+        },
+        ...previous
+      ].slice(0, 50)
+    );
+  };
 
   const activeTable =
     ADMIN_TABLES.find((table) => table.name === activeTableName) ??
@@ -574,6 +608,13 @@ function AdminDashboard() {
 
         if (insertError) throw insertError;
 
+        // Record successful creation in the edit history.
+        addHistoryEntry(
+          'CREATE',
+          activeTable.name,
+          parsedRecord[activeTable.primaryKey] ?? 'New record'
+        );
+
         setEditor(null);
         setNotice('Record created successfully.');
       } else {
@@ -598,6 +639,13 @@ function AdminDashboard() {
           .eq(activeTable.primaryKey, primaryKeyValue);
 
         if (updateError) throw updateError;
+
+        // Record successful update in the edit history.
+        addHistoryEntry(
+          'UPDATE',
+          activeTable.name,
+          editor.record[activeTable.primaryKey]
+        );
 
         setEditor(null);
         setNotice('Record updated successfully.');
@@ -637,6 +685,9 @@ function AdminDashboard() {
         .eq(activeTable.primaryKey, primaryKeyValue);
 
       if (deleteError) throw deleteError;
+
+      // Record successful deletion in the edit history.
+      addHistoryEntry('DELETE', activeTable.name, primaryKeyValue);
 
       setDeleteTarget(null);
       setNotice('Record deleted successfully.');
@@ -904,7 +955,7 @@ function AdminDashboard() {
         sx={{
           borderBottom: 1,
           borderColor: 'divider',
-          bgcolor: alpha(theme.palette.background.paper, isDark ? 0.82 : 0.9),
+          bgcolor: alpha(customTheme.secondaryScale?.[4], isDark ? 1 : 0.75),
           backdropFilter: 'blur(22px)',
           zIndex: theme.zIndex.appBar
         }}
@@ -1050,8 +1101,8 @@ function AdminDashboard() {
             component="aside"
             sx={{
               bgcolor: alpha(
-                theme.palette.background.paper,
-                isDark ? 0.45 : 0.75
+                customTheme.secondaryScale?.[4],
+                isDark ? 1 : 0.75
               ),
               borderRight: 1,
               borderColor: 'divider',
@@ -1376,6 +1427,10 @@ function AdminDashboard() {
                         onClick={() => changeTable(table.name)}
                         sx={{
                           p: 2.5,
+                          bgcolor: alpha(
+                            customTheme.secondaryScale?.[4],
+                            isDark ? 1 : 0.75
+                          ),
                           minWidth: 0,
                           borderRadius: 3.5,
                           cursor: 'pointer',
@@ -1570,7 +1625,7 @@ function AdminDashboard() {
                 sx={{
                   overflow: 'hidden',
                   borderRadius: 3.5,
-                  bgcolor: 'background.paper',
+                  bgcolor: customTheme.secondaryScale?.[4],
                   borderColor: 'divider'
                 }}
               >
@@ -1933,6 +1988,245 @@ function AdminDashboard() {
                 )}
               </Paper>
             )}
+
+            {/* Edit History */}
+
+            <Paper
+              variant="outlined"
+              sx={{
+                mt: 4,
+                overflow: 'hidden',
+                borderRadius: 3.5,
+                borderColor: 'divider',
+                bgcolor: customTheme.secondaryScale?.[4]
+              }}
+            >
+              <Box sx={{ p: { xs: 2, sm: 2.5 } }}>
+                <Stack
+                  direction={{ xs: 'column', sm: 'row' }}
+                  sx={{
+                    alignItems: { xs: 'flex-start', sm: 'center' },
+                    justifyContent: 'space-between'
+                  }}
+                  spacing={1.5}
+                >
+                  <Stack
+                    direction="row"
+                    sx={{ alignItems: 'center' }}
+                    spacing={1.5}
+                  >
+                    <Avatar
+                      variant="rounded"
+                      sx={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 2.5,
+                        color: primary,
+                        bgcolor: alpha(primary, 0.12),
+                        border: `1px solid ${alpha(primary, 0.2)}`
+                      }}
+                    >
+                      <HistoryRoundedIcon />
+                    </Avatar>
+
+                    <Box>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 900,
+                          letterSpacing: '-0.035em'
+                        }}
+                      >
+                        Edit History
+                      </Typography>
+
+                      <Typography variant="body2" color="text.secondary">
+                        Recent database changes made during this session.
+                      </Typography>
+                    </Box>
+                  </Stack>
+
+                  <Chip
+                    icon={<HistoryRoundedIcon />}
+                    label={`${editHistory.length} / 50 events`}
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                      fontWeight: 750,
+                      borderColor: alpha(primary, 0.25),
+                      color: 'text.secondary'
+                    }}
+                  />
+                </Stack>
+              </Box>
+
+              <Divider />
+
+              {editHistory.length === 0 ? (
+                <Stack
+                  sx={{
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    px: 3,
+                    py: 5,
+                    textAlign: 'center'
+                  }}
+                  spacing={1.5}
+                >
+                  <Avatar
+                    variant="rounded"
+                    sx={{
+                      width: 54,
+                      height: 54,
+                      borderRadius: 3,
+                      color: 'text.secondary',
+                      bgcolor: alpha(
+                        theme.palette.text.primary,
+                        isDark ? 0.08 : 0.045
+                      )
+                    }}
+                  >
+                    <HistoryRoundedIcon sx={{ fontSize: 28 }} />
+                  </Avatar>
+
+                  <Typography sx={{ fontWeight: 850 }}>
+                    No changes yet
+                  </Typography>
+
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ maxWidth: 360 }}
+                  >
+                    Successful record creations, updates, and deletions will
+                    appear here.
+                  </Typography>
+                </Stack>
+              ) : (
+                <TableContainer>
+                  <Table
+                    size="small"
+                    sx={{
+                      minWidth: { xs: 500, sm: 620 },
+                      '& th': {
+                        bgcolor: alpha(
+                          theme.palette.text.primary,
+                          isDark ? 0.035 : 0.025
+                        ),
+                        color: 'text.secondary',
+                        fontWeight: 850,
+                        fontSize: '0.72rem',
+                        letterSpacing: '0.04em',
+                        whiteSpace: 'nowrap'
+                      },
+                      '& td': {
+                        py: 1.5,
+                        borderColor: 'divider'
+                      },
+                      '& tbody tr:last-child td': {
+                        borderBottom: 0
+                      }
+                    }}
+                  >
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Action</TableCell>
+                        <TableCell>Table</TableCell>
+                        <TableCell>Record ID</TableCell>
+                        <TableCell>Timestamp</TableCell>
+                      </TableRow>
+                    </TableHead>
+
+                    <TableBody>
+                      {editHistory.map((entry) => {
+                        const actionColor =
+                          entry.action === 'CREATE'
+                            ? '#34D399'
+                            : entry.action === 'UPDATE'
+                              ? '#60A5FA'
+                              : theme.palette.error.main;
+
+                        return (
+                          <TableRow key={entry.id} hover>
+                            <TableCell>
+                              <Chip
+                                label={entry.action}
+                                size="small"
+                                sx={{
+                                  height: 25,
+                                  fontWeight: 900,
+                                  fontSize: '0.68rem',
+                                  letterSpacing: '0.025em',
+                                  color: actionColor,
+                                  bgcolor: alpha(actionColor, 0.12),
+                                  border: `1px solid ${alpha(actionColor, 0.22)}`
+                                }}
+                              />
+                            </TableCell>
+
+                            <TableCell>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontWeight: 750,
+                                  fontFamily: 'monospace',
+                                  fontSize: '0.78rem',
+                                  overflowWrap: 'anywhere'
+                                }}
+                              >
+                                {entry.table}
+                              </Typography>
+                            </TableCell>
+
+                            <TableCell>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontFamily: 'monospace',
+                                  fontSize: '0.78rem',
+                                  overflowWrap: 'anywhere'
+                                }}
+                              >
+                                {entry.recordId}
+                              </Typography>
+                            </TableCell>
+
+                            <TableCell>
+                              <Tooltip
+                                title={new Date(
+                                  entry.timestamp
+                                ).toLocaleString()}
+                              >
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                  sx={{
+                                    fontSize: '0.78rem',
+                                    whiteSpace: 'nowrap'
+                                  }}
+                                >
+                                  {new Date(entry.timestamp).toLocaleString()}
+                                </Typography>
+                              </Tooltip>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+
+              <Divider />
+
+              <Box sx={{ px: 2.5, py: 1.5 }}>
+                <Typography variant="caption" color="text.secondary">
+                  Showing the 50 most recent successful changes. This history
+                  resets when the page is reloaded or the dashboard session
+                  ends.
+                </Typography>
+              </Box>
+            </Paper>
 
             <Stack
               direction={{ xs: 'column', sm: 'row' }}
