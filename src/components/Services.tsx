@@ -1185,7 +1185,7 @@ export default function Services({
                         right: -5,
                         zIndex: -1,
                         color: accent,
-                        opacity: isDark ? 0.055 : 0.045,
+                        opacity: isDark ? 0.1 : 0.1,
                         fontSize: { xs: '8.5rem', md: '10rem' },
                         fontWeight: 900,
                         lineHeight: 1,
