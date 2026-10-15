@@ -909,7 +909,7 @@ export default function Home() {
         sx={{
           position: 'absolute',
           width: '100%',
-          height: { xs: '3.5rem', md: '4rem' },
+          height: { xs: '3.5rem', md: '3rem' },
           zIndex: 2
         }}
       >
@@ -935,7 +935,7 @@ export default function Home() {
         sx={{
           position: 'relative',
           width: '100%',
-          height: { xs: '3.5rem', md: '4rem' },
+          height: { xs: '3.5rem', md: '3rem' },
           zIndex: 2,
           marginTop: { xs: 0, md: 2 }
         }}
@@ -961,7 +961,7 @@ export default function Home() {
         sx={{
           position: 'relative',
           width: '100%',
-          height: { xs: '3.5rem', md: '4rem' },
+          height: { xs: '3.5rem', md: '3rem' },
           zIndex: 2
         }}
       >
@@ -985,7 +985,7 @@ export default function Home() {
         sx={{
           position: 'relative',
           width: '100%',
-          height: { xs: '3.5rem', md: '4rem' },
+          height: { xs: '3.5rem', md: '3rem' },
           zIndex: 2
         }}
       >
@@ -1010,7 +1010,7 @@ export default function Home() {
         sx={{
           position: 'relative',
           width: '100%',
-          height: { xs: '3.5rem', md: '4rem' },
+          height: { xs: '3.5rem', md: '3rem' },
           zIndex: 2
         }}
       >
@@ -1035,7 +1035,7 @@ export default function Home() {
         sx={{
           position: 'relative',
           width: '100%',
-          height: { xs: '3.5rem', md: '4rem' },
+          height: { xs: '3.5rem', md: '3rem' },
           zIndex: 2
         }}
       >
@@ -1059,7 +1059,7 @@ export default function Home() {
         sx={{
           position: 'relative',
           width: '100%',
-          height: { xs: '3.5rem', md: '4rem' },
+          height: { xs: '3.5rem', md: '3rem' },
           zIndex: 2
         }}
       >
@@ -1083,7 +1083,7 @@ export default function Home() {
         sx={{
           position: 'relative',
           width: '100%',
-          height: { xs: '3.5rem', md: '4rem' },
+          height: { xs: '3.5rem', md: '3rem' },
           zIndex: 2
         }}
       >
@@ -1108,7 +1108,7 @@ export default function Home() {
         sx={{
           position: 'relative',
           width: '100%',
-          height: { xs: '3.5rem', md: '4rem' },
+          height: { xs: '3.5rem', md: '3rem' },
           zIndex: 2
         }}
       >

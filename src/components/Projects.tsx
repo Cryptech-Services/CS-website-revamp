@@ -140,7 +140,7 @@ export default function Projects({
     customTheme.grayScale?.[10] ?? theme.palette.text.secondary;
 
   const surface =
-    customTheme.secondaryScale?.[4] ?? theme.palette.background.default;
+    customTheme.secondaryScale?.[3] ?? theme.palette.background.default;
 
   const cardSurface =
     customTheme.backgroundScale?.[3] ?? theme.palette.background.paper;
