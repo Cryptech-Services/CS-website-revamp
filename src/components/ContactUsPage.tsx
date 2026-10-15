@@ -260,6 +260,7 @@ export default function ContactUsPage() {
         aria-hidden="true"
         sx={{
           position: 'absolute',
+          display: { xs: 'none', md: 'block' },
           inset: 0,
           zIndex: -1,
           pointerEvents: 'none',

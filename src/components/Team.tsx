@@ -665,6 +665,7 @@ export default function Team({
       <Box
         aria-hidden="true"
         sx={{
+          display: { xs: 'none', md: 'block' },
           position: 'absolute',
           inset: 0,
           overflow: 'hidden',

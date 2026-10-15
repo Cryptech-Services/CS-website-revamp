@@ -14,3 +14,14 @@ body {
 body {
   min-height: 100vh;
 }
+
+/* Disable animations on small devices */
+@media (max-width: 767px) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

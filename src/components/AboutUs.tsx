@@ -350,7 +350,7 @@ export default function AboutUs({
                   role="img"
                   aria-label="Animated illustration of software architecture and digital solutions"
                   sx={{
-                    display: 'block',
+                    display: { xs: 'none', md: 'block' },
                     width: '100%',
                     height: 'auto',
                     my: 2,

@@ -73,6 +73,7 @@ function SecurityBackground({
         position: 'absolute',
         inset: 0,
         zIndex: 0,
+        display: { xs: 'none', md: 'block' },
         overflow: 'hidden',
         pointerEvents: 'none',
         opacity: isDark ? 0.26 : 0.17,

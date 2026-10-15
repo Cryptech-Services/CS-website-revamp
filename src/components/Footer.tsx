@@ -106,6 +106,7 @@ export default function Footer({
         sx={{
           position: 'absolute',
           inset: 0,
+          display: { xs: 'none', md: 'block' },
           zIndex: -1,
           overflow: 'hidden',
           pointerEvents: 'none',

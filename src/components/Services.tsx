@@ -73,6 +73,7 @@ function ServiceBanner({ serviceNumber, accent, isDark }: ServiceBannerProps) {
     <Box
       aria-hidden="true"
       sx={{
+        display: { xs: 'none', md: 'block' },
         position: 'relative',
         height: { xs: 112, md: 126 },
         mx: { xs: -2.6, md: -3.1 },

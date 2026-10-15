@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+
 import {
   Box,
   Container,
@@ -10,8 +11,11 @@ import {
   Button,
   Chip,
   Pagination,
+  Collapse,
+  IconButton,
   useTheme
 } from '@mui/material';
+
 import { alpha } from '@mui/material/styles';
 import ArrowOutwardRoundedIcon from '@mui/icons-material/ArrowOutwardRounded';
 import GitHubIcon from '@mui/icons-material/GitHub';
@@ -19,8 +23,10 @@ import LanguageRoundedIcon from '@mui/icons-material/LanguageRounded';
 import CodeRoundedIcon from '@mui/icons-material/CodeRounded';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import PageviewRoundedIcon from '@mui/icons-material/PageviewRounded';
+import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
 
 import { fetchProjects, type Project } from '@/lib/fectProjectsSupabase';
+
 import supabase from '@/lib/supabase';
 
 type ProjectsProps = {
@@ -63,7 +69,9 @@ export default function Projects({
   const [supabaseProjects, setSupabaseProjects] = React.useState<Project[]>(
     providedProjects ?? []
   );
+
   const [loading, setLoading] = React.useState(providedProjects === undefined);
+
   const [loadError, setLoadError] = React.useState(false);
   const [reloadKey, setReloadKey] = React.useState(0);
 
@@ -72,6 +80,10 @@ export default function Projects({
   const [smallProjectsLoading, setSmallProjectsLoading] = React.useState(true);
   const [smallProjectsError, setSmallProjectsError] = React.useState(false);
   const [smallProjectsReloadKey, setSmallProjectsReloadKey] = React.useState(0);
+
+  // Small projects collapsible state
+  const [smallProjectsExpanded, setSmallProjectsExpanded] =
+    React.useState(false);
 
   // Independent filters and pagination
   const [activeFilter, setActiveFilter] = React.useState('All');
@@ -196,18 +208,23 @@ export default function Projects({
     () =>
       projects.filter((project) => {
         if (activeFilter === 'All') return true;
+
         if (activeFilter === 'Web Development') {
           return project.type === 'web';
         }
+
         if (activeFilter === 'Web3') {
           return project.type === 'web3';
         }
+
         if (activeFilter === 'Design') {
           return project.type === 'design';
         }
+
         if (activeFilter === 'Game Servers') {
           return project.type === 'game';
         }
+
         return true;
       }),
     [projects, activeFilter]
@@ -629,264 +646,358 @@ export default function Projects({
           </Stack>
         )}
 
-        {/* Small projects section */}
+        {/* ===================================================== */}
+        {/* COLLAPSIBLE SMALL PROJECTS SECTION */}
+        {/* ===================================================== */}
         <Box
           component="section"
           id="small-projects"
           aria-labelledby="small-projects-heading"
           sx={{
             mt: { xs: 10, md: 5 },
-            pt: { xs: 7, md: 9 }
+            pt: { xs: 4, md: 5 },
+            borderTop: `1px solid ${borderColor}`
           }}
         >
-          {/* Small projects heading */}
-          <Stack
-            spacing={2}
+          {/* Clickable heading */}
+          <Box
+            component="button"
+            type="button"
+            aria-expanded={smallProjectsExpanded}
+            aria-controls="small-projects-content"
+            onClick={() => setSmallProjectsExpanded((expanded) => !expanded)}
             sx={{
-              maxWidth: 720,
-              mx: 'auto',
-              mb: { xs: 4, md: 6 },
+              display: 'flex',
+              width: '100%',
               alignItems: 'center',
-              textAlign: 'center'
+              justifyContent: 'space-between',
+              gap: 2,
+              p: { xs: 2, md: 3 },
+              border: `1px solid ${borderColor}`,
+              borderRadius: smallProjectsExpanded ? '20px 20px 0 0' : '20px',
+              bgcolor: alpha(cardSurface, isDark ? 0.55 : 0.7),
+              color: headingColor,
+              font: 'inherit',
+              textAlign: 'left',
+              cursor: 'pointer',
+              transition:
+                'background-color 200ms ease, border-color 200ms ease',
+              '&:hover': {
+                bgcolor: alpha(secondary, isDark ? 0.08 : 0.035),
+                borderColor: alpha(secondary, 0.35)
+              },
+              '&:focus-visible': {
+                outline: `2px solid ${primary}`,
+                outlineOffset: 3
+              }
             }}
           >
-            <Stack direction="row" spacing={1.2} sx={{ alignItems: 'center' }}>
+            <Stack
+              direction="row"
+              spacing={{ xs: 1.5, md: 2 }}
+              sx={{
+                alignItems: 'center',
+                minWidth: 0
+              }}
+            >
               <Box
                 sx={{
-                  width: 24,
-                  height: 2,
-                  borderRadius: 2,
-                  bgcolor: secondary
-                }}
-              />
-
-              <Typography
-                sx={{
+                  display: 'grid',
+                  placeItems: 'center',
+                  flexShrink: 0,
+                  width: { xs: 44, md: 52 },
+                  height: { xs: 44, md: 52 },
+                  borderRadius: '15px',
                   color: secondary,
-                  fontSize: '0.72rem',
-                  fontWeight: 800,
-                  letterSpacing: '0.16em'
+                  bgcolor: alpha(secondary, isDark ? 0.15 : 0.08),
+                  border: `1px solid ${alpha(secondary, 0.2)}`
                 }}
               >
-                MORE FROM OUR WORKSHOP
-              </Typography>
+                <CodeRoundedIcon sx={{ fontSize: { xs: 23, md: 27 } }} />
+              </Box>
 
-              <Box
-                sx={{
-                  width: 24,
-                  height: 2,
-                  borderRadius: 2,
-                  bgcolor: primary
-                }}
-              />
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography
+                  component="span"
+                  sx={{
+                    display: 'block',
+                    mb: 0.5,
+                    color: secondary,
+                    fontSize: '0.68rem',
+                    fontWeight: 800,
+                    letterSpacing: '0.13em',
+                    textTransform: 'uppercase'
+                  }}
+                >
+                  MORE FROM OUR WORKSHOP
+                </Typography>
+
+                <Typography
+                  id="small-projects-heading"
+                  component="span"
+                  sx={{
+                    display: 'block',
+                    fontSize: {
+                      xs: '1.15rem',
+                      sm: '1.4rem',
+                      md: '1.75rem'
+                    },
+                    fontWeight: 850,
+                    letterSpacing: '-0.045em',
+                    lineHeight: 1.3,
+                    textWrap: 'balance'
+                  }}
+                >
+                  Small projects.{' '}
+                  <Box component="span" sx={{ color: primary }}>
+                    Big ideas.
+                  </Box>
+                </Typography>
+
+                <Typography
+                  component="span"
+                  sx={{
+                    display: 'block',
+                    mt: 0.6,
+                    color: mutedColor,
+                    fontSize: { xs: '0.78rem', md: '0.85rem' },
+                    lineHeight: 1.7
+                  }}
+                >
+                  {smallProjectsLoading
+                    ? 'Loading projects...'
+                    : smallProjectsError
+                      ? 'Projects are temporarily unavailable'
+                      : `${smallProjects.length} projects in the collection`}
+                </Typography>
+              </Box>
             </Stack>
 
-            <Typography
-              id="small-projects-heading"
-              component="h3"
+            <IconButton
+              component="span"
+              tabIndex={-1}
+              aria-hidden="true"
+              disableRipple
               sx={{
-                fontSize: { xs: '1.8rem', md: '2.5rem' },
-                fontWeight: 850,
-                letterSpacing: '-0.05em',
-                lineHeight: 1.2,
-                textWrap: 'balance'
+                flexShrink: 0,
+                width: { xs: 38, md: 44 },
+                height: { xs: 38, md: 44 },
+                color: secondary,
+                bgcolor: alpha(secondary, isDark ? 0.12 : 0.055),
+                border: `1px solid ${alpha(secondary, 0.2)}`,
+                pointerEvents: 'none'
               }}
             >
-              Small projects.{' '}
-              <Box
-                component="span"
+              <ExpandMoreRoundedIcon
                 sx={{
-                  color: primary,
-                  display: 'inline'
+                  fontSize: 27,
+                  transform: smallProjectsExpanded
+                    ? 'rotate(180deg)'
+                    : 'rotate(0deg)',
+                  transition: 'transform 250ms ease'
                 }}
-              >
-                Big ideas.
-              </Box>
-            </Typography>
+              />
+            </IconButton>
+          </Box>
 
-            <Typography
-              sx={{
-                maxWidth: 580,
-                color: mutedColor,
-                fontSize: { xs: '0.9rem', md: '0.98rem' },
-                lineHeight: 1.85
-              }}
-            >
-              A collection of tools, bots, extensions, libraries, and
-              experiments built to solve specific problems across different
-              ecosystems.
-            </Typography>
-          </Stack>
-
-          {/* Small projects loading */}
-          {smallProjectsLoading && (
+          {/* Collapsible content: description, cards, pagination, states */}
+          <Collapse in={smallProjectsExpanded} timeout={280} unmountOnExit>
             <Box
-              role="status"
+              id="small-projects-content"
               sx={{
-                py: 5,
-                textAlign: 'center'
+                p: { xs: 2, sm: 3, md: 4 },
+                border: `1px solid ${borderColor}`,
+                borderTop: 0,
+                borderRadius: '0 0 20px 20px',
+                bgcolor: alpha(cardSurface, isDark ? 0.25 : 0.35)
               }}
             >
               <Typography
                 sx={{
+                  maxWidth: 620,
+                  mx: 'auto',
+                  mb: { xs: 3, md: 4 },
                   color: mutedColor,
-                  fontSize: '0.9rem'
-                }}
-              >
-                Loading small projects...
-              </Typography>
-            </Box>
-          )}
-
-          {/* Small projects error */}
-          {!smallProjectsLoading && smallProjectsError && (
-            <Box
-              role="alert"
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 2,
-                py: 5,
-                px: 3,
-                border: `1px dashed ${borderColor}`,
-                borderRadius: 3,
-                textAlign: 'center',
-                bgcolor: alpha(cardSurface, isDark ? 0.45 : 0.6)
-              }}
-            >
-              <Typography
-                sx={{
-                  color: mutedColor,
-                  fontSize: '0.9rem',
-                  lineHeight: 1.8
-                }}
-              >
-                Unable to load small projects. Please try again.
-              </Typography>
-
-              <Button
-                variant="outlined"
-                onClick={handleSmallProjectsRetry}
-                sx={{
-                  borderRadius: '10px',
-                  borderColor: alpha(secondary, 0.3),
-                  color: headingColor,
-                  textTransform: 'none',
-                  fontWeight: 700,
-                  '&:hover': {
-                    borderColor: alpha(primary, 0.65),
-                    bgcolor: alpha(primary, 0.07)
-                  }
-                }}
-              >
-                Retry
-              </Button>
-            </Box>
-          )}
-
-          {/* Small project cards */}
-          {!smallProjectsLoading &&
-            !smallProjectsError &&
-            smallProjects.length > 0 && (
-              <>
-                <Grid container spacing={{ xs: 1.5, md: 2 }}>
-                  {visibleSmallProjects.map((project) => (
-                    <Grid
-                      key={project.id}
-                      size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
-                    >
-                      <SmallProjectCard
-                        project={project}
-                        primary={primary}
-                        secondary={secondary}
-                        isDark={isDark}
-                        headingColor={headingColor}
-                        mutedColor={mutedColor}
-                        cardSurface={cardSurface}
-                        borderColor={borderColor}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-
-                {/* Independent small-project pagination */}
-                {smallProjectsPageCount > 1 && (
-                  <Stack
-                    spacing={1.5}
-                    sx={{
-                      alignItems: 'center',
-                      mt: { xs: 4, md: 5 }
-                    }}
-                  >
-                    <Pagination
-                      count={smallProjectsPageCount}
-                      page={smallProjectsPage}
-                      onChange={handleSmallProjectsPageChange}
-                      color="primary"
-                      shape="rounded"
-                      size="large"
-                      siblingCount={1}
-                      boundaryCount={1}
-                      aria-label="Small project pages"
-                      sx={{
-                        '& .MuiPaginationItem-root': {
-                          fontWeight: 700,
-                          borderRadius: 2
-                        },
-                        '& .MuiPaginationItem-root.Mui-selected': {
-                          boxShadow: `0 0 18px ${alpha(
-                            theme.palette.primary.main,
-                            0.18
-                          )}`
-                        }
-                      }}
-                    />
-
-                    <Typography
-                      sx={{
-                        fontSize: '0.75rem',
-                        color: mutedColor,
-                        textAlign: 'center'
-                      }}
-                      aria-live="polite"
-                    >
-                      Showing{' '}
-                      {(smallProjectsPage - 1) * SMALL_PROJECTS_PER_PAGE + 1}–
-                      {Math.min(
-                        smallProjectsPage * SMALL_PROJECTS_PER_PAGE,
-                        smallProjects.length
-                      )}{' '}
-                      of {smallProjects.length} small projects
-                    </Typography>
-                  </Stack>
-                )}
-              </>
-            )}
-
-          {/* Small projects empty state */}
-          {!smallProjectsLoading &&
-            !smallProjectsError &&
-            smallProjects.length === 0 && (
-              <Box
-                sx={{
-                  py: 5,
-                  px: 3,
-                  border: `1px dashed ${borderColor}`,
-                  borderRadius: 3,
+                  fontSize: { xs: '0.88rem', md: '0.95rem' },
+                  lineHeight: 1.9,
                   textAlign: 'center'
                 }}
               >
-                <Typography
+                A collection of tools, bots, extensions, libraries, and
+                experiments built to solve specific problems across different
+                ecosystems.
+              </Typography>
+
+              {/* Loading state */}
+              {smallProjectsLoading && (
+                <Box
+                  role="status"
                   sx={{
-                    color: mutedColor,
-                    fontSize: '0.9rem'
+                    py: 5,
+                    textAlign: 'center'
                   }}
                 >
-                  No small projects are available yet.
-                </Typography>
-              </Box>
-            )}
+                  <Typography
+                    sx={{
+                      color: mutedColor,
+                      fontSize: '0.9rem'
+                    }}
+                  >
+                    Loading small projects...
+                  </Typography>
+                </Box>
+              )}
+
+              {/* Error state */}
+              {!smallProjectsLoading && smallProjectsError && (
+                <Stack
+                  role="alert"
+                  spacing={2}
+                  sx={{
+                    alignItems: 'center',
+                    py: 5,
+                    px: 3,
+                    border: `1px dashed ${borderColor}`,
+                    borderRadius: 3,
+                    textAlign: 'center'
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      color: mutedColor,
+                      fontSize: '0.9rem',
+                      lineHeight: 1.8
+                    }}
+                  >
+                    Unable to load small projects. Please try again.
+                  </Typography>
+
+                  <Button
+                    variant="outlined"
+                    onClick={handleSmallProjectsRetry}
+                    sx={{
+                      borderRadius: '10px',
+                      borderColor: alpha(secondary, 0.3),
+                      color: headingColor,
+                      textTransform: 'none',
+                      fontWeight: 700,
+                      '&:hover': {
+                        borderColor: alpha(primary, 0.65),
+                        bgcolor: alpha(primary, 0.07)
+                      }
+                    }}
+                  >
+                    Retry
+                  </Button>
+                </Stack>
+              )}
+
+              {/* Empty state */}
+              {!smallProjectsLoading &&
+                !smallProjectsError &&
+                smallProjects.length === 0 && (
+                  <Box
+                    sx={{
+                      py: 5,
+                      px: 3,
+                      border: `1px dashed ${borderColor}`,
+                      borderRadius: 3,
+                      textAlign: 'center'
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        color: mutedColor,
+                        fontSize: '0.9rem'
+                      }}
+                    >
+                      No small projects are available yet.
+                    </Typography>
+                  </Box>
+                )}
+
+              {/* Small project cards */}
+              {!smallProjectsLoading &&
+                !smallProjectsError &&
+                smallProjects.length > 0 && (
+                  <>
+                    <Grid container spacing={{ xs: 1.5, md: 2 }}>
+                      {visibleSmallProjects.map((project) => (
+                        <Grid
+                          key={project.id}
+                          size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
+                        >
+                          <SmallProjectCard
+                            project={project}
+                            primary={primary}
+                            secondary={secondary}
+                            isDark={isDark}
+                            headingColor={headingColor}
+                            mutedColor={mutedColor}
+                            cardSurface={cardSurface}
+                            borderColor={borderColor}
+                          />
+                        </Grid>
+                      ))}
+                    </Grid>
+
+                    {/* Independent small project pagination */}
+                    {smallProjectsPageCount > 1 && (
+                      <Stack
+                        spacing={1.5}
+                        sx={{
+                          alignItems: 'center',
+                          mt: { xs: 4, md: 5 }
+                        }}
+                      >
+                        <Pagination
+                          count={smallProjectsPageCount}
+                          page={smallProjectsPage}
+                          onChange={handleSmallProjectsPageChange}
+                          color="primary"
+                          shape="rounded"
+                          size="large"
+                          siblingCount={1}
+                          boundaryCount={1}
+                          aria-label="Small project pages"
+                          sx={{
+                            '& .MuiPaginationItem-root': {
+                              fontWeight: 700,
+                              borderRadius: 2
+                            },
+                            '& .MuiPaginationItem-root.Mui-selected': {
+                              boxShadow: `0 0 18px ${alpha(
+                                theme.palette.primary.main,
+                                0.18
+                              )}`
+                            }
+                          }}
+                        />
+
+                        <Typography
+                          aria-live="polite"
+                          sx={{
+                            color: mutedColor,
+                            fontSize: '0.75rem',
+                            textAlign: 'center'
+                          }}
+                        >
+                          Showing{' '}
+                          {(smallProjectsPage - 1) * SMALL_PROJECTS_PER_PAGE +
+                            1}
+                          –
+                          {Math.min(
+                            smallProjectsPage * SMALL_PROJECTS_PER_PAGE,
+                            smallProjects.length
+                          )}{' '}
+                          of {smallProjects.length} small projects
+                        </Typography>
+                      </Stack>
+                    )}
+                  </>
+                )}
+            </Box>
+          </Collapse>
         </Box>
       </Container>
     </Box>

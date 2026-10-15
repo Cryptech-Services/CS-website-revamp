@@ -288,6 +288,7 @@ export default function GitHubSection() {
         viewBox="0 0 1440 900"
         preserveAspectRatio="xMidYMid slice"
         sx={{
+          display: { xs: 'none', md: 'block' },
           position: 'absolute',
           inset: 0,
           zIndex: 0,
