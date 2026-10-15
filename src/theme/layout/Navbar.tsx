@@ -104,7 +104,7 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
   const pathname = usePathname();
 
   const isDark = theme.palette.mode === 'dark';
-
+  const [scrollProgress, setScrollProgress] = React.useState(0);
   // Use the drawer on tablets as well as mobile devices.
   const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
 
@@ -117,6 +117,39 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
   const mutedColor = theme.grayScale?.[10] ?? theme.palette.text.secondary;
 
   const surface = theme.secondaryScale?.[3] ?? theme.palette.background.paper;
+
+  React.useEffect(() => {
+    let ticking = false;
+
+    const handleScroll = () => {
+      if (ticking) return;
+
+      ticking = true;
+
+      window.requestAnimationFrame(() => {
+        const scrollableHeight =
+          document.documentElement.scrollHeight - window.innerHeight;
+
+        const progress =
+          scrollableHeight > 0 ? (window.scrollY / scrollableHeight) * 100 : 0;
+
+        setScrollProgress(Math.min(100, Math.max(0, progress)));
+        setScrolled(window.scrollY > 20);
+
+        ticking = false;
+      });
+    };
+
+    handleScroll();
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, []);
 
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [activeSection, setActiveSection] = React.useState('');
@@ -872,11 +905,40 @@ export default function Navbar({ onToggleTheme }: NavbarProps) {
 
   return (
     <>
+      {/* Page scroll progress indicator */}
+      <Box
+        aria-hidden="true"
+        sx={{
+          display: { xs: 'none', md: 'block' },
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: 3,
+          zIndex: theme.zIndex.appBar + 2,
+          pointerEvents: 'none',
+          bgcolor: alpha(primary, 0.08)
+        }}
+      >
+        <Box
+          sx={{
+            width: `${scrollProgress}%`,
+            height: '100%',
+            background: gradient,
+            boxShadow: `0 0 10px ${alpha(primary, 0.35)}`,
+            transition: 'width 80ms linear'
+          }}
+        />
+      </Box>
+
       <AppBar
-        position="sticky"
         elevation={0}
         color="transparent"
         sx={{
+          position: {
+            xs: 'relative',
+            sm: 'sticky'
+          },
           top: 0,
           px: { xs: 1.5, sm: 2.5, md: 3 },
 

@@ -277,6 +277,7 @@ export default function AboutUs({
                 sx={{
                   position: 'absolute',
                   width: '70%',
+                  display: { xs: 'none', md: 'block' },
                   aspectRatio: '1',
                   top: '10%',
                   left: '15%',

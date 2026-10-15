@@ -1149,6 +1149,7 @@ export default function Team({
           width: 460,
           height: 460,
           borderRadius: '50%',
+          display: { xs: 'none', md: 'block' },
           background: `radial-gradient(circle, ${alpha(
             theme.palette.secondary.main,
             0.08

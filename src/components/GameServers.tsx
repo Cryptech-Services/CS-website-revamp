@@ -1000,6 +1000,7 @@ export default function GameServers({
           top: -180,
           left: '-12%',
           borderRadius: '50%',
+          display: { xs: 'none', md: 'block' },
           background: `radial-gradient(
             circle,
             ${alpha(primary, isDark ? 0.14 : 0.1)},
@@ -1018,6 +1019,7 @@ export default function GameServers({
           right: '-15%',
           bottom: -220,
           borderRadius: '50%',
+          display: { xs: 'none', md: 'block' },
           background: `radial-gradient(
             circle,
             ${alpha(secondary, isDark ? 0.12 : 0.09)},

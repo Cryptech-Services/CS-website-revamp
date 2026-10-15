@@ -302,6 +302,7 @@ export default function Projects({
           width: 480,
           height: 480,
           borderRadius: '50%',
+          display: { xs: 'none', md: 'block' },
           background: `radial-gradient(
             circle,
             ${alpha(secondary, isDark ? 0.1 : 0.07)},
