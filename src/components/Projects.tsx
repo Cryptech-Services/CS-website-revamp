@@ -20,20 +20,8 @@ import CodeRoundedIcon from '@mui/icons-material/CodeRounded';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import PageviewRoundedIcon from '@mui/icons-material/PageviewRounded';
 
-type ProjectType = 'web' | 'web3' | 'design' | 'game';
-
-type Project = {
-  number: string;
-  title: string;
-  category: string;
-  description: string;
-  technologies: string[];
-  type: ProjectType;
-  liveUrl?: string;
-  sourceUrl?: string;
-  featured?: boolean;
-  banner?: string;
-};
+import { fetchProjects, type Project } from '@/lib/fectProjectsSupabase';
+import supabase from '@/lib/supabase';
 
 type ProjectsProps = {
   eyebrow?: string;
@@ -49,79 +37,140 @@ type CustomTheme = ReturnType<typeof useTheme> & {
   grayScale?: string[];
 };
 
-const defaultProjects: Project[] = [
-  {
-    number: '01',
-    title: 'METRIX.PLACE',
-    category: 'BLOCKCHAIN · COLLABORATIVE ART',
-    description:
-      'A communal graffiti board where anyone can claim a single pixel at any address through a Metrix Coin transaction. Each contribution requires a transaction and its associated gas fee, turning the blockchain into a shared, evolving canvas.',
-    technologies: ['MetrixCoin', 'Blockchain', 'MRX', 'On-chain Transactions'],
-    type: 'web3',
-    liveUrl: 'https://metrix.place',
-    banner: '/static/images/projects/metrixplace-splashart.png'
-  },
-  {
-    number: '02',
-    title: 'MetrixLGP',
-    category: 'DEFI · LIQUID GOVERNANCE',
-    description:
-      'The Metrix Liquid Governance Protocol leverages the MetrixCoin Decentralized Governance Protocol to let MRX holders create Liquid Governance positions. Participants provide MRX as collateral to enroll AutoGovernor smart contracts into the MetrixCoin DGP.',
-    technologies: ['MetrixCoin', 'MRX', 'Smart Contracts', 'Governance'],
-    type: 'web3',
-    liveUrl: 'https://metrixlgp.finance/',
-    banner: '/static/images/projects/metrixlgp-splashart.png'
-  },
-  {
-    number: '03',
-    title: 'METRIMASK MOBILE',
-    category: 'WEB3 · MOBILE WALLET',
-    description:
-      'A MetrixCoin Web3 wallet with an embedded browser. Send and receive MRX and MRC20 tokens, then connect to Web3 websites and interact with decentralized applications built for the Metrix chain directly from your mobile device.',
-    technologies: ['MetrixCoin', 'MRX', 'MRC20', 'Web3 Wallet', 'Mobile'],
-    type: 'web3',
-    banner: '/static/images/projects/metrimask-splashart.png'
-  },
-  {
-    number: '04',
-    title: 'ARCANA',
-    category: 'NFT · PROGRESSIVE JACKPOT',
-    description:
-      'Unlock the power of the Arcana78 NFT collection and participate in a decentralized progressive jackpot raffle. Draws are transparently secured by the MetrixCoin blockchain, where every ticket brings participants closer to legendary rewards.',
-    technologies: ['NFTs', 'MetrixCoin', 'Web3', 'Progressive Jackpot'],
-    type: 'web3',
-    liveUrl: 'https://arcana78.dev',
-    banner: '/static/images/projects/arcana-splashart.png'
-  },
-  {
-    number: '05',
-    title: 'Theme Boilerplate',
-    category: 'DESIGN SYSTEM · UI ENGINEERING',
-    description:
-      'A modern design foundation for building beautiful, scalable, and consistent theme-aware interfaces. Features customizable color systems, light and dark modes, typography, responsive breakpoints, and reusable components for a cohesive development experience.',
-    technologies: ['Next.js', 'React', 'TypeScript', 'MUI', 'Design Systems'],
-    type: 'design',
-    liveUrl: 'https://theme-boiler-plate-swart.vercel.app/',
-    banner: '/static/images/projects/theme-splashart.png'
-  }
-];
+type SmallProject = {
+  id: number;
+  project_name: string;
+  project_link: string | null;
+  project_desc: string | null;
+};
 
 const filters = ['All', 'Web Development', 'Web3', 'Design', 'Game Servers'];
 
 const PROJECTS_PER_PAGE = 3;
+const SMALL_PROJECTS_PER_PAGE = 4;
 
 export default function Projects({
   eyebrow = 'FLAGSHIP PROJECTS',
   title = 'Building what comes next.',
   description = 'Explore our work across blockchain innovation, decentralized governance, Web3 applications, and scalable interface engineering.',
-  projects = defaultProjects
+  projects: providedProjects
 }: ProjectsProps) {
   const theme = useTheme();
   const customTheme = theme;
   const isDark = theme.palette.mode === 'dark';
 
+  // Flagship projects
+  const [supabaseProjects, setSupabaseProjects] = React.useState<Project[]>(
+    providedProjects ?? []
+  );
+  const [loading, setLoading] = React.useState(providedProjects === undefined);
+  const [loadError, setLoadError] = React.useState(false);
+  const [reloadKey, setReloadKey] = React.useState(0);
+
+  // Small projects
+  const [smallProjects, setSmallProjects] = React.useState<SmallProject[]>([]);
+  const [smallProjectsLoading, setSmallProjectsLoading] = React.useState(true);
+  const [smallProjectsError, setSmallProjectsError] = React.useState(false);
+  const [smallProjectsReloadKey, setSmallProjectsReloadKey] = React.useState(0);
+
+  // Independent filters and pagination
   const [activeFilter, setActiveFilter] = React.useState('All');
   const [page, setPage] = React.useState(1);
+  const [smallProjectsPage, setSmallProjectsPage] = React.useState(1);
+
+  // Load flagship projects
+  React.useEffect(() => {
+    if (providedProjects !== undefined) {
+      setSupabaseProjects(providedProjects);
+      setLoading(false);
+      setLoadError(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadProjects() {
+      setLoading(true);
+      setLoadError(false);
+
+      try {
+        const data = await fetchProjects();
+
+        if (!cancelled) {
+          setSupabaseProjects(data);
+        }
+      } catch (error) {
+        console.error('Unable to load projects from Supabase:', error);
+
+        if (!cancelled) {
+          setSupabaseProjects([]);
+          setLoadError(true);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadProjects();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [providedProjects, reloadKey]);
+
+  // Load small projects
+  React.useEffect(() => {
+    let cancelled = false;
+
+    async function loadSmallProjects() {
+      setSmallProjectsLoading(true);
+      setSmallProjectsError(false);
+
+      try {
+        const { data, error } = await supabase
+          .from('ztable_otherprojects')
+          .select('id, project_name, project_link, project_desc')
+          .order('id', { ascending: true });
+
+        if (error) {
+          throw error;
+        }
+
+        if (!cancelled) {
+          setSmallProjects((data ?? []) as SmallProject[]);
+        }
+      } catch (error) {
+        console.error('Unable to load small projects:', error);
+
+        if (!cancelled) {
+          setSmallProjects([]);
+          setSmallProjectsError(true);
+        }
+      } finally {
+        if (!cancelled) {
+          setSmallProjectsLoading(false);
+        }
+      }
+    }
+
+    void loadSmallProjects();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [smallProjectsReloadKey]);
+
+  const handleRetry = () => {
+    setReloadKey((current) => current + 1);
+  };
+
+  const handleSmallProjectsRetry = () => {
+    setSmallProjectsReloadKey((current) => current + 1);
+  };
+
+  const projects = providedProjects ?? supabaseProjects;
 
   const primary = customTheme.colorScale?.[9] ?? theme.palette.primary.main;
 
@@ -142,6 +191,7 @@ export default function Projects({
 
   const borderColor = alpha(headingColor, isDark ? 0.16 : 0.12);
 
+  // Filter flagship projects
   const filteredProjects = React.useMemo(
     () =>
       projects.filter((project) => {
@@ -163,6 +213,7 @@ export default function Projects({
     [projects, activeFilter]
   );
 
+  // Flagship pagination
   const pageCount = Math.ceil(filteredProjects.length / PROJECTS_PER_PAGE);
 
   const visibleProjects = filteredProjects.slice(
@@ -188,6 +239,29 @@ export default function Projects({
     setPage(value);
   };
 
+  // Small project pagination
+  const smallProjectsPageCount = Math.ceil(
+    smallProjects.length / SMALL_PROJECTS_PER_PAGE
+  );
+
+  const visibleSmallProjects = smallProjects.slice(
+    (smallProjectsPage - 1) * SMALL_PROJECTS_PER_PAGE,
+    smallProjectsPage * SMALL_PROJECTS_PER_PAGE
+  );
+
+  React.useEffect(() => {
+    setSmallProjectsPage((currentPage) =>
+      Math.min(Math.max(currentPage, 1), Math.max(smallProjectsPageCount, 1))
+    );
+  }, [smallProjectsPageCount]);
+
+  const handleSmallProjectsPageChange = (
+    _event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setSmallProjectsPage(value);
+  };
+
   return (
     <Box
       component="section"
@@ -201,6 +275,7 @@ export default function Projects({
         color: headingColor
       }}
     >
+      {/* Ambient background */}
       <Box
         aria-hidden="true"
         sx={{
@@ -220,7 +295,7 @@ export default function Projects({
       />
 
       <Container maxWidth="xl" sx={{ position: 'relative' }}>
-        {/* Section heading */}
+        {/* Flagship projects heading */}
         <Stack
           spacing={2.5}
           sx={{
@@ -336,32 +411,116 @@ export default function Projects({
           })}
         </Stack>
 
-        {/* Project cards */}
+        {/* Flagship project cards */}
         <Grid container spacing={{ xs: 2.5, md: 3 }}>
-          {visibleProjects.map((project) => (
-            <Grid
-              key={project.number}
-              size={{
-                xs: 12,
-                md: project.featured ? 12 : 6,
-                lg: project.featured ? 12 : 4
-              }}
-            >
-              <ProjectCard
-                project={project}
-                primary={primary}
-                secondary={secondary}
-                isDark={isDark}
-                headingColor={headingColor}
-                mutedColor={mutedColor}
-                cardSurface={cardSurface}
-                borderColor={borderColor}
-              />
+          {loading && (
+            <Grid size={{ xs: 12 }}>
+              <Box
+                role="status"
+                sx={{
+                  py: 8,
+                  textAlign: 'center',
+                  color: mutedColor
+                }}
+              >
+                <Typography sx={{ fontWeight: 650 }}>
+                  Loading projects...
+                </Typography>
+              </Box>
             </Grid>
-          ))}
+          )}
 
-          {/* Empty state */}
-          {filteredProjects.length === 0 && (
+          {!loading && loadError && (
+            <Grid size={{ xs: 12 }}>
+              <Box
+                role="alert"
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  py: { xs: 7, md: 9 },
+                  px: 3,
+                  border: `1px dashed ${borderColor}`,
+                  borderRadius: '24px',
+                  bgcolor: alpha(cardSurface, isDark ? 0.45 : 0.6),
+                  textAlign: 'center'
+                }}
+              >
+                <Typography
+                  component="h3"
+                  sx={{
+                    mb: 0.8,
+                    color: headingColor,
+                    fontSize: '1.05rem',
+                    fontWeight: 750,
+                    letterSpacing: '-0.02em'
+                  }}
+                >
+                  Unable to load projects
+                </Typography>
+
+                <Typography
+                  sx={{
+                    maxWidth: 340,
+                    mb: 2.5,
+                    color: mutedColor,
+                    fontSize: '0.875rem',
+                    lineHeight: 1.8
+                  }}
+                >
+                  We couldn&apos;t retrieve the projects right now. Please try
+                  again.
+                </Typography>
+
+                <Button
+                  variant="outlined"
+                  onClick={handleRetry}
+                  sx={{
+                    px: 2.5,
+                    py: 1,
+                    borderRadius: '10px',
+                    borderColor: alpha(secondary, 0.3),
+                    color: headingColor,
+                    textTransform: 'none',
+                    fontWeight: 700,
+                    '&:hover': {
+                      borderColor: alpha(primary, 0.65),
+                      bgcolor: alpha(primary, 0.07)
+                    }
+                  }}
+                >
+                  Retry
+                </Button>
+              </Box>
+            </Grid>
+          )}
+
+          {!loading &&
+            !loadError &&
+            visibleProjects.map((project) => (
+              <Grid
+                key={project.number}
+                size={{
+                  xs: 12,
+                  md: project.featured ? 12 : 6,
+                  lg: project.featured ? 12 : 4
+                }}
+              >
+                <ProjectCard
+                  project={project}
+                  primary={primary}
+                  secondary={secondary}
+                  isDark={isDark}
+                  headingColor={headingColor}
+                  mutedColor={mutedColor}
+                  cardSurface={cardSurface}
+                  borderColor={borderColor}
+                />
+              </Grid>
+            ))}
+
+          {!loading && !loadError && filteredProjects.length === 0 && (
             <Grid size={{ xs: 12 }}>
               <Box
                 sx={{
@@ -422,8 +581,8 @@ export default function Projects({
           )}
         </Grid>
 
-        {/* Pagination */}
-        {pageCount > 1 && (
+        {/* Flagship project pagination */}
+        {!loading && !loadError && pageCount > 1 && (
           <Stack
             spacing={1.5}
             sx={{
@@ -458,7 +617,7 @@ export default function Projects({
             <Typography
               sx={{
                 fontSize: '0.75rem',
-                color: 'text.secondary',
+                color: mutedColor,
                 textAlign: 'center'
               }}
               aria-live="polite"
@@ -469,10 +628,274 @@ export default function Projects({
             </Typography>
           </Stack>
         )}
+
+        {/* Small projects section */}
+        <Box
+          component="section"
+          id="small-projects"
+          aria-labelledby="small-projects-heading"
+          sx={{
+            mt: { xs: 10, md: 5 },
+            pt: { xs: 7, md: 9 }
+          }}
+        >
+          {/* Small projects heading */}
+          <Stack
+            spacing={2}
+            sx={{
+              maxWidth: 720,
+              mx: 'auto',
+              mb: { xs: 4, md: 6 },
+              alignItems: 'center',
+              textAlign: 'center'
+            }}
+          >
+            <Stack direction="row" spacing={1.2} sx={{ alignItems: 'center' }}>
+              <Box
+                sx={{
+                  width: 24,
+                  height: 2,
+                  borderRadius: 2,
+                  bgcolor: secondary
+                }}
+              />
+
+              <Typography
+                sx={{
+                  color: secondary,
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  letterSpacing: '0.16em'
+                }}
+              >
+                MORE FROM OUR WORKSHOP
+              </Typography>
+
+              <Box
+                sx={{
+                  width: 24,
+                  height: 2,
+                  borderRadius: 2,
+                  bgcolor: primary
+                }}
+              />
+            </Stack>
+
+            <Typography
+              id="small-projects-heading"
+              component="h3"
+              sx={{
+                fontSize: { xs: '1.8rem', md: '2.5rem' },
+                fontWeight: 850,
+                letterSpacing: '-0.05em',
+                lineHeight: 1.2,
+                textWrap: 'balance'
+              }}
+            >
+              Small projects.{' '}
+              <Box
+                component="span"
+                sx={{
+                  color: primary,
+                  display: 'inline'
+                }}
+              >
+                Big ideas.
+              </Box>
+            </Typography>
+
+            <Typography
+              sx={{
+                maxWidth: 580,
+                color: mutedColor,
+                fontSize: { xs: '0.9rem', md: '0.98rem' },
+                lineHeight: 1.85
+              }}
+            >
+              A collection of tools, bots, extensions, libraries, and
+              experiments built to solve specific problems across different
+              ecosystems.
+            </Typography>
+          </Stack>
+
+          {/* Small projects loading */}
+          {smallProjectsLoading && (
+            <Box
+              role="status"
+              sx={{
+                py: 5,
+                textAlign: 'center'
+              }}
+            >
+              <Typography
+                sx={{
+                  color: mutedColor,
+                  fontSize: '0.9rem'
+                }}
+              >
+                Loading small projects...
+              </Typography>
+            </Box>
+          )}
+
+          {/* Small projects error */}
+          {!smallProjectsLoading && smallProjectsError && (
+            <Box
+              role="alert"
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 2,
+                py: 5,
+                px: 3,
+                border: `1px dashed ${borderColor}`,
+                borderRadius: 3,
+                textAlign: 'center',
+                bgcolor: alpha(cardSurface, isDark ? 0.45 : 0.6)
+              }}
+            >
+              <Typography
+                sx={{
+                  color: mutedColor,
+                  fontSize: '0.9rem',
+                  lineHeight: 1.8
+                }}
+              >
+                Unable to load small projects. Please try again.
+              </Typography>
+
+              <Button
+                variant="outlined"
+                onClick={handleSmallProjectsRetry}
+                sx={{
+                  borderRadius: '10px',
+                  borderColor: alpha(secondary, 0.3),
+                  color: headingColor,
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  '&:hover': {
+                    borderColor: alpha(primary, 0.65),
+                    bgcolor: alpha(primary, 0.07)
+                  }
+                }}
+              >
+                Retry
+              </Button>
+            </Box>
+          )}
+
+          {/* Small project cards */}
+          {!smallProjectsLoading &&
+            !smallProjectsError &&
+            smallProjects.length > 0 && (
+              <>
+                <Grid container spacing={{ xs: 1.5, md: 2 }}>
+                  {visibleSmallProjects.map((project) => (
+                    <Grid
+                      key={project.id}
+                      size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
+                    >
+                      <SmallProjectCard
+                        project={project}
+                        primary={primary}
+                        secondary={secondary}
+                        isDark={isDark}
+                        headingColor={headingColor}
+                        mutedColor={mutedColor}
+                        cardSurface={cardSurface}
+                        borderColor={borderColor}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+
+                {/* Independent small-project pagination */}
+                {smallProjectsPageCount > 1 && (
+                  <Stack
+                    spacing={1.5}
+                    sx={{
+                      alignItems: 'center',
+                      mt: { xs: 4, md: 5 }
+                    }}
+                  >
+                    <Pagination
+                      count={smallProjectsPageCount}
+                      page={smallProjectsPage}
+                      onChange={handleSmallProjectsPageChange}
+                      color="primary"
+                      shape="rounded"
+                      size="large"
+                      siblingCount={1}
+                      boundaryCount={1}
+                      aria-label="Small project pages"
+                      sx={{
+                        '& .MuiPaginationItem-root': {
+                          fontWeight: 700,
+                          borderRadius: 2
+                        },
+                        '& .MuiPaginationItem-root.Mui-selected': {
+                          boxShadow: `0 0 18px ${alpha(
+                            theme.palette.primary.main,
+                            0.18
+                          )}`
+                        }
+                      }}
+                    />
+
+                    <Typography
+                      sx={{
+                        fontSize: '0.75rem',
+                        color: mutedColor,
+                        textAlign: 'center'
+                      }}
+                      aria-live="polite"
+                    >
+                      Showing{' '}
+                      {(smallProjectsPage - 1) * SMALL_PROJECTS_PER_PAGE + 1}–
+                      {Math.min(
+                        smallProjectsPage * SMALL_PROJECTS_PER_PAGE,
+                        smallProjects.length
+                      )}{' '}
+                      of {smallProjects.length} small projects
+                    </Typography>
+                  </Stack>
+                )}
+              </>
+            )}
+
+          {/* Small projects empty state */}
+          {!smallProjectsLoading &&
+            !smallProjectsError &&
+            smallProjects.length === 0 && (
+              <Box
+                sx={{
+                  py: 5,
+                  px: 3,
+                  border: `1px dashed ${borderColor}`,
+                  borderRadius: 3,
+                  textAlign: 'center'
+                }}
+              >
+                <Typography
+                  sx={{
+                    color: mutedColor,
+                    fontSize: '0.9rem'
+                  }}
+                >
+                  No small projects are available yet.
+                </Typography>
+              </Box>
+            )}
+        </Box>
       </Container>
     </Box>
   );
 }
+
+/* ============================================================= */
+/* FLAGSHIP PROJECT CARD */
+/* ============================================================= */
 
 type ProjectCardProps = {
   project: Project;
@@ -534,22 +957,18 @@ function ProjectCard({
         bgcolor: cardSurface,
         transition:
           'transform 250ms ease, border-color 250ms ease, box-shadow 250ms ease',
-
         '&:hover': {
           transform: 'translateY(-5px)',
           borderColor: alpha(projectAccent, 0.48),
           boxShadow: `0 20px 48px ${alpha('#000000', isDark ? 0.22 : 0.075)}`
         },
-
         '&:hover .project-card-image': {
           transform: 'scale(1.045)'
         },
-
         '&:hover .project-card-action': {
           backgroundColor: alpha(projectAccent, isDark ? 0.16 : 0.09),
           borderColor: alpha(projectAccent, 0.4)
         },
-
         '@media (prefers-reduced-motion: reduce)': {
           transition: 'none',
           '&:hover': { transform: 'none' },
@@ -576,7 +995,6 @@ function ProjectCard({
           )`
         }}
       >
-        {/* Technical background grid */}
         <Box
           aria-hidden="true"
           sx={{
@@ -592,7 +1010,6 @@ function ProjectCard({
           }}
         />
 
-        {/* Actual project image */}
         {banner ? (
           <Box
             component="img"
@@ -630,7 +1047,6 @@ function ProjectCard({
           </Box>
         )}
 
-        {/* Image contrast overlay */}
         <Box
           aria-hidden="true"
           sx={{
@@ -645,7 +1061,6 @@ function ProjectCard({
           }}
         />
 
-        {/* Category */}
         <Chip
           label={category}
           size="small"
@@ -670,7 +1085,6 @@ function ProjectCard({
           }}
         />
 
-        {/* Featured indicator */}
         {featured && (
           <Chip
             icon={
@@ -699,7 +1113,6 @@ function ProjectCard({
           />
         )}
 
-        {/* Project number */}
         <Typography
           sx={{
             position: 'absolute',
@@ -726,7 +1139,6 @@ function ProjectCard({
           p: { xs: 2.5, md: featured ? 3.5 : 3 }
         }}
       >
-        {/* Project type */}
         <Stack
           direction="row"
           sx={{
@@ -769,7 +1181,6 @@ function ProjectCard({
           />
         </Stack>
 
-        {/* Project title */}
         <Typography
           component="h3"
           sx={{
@@ -786,7 +1197,6 @@ function ProjectCard({
           {title}
         </Typography>
 
-        {/* Description */}
         <Typography
           sx={{
             color: mutedColor,
@@ -801,7 +1211,6 @@ function ProjectCard({
           {description}
         </Typography>
 
-        {/* Technologies */}
         <Box sx={{ mt: 'auto !important', pt: 0.5 }}>
           <Typography
             sx={{
@@ -847,7 +1256,6 @@ function ProjectCard({
           </Stack>
         </Box>
 
-        {/* Project actions */}
         {(liveUrl || sourceUrl) && (
           <Stack
             direction="row"
@@ -918,6 +1326,189 @@ function ProjectCard({
           </Stack>
         )}
       </Stack>
+    </Box>
+  );
+}
+
+/* ============================================================= */
+/* SMALL PROJECT CARD */
+/* ============================================================= */
+
+type SmallProjectCardProps = {
+  project: SmallProject;
+  primary: string;
+  secondary: string;
+  isDark: boolean;
+  headingColor: string;
+  mutedColor: string;
+  cardSurface: string;
+  borderColor: string;
+};
+
+function SmallProjectCard({
+  project,
+  primary,
+  secondary,
+  isDark,
+  headingColor,
+  mutedColor,
+  cardSurface,
+  borderColor
+}: SmallProjectCardProps) {
+  const accent = secondary;
+
+  const cardSx = {
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    height: '100%',
+    minHeight: 188,
+    minWidth: 0,
+    p: { xs: 2.25, md: 2.5 },
+    gap: 2,
+    overflow: 'hidden',
+    border: `1px solid ${borderColor}`,
+    borderRadius: 3,
+    bgcolor: cardSurface,
+    color: 'inherit',
+    textDecoration: 'none',
+    transition:
+      'transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease',
+    '&:hover': {
+      transform: 'translateY(-4px)',
+      borderColor: alpha(accent, 0.48),
+      boxShadow: `0 14px 35px ${alpha('#000000', isDark ? 0.2 : 0.055)}`
+    },
+    '&:hover .small-project-icon': {
+      bgcolor: alpha(accent, isDark ? 0.2 : 0.12),
+      borderColor: alpha(accent, 0.35)
+    },
+    '&:focus-visible': {
+      outline: `2px solid ${primary}`,
+      outlineOffset: 3
+    },
+    '@media (prefers-reduced-motion: reduce)': {
+      transition: 'none',
+      '&:hover': {
+        transform: 'none'
+      }
+    }
+  };
+
+  const content = (
+    <>
+      {/* Icon and project number */}
+      <Stack
+        direction="row"
+        sx={{
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}
+      >
+        <Box
+          className="small-project-icon"
+          sx={{
+            display: 'grid',
+            placeItems: 'center',
+            width: 42,
+            height: 42,
+            flexShrink: 0,
+            borderRadius: '13px',
+            color: accent,
+            bgcolor: alpha(accent, isDark ? 0.13 : 0.07),
+            border: `1px solid ${alpha(accent, 0.17)}`,
+            transition: 'background-color 220ms ease, border-color 220ms ease'
+          }}
+        >
+          <CodeRoundedIcon sx={{ fontSize: 22 }} />
+        </Box>
+
+        <Typography
+          sx={{
+            color: alpha(headingColor, 0.42),
+            fontFamily: 'monospace',
+            fontSize: '0.68rem',
+            fontWeight: 800,
+            letterSpacing: '0.08em'
+          }}
+        >
+          {String(project.id).padStart(2, '0')}
+        </Typography>
+      </Stack>
+
+      {/* Name and description */}
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Typography
+          component="h4"
+          sx={{
+            mb: 0.8,
+            fontSize: '1rem',
+            fontWeight: 800,
+            letterSpacing: '-0.025em',
+            lineHeight: 1.4,
+            overflowWrap: 'anywhere'
+          }}
+        >
+          {project.project_name}
+        </Typography>
+
+        <Typography
+          sx={{
+            color: mutedColor,
+            fontSize: '0.8rem',
+            lineHeight: 1.8,
+            overflowWrap: 'anywhere'
+          }}
+        >
+          {project.project_desc || 'An experimental project.'}
+        </Typography>
+      </Box>
+
+      {/* Card footer */}
+      <Stack
+        direction="row"
+        sx={{
+          pt: 1.5,
+          gap: 1,
+          borderTop: `1px solid ${alpha(headingColor, 0.08)}`,
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}
+      >
+        <Typography
+          sx={{
+            color: project.project_link ? accent : mutedColor,
+            fontSize: '0.7rem',
+            fontWeight: 750
+          }}
+        >
+          {project.project_link ? 'Explore project' : 'Project archive'}
+        </Typography>
+
+        {project.project_link && (
+          <ArrowOutwardRoundedIcon sx={{ fontSize: 17, color: accent }} />
+        )}
+      </Stack>
+    </>
+  );
+
+  if (project.project_link) {
+    return (
+      <Box
+        component="a"
+        href={project.project_link}
+        target="_blank"
+        rel="noopener noreferrer"
+        sx={cardSx}
+      >
+        {content}
+      </Box>
+    );
+  }
+
+  return (
+    <Box component="article" sx={cardSx}>
+      {content}
     </Box>
   );
 }

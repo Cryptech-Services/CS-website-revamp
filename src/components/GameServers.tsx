@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import type { ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   Box,
@@ -17,13 +16,12 @@ import {
 import { alpha } from '@mui/material/styles';
 
 import SportsEsportsRoundedIcon from '@mui/icons-material/SportsEsportsRounded';
-import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded';
-import StorageRoundedIcon from '@mui/icons-material/StorageRounded';
-import SettingsEthernetRoundedIcon from '@mui/icons-material/SettingsEthernetRounded';
-import ExtensionRoundedIcon from '@mui/icons-material/ExtensionRounded';
-import SecurityRoundedIcon from '@mui/icons-material/SecurityRounded';
-import SpeedRoundedIcon from '@mui/icons-material/SpeedRounded';
 import ArrowOutwardRoundedIcon from '@mui/icons-material/ArrowOutwardRounded';
+
+import {
+  fetchGameServers,
+  type GameServer
+} from '@/lib/fectGameServersSupabase';
 
 type CustomTheme = ReturnType<typeof useTheme> & {
   colorScale?: string[];
@@ -32,103 +30,11 @@ type CustomTheme = ReturnType<typeof useTheme> & {
   grayScale?: string[];
 };
 
-type GameServer = {
-  id: string;
-  number: string;
-  name: string;
-  subtitle: string;
-  description: string;
-  accent: string;
-  icon: ReactNode;
-  image?: string;
-  joinUrl?: string;
-  features: string[];
-  tags: string[];
-  highlights: {
-    icon: ReactNode;
-    label: string;
-  }[];
-};
-
 type GameServersProps = {
   eyebrow?: string;
   title?: string;
   description?: string;
 };
-
-const gameServers: GameServer[] = [
-  {
-    id: 'cryptechcraft',
-    number: '01',
-    name: 'CryptechCraft',
-    subtitle: 'Build. Explore. Survive.',
-    description:
-      'Build, explore, and survive together in our Minecraft world. Gather your friends, discover new places, and create something worth coming back to.',
-    accent: '#69D391',
-    icon: <SportsEsportsRoundedIcon />,
-    image: '/static/images/game-servers/cryptechcraft.webp',
-    tags: ['Sandbox', 'Survival', 'Multiplayer'],
-    features: [
-      'Build and explore together',
-      'Discover new places and adventures',
-      'Create memorable multiplayer experiences'
-    ],
-    highlights: [
-      { icon: <ExtensionRoundedIcon />, label: 'Plugins and gameplay' },
-      { icon: <GroupsRoundedIcon />, label: 'Community adventures' },
-      {
-        icon: <SettingsEthernetRoundedIcon />,
-        label: 'A shared Minecraft world'
-      }
-    ]
-  },
-  {
-    id: 'project-zomboid',
-    number: '02',
-    name: 'Project Zomboid',
-    subtitle: 'This is how you survived.',
-    joinUrl: 'https://pz.scc.tips/',
-    description:
-      'Survive the apocalypse together. Scavenge, build, explore, and see how long your group can last in a world full of danger.',
-    accent: '#F0A36D',
-    icon: <SecurityRoundedIcon />,
-    image: '/static/images/game-servers/projectzomboid.webp',
-    tags: ['Survival', 'Co-op', 'Modded'],
-    features: [
-      'Survive the zombie apocalypse',
-      'Loot, scavenge, and build together',
-      'Experience cooperative survival gameplay'
-    ],
-    highlights: [
-      { icon: <ExtensionRoundedIcon />, label: 'Workshop mods' },
-      { icon: <GroupsRoundedIcon />, label: 'Co-op survival' },
-      { icon: <StorageRoundedIcon />, label: 'Persistent world' }
-    ]
-  },
-  {
-    id: 'cryptechtest',
-    number: '03',
-    name: 'CryptechTest',
-    subtitle: 'Open worlds. Endless possibilities.',
-    joinUrl: 'https://cryptechtest.xyz/',
-    description:
-      'Explore an open voxel world powered by Luanti, formerly known as Minetest. Build creations, experiment with different game modes, and enjoy sandbox adventures with the community.',
-    accent: '#79B8FF',
-    icon: <SettingsEthernetRoundedIcon />,
-    image: '/static/images/game-servers/cryptechtest.webp',
-    tags: ['Open Source', 'Voxel', 'Creative'],
-    features: [
-      'Explore an open voxel world',
-      'Experiment with games and mods',
-      'Build and create at your own pace'
-    ],
-    highlights: [
-      { icon: <ExtensionRoundedIcon />, label: 'Games and mods' },
-      { icon: <SpeedRoundedIcon />, label: 'Different gameplay styles' },
-      { icon: <StorageRoundedIcon />, label: 'Creative world building' }
-    ]
-  }
-];
 
 function ServerArtwork({ server }: { server: GameServer }) {
   const customTheme = useTheme();
@@ -172,7 +78,6 @@ function ServerArtwork({ server }: { server: GameServer }) {
         }
       }}
     >
-      {/* Game banner artwork */}
       {server.image && (
         <Box
           className="server-background-image"
@@ -195,7 +100,6 @@ function ServerArtwork({ server }: { server: GameServer }) {
         />
       )}
 
-      {/* Artwork tint and accent lighting */}
       <Box
         sx={{
           position: 'absolute',
@@ -204,13 +108,13 @@ function ServerArtwork({ server }: { server: GameServer }) {
           background: `
             linear-gradient(
               180deg,
-              ${alpha(cardSurface, isDark ? 0.35 : 0.0)} 0%,
-              ${alpha(cardSurface, isDark ? 0.48 : 0.0)} 48%,
-              ${alpha(cardSurface, isDark ? 0.9 : 0.0)} 100%
+              ${alpha(cardSurface, isDark ? 0.35 : 0)} 0%,
+              ${alpha(cardSurface, isDark ? 0.48 : 0)} 48%,
+              ${alpha(cardSurface, isDark ? 0.9 : 0)} 100%
             ),
             radial-gradient(
               circle at 50% 40%,
-              ${alpha(server.accent, isDark ? 0.25 : 0.0)},
+              ${alpha(server.accent, isDark ? 0.25 : 0)},
               transparent 65%
             )
           `
@@ -422,13 +326,13 @@ function GameServerCard({ server }: { server: GameServer }) {
         borderRadius: 4,
         border: `1px solid ${alpha(server.accent, 0.16)}`,
         background: `
-  linear-gradient(
-    155deg,
-    ${alpha(server.accent, isDark ? 0.2 : 0.5)},
-    transparent 75%
-  ),
-  ${cardSurface}
-`,
+          linear-gradient(
+            155deg,
+            ${alpha(server.accent, isDark ? 0.2 : 0.5)},
+            transparent 75%
+          ),
+          ${cardSurface}
+        `,
         transition:
           'transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease',
         '&:hover': {
@@ -451,7 +355,7 @@ function GameServerCard({ server }: { server: GameServer }) {
         }}
       >
         <Chip
-          label={server.tags[0]}
+          label={server.tags[0] ?? 'Community'}
           size="small"
           sx={{
             color: server.accent,
@@ -473,7 +377,6 @@ function GameServerCard({ server }: { server: GameServer }) {
         </Typography>
       </Stack>
 
-      {/* Game title */}
       <Typography
         variant="h5"
         component="h3"
@@ -497,7 +400,6 @@ function GameServerCard({ server }: { server: GameServer }) {
         {server.subtitle}
       </Typography>
 
-      {/* Description */}
       <Typography
         sx={{
           mt: 1.5,
@@ -516,18 +418,14 @@ function GameServerCard({ server }: { server: GameServer }) {
             key={feature}
             direction="row"
             spacing={1.25}
-            sx={{
-              alignItems: 'flex-start'
-            }}
+            sx={{ alignItems: 'flex-start' }}
           >
             <Box
               sx={{
                 mt: 0.2,
                 color: server.accent,
                 display: 'flex',
-                '& svg': {
-                  fontSize: 17
-                }
+                '& svg': { fontSize: 17 }
               }}
             >
               <ArrowOutwardRoundedIcon />
@@ -607,19 +505,13 @@ function GameServerCard({ server }: { server: GameServer }) {
                   sx={{
                     display: 'flex',
                     color: server.accent,
-                    '& svg': {
-                      fontSize: 17
-                    }
+                    '& svg': { fontSize: 17 }
                   }}
                 >
                   {item.icon}
                 </Box>
 
-                <Typography
-                  sx={{
-                    fontSize: '0.8rem'
-                  }}
-                >
+                <Typography sx={{ fontSize: '0.8rem' }}>
                   {item.label}
                 </Typography>
               </Stack>
@@ -741,6 +633,44 @@ export default function GameServers({
   const surface =
     customTheme.backgroundScale?.[2] ?? customTheme.palette.background.default;
 
+  const [gameServers, setGameServers] = useState<GameServer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadGameServers() {
+      setLoading(true);
+      setLoadError(false);
+
+      try {
+        const servers = await fetchGameServers();
+
+        if (!cancelled) {
+          setGameServers(servers);
+        }
+      } catch (error) {
+        console.error('Unable to load game servers:', error);
+
+        if (!cancelled) {
+          setLoadError(true);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadGameServers();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [reloadKey]);
+
   return (
     <Box
       id="game-servers"
@@ -755,6 +685,7 @@ export default function GameServers({
         scrollMarginTop: '90px'
       }}
     >
+      {/* Animated SVG background */}
       <Box
         aria-hidden="true"
         sx={{
@@ -875,7 +806,6 @@ export default function GameServers({
             </linearGradient>
           </defs>
 
-          {/* Pixel-grid world */}
           <g className="game-world">
             <rect
               x="-50"
@@ -885,7 +815,6 @@ export default function GameServers({
               fill="url(#game-pixel-grid)"
             />
 
-            {/* Ambient gaming-world glow */}
             <ellipse
               cx="850"
               cy="280"
@@ -894,7 +823,6 @@ export default function GameServers({
               fill="url(#game-world-glow)"
             />
 
-            {/* Voxel terrain silhouettes */}
             <g
               fill="none"
               stroke="url(#game-neon-gradient)"
@@ -905,14 +833,11 @@ export default function GameServers({
               <path d="M0 450H60V410H100V370H140V410H190V350H240V390H300V430H360" />
               <path d="M700 430H760V390H820V350H860V310H920V350H980V390H1040V350H1100V400H1200" />
               <path d="M650 470H730V430H790V390H850V350H910V390H970V430H1030V390H1090V440H1200" />
-
-              {/* Floating platforms */}
               <path d="M420 140H480V120H520V140H580" />
               <path d="M800 120H840V100H900V120H940" />
               <path d="M120 230H160V210H200V230H240" />
             </g>
 
-            {/* Pixel blocks */}
             {[
               [100, 120, 20],
               [150, 160, 12],
@@ -962,7 +887,6 @@ export default function GameServers({
             ))}
           </g>
 
-          {/* Floating pixel particles */}
           {[
             [90, 180],
             [230, 140],
@@ -1000,7 +924,6 @@ export default function GameServers({
             </g>
           ))}
 
-          {/* Gaming crosshair / targeting HUD */}
           <g
             transform="translate(850 240)"
             fill="none"
@@ -1016,7 +939,6 @@ export default function GameServers({
             <path d="M-7 0H7M0 -7V7" />
           </g>
 
-          {/* Secondary HUD marker */}
           <g
             transform="translate(270 200)"
             fill="none"
@@ -1034,7 +956,6 @@ export default function GameServers({
             />
           </g>
 
-          {/* Moving scan beam */}
           <rect
             className="game-scan"
             x="0"
@@ -1045,7 +966,6 @@ export default function GameServers({
             opacity="0.4"
           />
 
-          {/* Minimal pixel-style HUD labels */}
           <g
             fill="currentColor"
             fontFamily="monospace"
@@ -1130,12 +1050,7 @@ export default function GameServers({
               backgroundColor: alpha(primary, 0.06)
             }}
           >
-            <SportsEsportsRoundedIcon
-              sx={{
-                color: primary,
-                fontSize: 17
-              }}
-            />
+            <SportsEsportsRoundedIcon sx={{ color: primary, fontSize: 17 }} />
 
             <Typography
               sx={{
@@ -1176,20 +1091,130 @@ export default function GameServers({
           </Typography>
         </Stack>
 
-        {/* Gaming community cards */}
-        <Grid container spacing={3}>
-          {gameServers.map((server) => (
-            <Grid
-              key={server.id}
-              size={{ xs: 12, md: 6, lg: 4 }}
+        {/* Supabase loading state */}
+        {loading && (
+          <Grid container spacing={3}>
+            {[0, 1, 2].map((item) => (
+              <Grid key={item} size={{ xs: 12, md: 6, lg: 4 }}>
+                <Box
+                  role="status"
+                  aria-label="Loading game servers"
+                  sx={{
+                    height: 440,
+                    borderRadius: 4,
+                    border: `1px solid ${alpha(headingColor, 0.1)}`,
+                    background: `
+                      linear-gradient(
+                        110deg,
+                        ${alpha(primary, 0.025)} 8%,
+                        ${alpha(primary, 0.09)} 18%,
+                        ${alpha(primary, 0.025)} 33%
+                      ),
+                      ${surface}
+                    `,
+                    backgroundSize: '200% 100%',
+                    animation: 'gameServerLoading 1.5s ease-in-out infinite',
+                    '@keyframes gameServerLoading': {
+                      '0%': { backgroundPosition: '200% 0' },
+                      '100%': { backgroundPosition: '-200% 0' }
+                    },
+                    '@media (prefers-reduced-motion: reduce)': {
+                      animation: 'none'
+                    }
+                  }}
+                />
+              </Grid>
+            ))}
+          </Grid>
+        )}
+
+        {/* Supabase error state */}
+        {!loading && loadError && (
+          <Stack
+            role="alert"
+            spacing={2}
+            sx={{
+              alignItems: 'center',
+              textAlign: 'center',
+              py: 6,
+              px: 2,
+              borderRadius: 4,
+              border: `1px solid ${alpha(headingColor, 0.12)}`
+            }}
+          >
+            <Typography
+              component="h3"
+              sx={{ fontWeight: 800, fontSize: '1.1rem' }}
+            >
+              Game servers are temporarily unavailable
+            </Typography>
+
+            <Typography
               sx={{
-                display: 'flex'
+                maxWidth: 480,
+                color: mutedColor,
+                fontSize: '0.9rem',
+                lineHeight: 1.8
               }}
             >
-              <GameServerCard server={server} />
-            </Grid>
-          ))}
-        </Grid>
+              We couldn&apos;t load the community servers. Please try again in a
+              moment.
+            </Typography>
+
+            <Button
+              variant="outlined"
+              onClick={() => setReloadKey((previous) => previous + 1)}
+              sx={{
+                mt: 1,
+                borderColor: alpha(primary, 0.4),
+                color: primary,
+                fontWeight: 700,
+                textTransform: 'none'
+              }}
+            >
+              Try again
+            </Button>
+          </Stack>
+        )}
+
+        {/* Empty state */}
+        {!loading && !loadError && gameServers.length === 0 && (
+          <Stack
+            spacing={1.5}
+            sx={{
+              alignItems: 'center',
+              textAlign: 'center',
+              py: 6
+            }}
+          >
+            <SportsEsportsRoundedIcon
+              sx={{ fontSize: 42, color: mutedColor }}
+            />
+
+            <Typography component="h3" sx={{ fontWeight: 800 }}>
+              No game servers available yet
+            </Typography>
+
+            <Typography sx={{ color: mutedColor, fontSize: '0.9rem' }}>
+              Check back soon for updates from our gaming communities.
+            </Typography>
+          </Stack>
+        )}
+
+        {/* Game server cards fetched from Supabase */}
+        {!loading && !loadError && gameServers.length > 0 && (
+          <Grid container spacing={3}>
+            {gameServers.map((server) => (
+              <Grid
+                key={server.id}
+                size={{ xs: 12, md: 6, lg: 4 }}
+                sx={{ display: 'flex' }}
+              >
+                <GameServerCard server={server} />
+              </Grid>
+            ))}
+          </Grid>
+        )}
       </Container>
     </Box>
   );

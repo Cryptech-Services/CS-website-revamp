@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
 import {
   Avatar,
   Box,
@@ -13,30 +14,20 @@ import {
   Typography,
   useTheme
 } from '@mui/material';
+
 import { alpha } from '@mui/material/styles';
+
 import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded';
 import ArrowOutwardRoundedIcon from '@mui/icons-material/ArrowOutwardRounded';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 
-type TeamCategory = 'Admins' | 'Team' | 'Moderators';
-
-type TeamMember = {
-  name: string;
-  role: string;
-  initials: string;
-  description: string;
-  skills: string[];
-  accent: string;
-  email: string;
-  category: TeamCategory;
-  github?: string;
-  linkedin?: string;
-  image?: string;
-  discordId: string;
-  discordAvatar: string;
-};
+import {
+  fetchTeamMembers,
+  type TeamMember,
+  type TeamCategory
+} from '@/lib/fectTeamMembers';
 
 type TeamProps = {
   eyebrow?: string;
@@ -46,156 +37,9 @@ type TeamProps = {
   members?: TeamMember[];
 };
 
-const defaultMembers: TeamMember[] = [
-  // ADMINS
-  {
-    name: 'Squidicuz',
-    role: 'CS Admin',
-    initials: 'SQ',
-    description:
-      'An administrator, consultant, and developer supporting Cryptech Services operations, technical projects, and team coordination.',
-    skills: ['Administration', 'Consulting', 'Development'],
-    accent: '#7C9CFF',
-    email: 'squid@cryptech.services',
-    category: 'Admins',
-    discordId: '294414250376429569',
-    discordAvatar: 'a_fa4e4b545da31af0d93c8b3fc98c2695'
-  },
-  {
-    name: 'Seqsee',
-    role: 'CS Admin',
-    initials: 'SE',
-    description:
-      'An administrator, consultant, and developer contributing to team coordination, technical problem-solving, and project delivery.',
-    skills: ['Administration', 'Consulting', 'Development'],
-    accent: '#B69CFF',
-    email: 'seqsee@cryptech.services',
-    category: 'Admins',
-    discordId: '412122437954830337',
-    discordAvatar: 'a_c5828f6cbd3774b15462f7a99ccdaf93'
-  },
-
-  // TEAM
-  {
-    name: 'Baydroid',
-    role: 'Cryptographer',
-    initials: 'BA',
-    description:
-      'Applies cryptographic expertise to security-focused work and contributes technical knowledge to digital projects.',
-    skills: ['Cryptography', 'Security', 'Consulting', 'Development'],
-    accent: '#66D6B2',
-    email: 'baydroid@cryptech.services',
-    category: 'Team',
-    discordId: '426261793426636804',
-    discordAvatar: 'c36662d132c7bc4ddb2294621b1c5a65'
-  },
-  {
-    name: 'Boehmerang',
-    role: 'CAD Designer',
-    initials: 'BO',
-    description:
-      'Creates computer-aided design work and supports technical projects through design, consulting, and development.',
-    skills: ['CAD Design', 'Technical Design', 'Consulting', 'Development'],
-    accent: '#F0A35E',
-    email: 'boemerang@cryptech.services',
-    category: 'Team',
-    discordId: '161986311832600576',
-    discordAvatar: '8933e21b6f61f1cca3b597411f11d83a'
-  },
-  {
-    name: 'Ercknard',
-    role: 'Web Designer',
-    initials: 'ER',
-    description:
-      'Creates engaging digital experiences through thoughtful web design, intuitive interfaces, and modern development practices.',
-    skills: ['Web Design', 'UI/UX', 'Consulting', 'Development'],
-    accent: '#62B8F0',
-    email: 'ercknard@cryptech.services',
-    category: 'Team',
-    discordId: '615741889366458369',
-    discordAvatar: '430c432445e82d9eb95c4c6f4d7d9699'
-  },
-  {
-    name: 'RasAlGhul',
-    role: 'Photographer',
-    initials: 'RA',
-    description:
-      'Brings visual storytelling and photography to creative projects while contributing consulting and development expertise.',
-    skills: ['Photography', 'Visual Storytelling', 'Consulting', 'Development'],
-    accent: '#A6D977',
-    email: 'rasalghul@cryptech.services',
-    category: 'Team',
-    discordId: '306288896516423680',
-    discordAvatar: 'b1db7d6e300ddcb220834d86f0e0d1e2'
-  },
-  {
-    name: 'Vanikoro',
-    role: 'Junior Developer',
-    initials: 'VA',
-    description:
-      'Contributes to software development tasks and helps build practical digital solutions while growing technical expertise.',
-    skills: ['Programming', 'Development', 'Problem Solving'],
-    accent: '#F08FA8',
-    email: 'vanikoro@cryptech.services',
-    category: 'Team',
-    discordId: '500376620708659212',
-    discordAvatar: '8ef05471a811a239c1325a7cffc77c58'
-  },
-  {
-    name: 'Crow',
-    role: 'Developer',
-    initials: 'CR',
-    description:
-      'Contributes to building and improving digital solutions, turning project requirements into functional software.',
-    skills: ['Software Development', 'Programming', 'Problem Solving'],
-    accent: '#9D9CF8',
-    email: 'crow@cryptech.services',
-    category: 'Team',
-    discordId: '343740264252178433',
-    discordAvatar: '3075136615a0ef1a4e1b0e9789d3d32c'
-  },
-
-  // MODERATORS
-  {
-    name: 'Demil',
-    role: 'Moderator',
-    initials: 'DE',
-    description:
-      'Helps maintain an organized and welcoming community by supporting discussions and encouraging respectful participation.',
-    skills: ['Moderation', 'Community Support', 'Communication'],
-    accent: '#E5B86A',
-    email: 'demil@cryptech.services',
-    category: 'Moderators',
-    discordId: '475288167000571915',
-    discordAvatar: '080b088d8c34a066b1253d89c40e833b'
-  },
-  {
-    name: 'Deathsmack',
-    role: 'Moderator',
-    initials: 'DS',
-    description:
-      'Supports community management by helping maintain respectful discussions and a positive environment for members.',
-    skills: ['Moderation', 'Community Management', 'Communication'],
-    accent: '#6DD6C0',
-    email: 'deathsmack@cryptech.services',
-    category: 'Moderators',
-    discordId: '794753250578530314',
-    discordAvatar: '6c8da1894d030434affb0491eab91ccd'
-  },
-  {
-    name: 'Shikoku',
-    role: 'Moderator',
-    initials: 'SH',
-    description:
-      'Helps keep community spaces organized, assists members, and encourages constructive participation.',
-    skills: ['Moderation', 'Community Support', 'Engagement'],
-    accent: '#C59CF5',
-    email: 'shikoku@cryptech.services',
-    category: 'Moderators',
-    discordId: '277630911112151051',
-    discordAvatar: 'd1195e556f7af09a8b15308e022ae1ce'
-  }
-];
+/* -------------------------------------------------------------------------- */
+/*                               Member Avatar                                */
+/* -------------------------------------------------------------------------- */
 
 function MemberAvatar({ member }: { member: TeamMember }) {
   const theme = useTheme();
@@ -227,7 +71,7 @@ function MemberAvatar({ member }: { member: TeamMember }) {
         border: `1px solid ${alpha(member.accent, 0.16)}`
       }}
     >
-      {/* Subtle technical background */}
+      {/* Technical grid */}
       <Box
         aria-hidden="true"
         sx={{
@@ -244,7 +88,7 @@ function MemberAvatar({ member }: { member: TeamMember }) {
         }}
       />
 
-      {/* Accent ring */}
+      {/* Accent rings */}
       <Box
         aria-hidden="true"
         sx={{
@@ -322,7 +166,7 @@ function MemberAvatar({ member }: { member: TeamMember }) {
         {member.initials}
       </Avatar>
 
-      {/* Bottom label */}
+      {/* Branding */}
       <Stack
         direction="row"
         spacing={0.75}
@@ -342,6 +186,7 @@ function MemberAvatar({ member }: { member: TeamMember }) {
             bgcolor: member.accent
           }}
         />
+
         <Typography
           sx={{
             fontFamily: 'monospace',
@@ -354,7 +199,7 @@ function MemberAvatar({ member }: { member: TeamMember }) {
         </Typography>
       </Stack>
 
-      {/* Member role indicator */}
+      {/* Initial indicator */}
       <Box
         sx={{
           position: 'absolute',
@@ -377,6 +222,10 @@ function MemberAvatar({ member }: { member: TeamMember }) {
     </Box>
   );
 }
+
+/* -------------------------------------------------------------------------- */
+/*                              Team Member Card                              */
+/* -------------------------------------------------------------------------- */
 
 function TeamMemberCard({ member }: { member: TeamMember }) {
   const theme = useTheme();
@@ -440,10 +289,10 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
       <Box sx={{ px: 0.5, pt: 2, pb: 0.5 }}>
         <Stack
           direction="row"
+          spacing={1}
           sx={{
             justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            spacing: 1
+            alignItems: 'flex-start'
           }}
         >
           <Box sx={{ minWidth: 0 }}>
@@ -563,6 +412,7 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
       {/* Contact footer */}
       <Stack
         direction="row"
+        spacing={1}
         sx={{
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -571,7 +421,6 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
           px: 0.5,
           borderTop: `1px solid ${theme.palette.divider}`
         }}
-        spacing={1}
       >
         <Stack
           direction="row"
@@ -678,14 +527,22 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/*                              Team Section                                  */
+/* -------------------------------------------------------------------------- */
+
 export default function Team({
   eyebrow = 'THE PEOPLE BEHIND THE WORK',
   title = 'Meet the team.',
   description = 'Meet the people behind Cryptech Services, bringing together administration, creative expertise, development, and community support.',
-  email = 'inquiries@cryptech.services',
-  members = defaultMembers
+  email: _email = 'inquiries@cryptech.services',
+  members: suppliedMembers
 }: TeamProps) {
   const theme = useTheme();
+
+  const [fetchedMembers, setFetchedMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(!suppliedMembers);
+  const [loadError, setLoadError] = useState(false);
 
   const [selectedCategory, setSelectedCategory] = useState<
     TeamCategory | 'All'
@@ -695,6 +552,53 @@ export default function Team({
 
   const membersPerPage = 4;
 
+  /* -------------------------- Fetch from Supabase ------------------------- */
+
+  useEffect(() => {
+    if (suppliedMembers !== undefined) {
+      setFetchedMembers(suppliedMembers);
+      setLoading(false);
+      setLoadError(false);
+      return;
+    }
+
+    let active = true;
+
+    async function loadMembers() {
+      try {
+        setLoading(true);
+        setLoadError(false);
+
+        const result = await fetchTeamMembers();
+
+        if (active) {
+          setFetchedMembers(result);
+        }
+      } catch (error) {
+        console.error('Failed to load team members:', error);
+
+        if (active) {
+          setLoadError(true);
+          setFetchedMembers([]);
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadMembers();
+
+    return () => {
+      active = false;
+    };
+  }, [suppliedMembers]);
+
+  const members = suppliedMembers ?? fetchedMembers;
+
+  /* --------------------------- Filter and pages -------------------------- */
+
   const categories: (TeamCategory | 'All')[] = [
     'All',
     'Admins',
@@ -702,7 +606,6 @@ export default function Team({
     'Moderators'
   ];
 
-  // Filter members BEFORE calculating pagination.
   const filteredMembers =
     selectedCategory === 'All'
       ? members
@@ -722,6 +625,8 @@ export default function Team({
     category === 'All'
       ? members.length
       : members.filter((member) => member.category === category).length;
+
+  /* -------------------------------- Render ------------------------------- */
 
   return (
     <Box
@@ -905,14 +810,12 @@ export default function Team({
           }}
         >
           <defs>
-            {/* Ambient glows */}
             <radialGradient id="teamGlow">
               <stop offset="0%" stopColor="currentColor" stopOpacity="0.32" />
               <stop offset="55%" stopColor="currentColor" stopOpacity="0.1" />
               <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
             </radialGradient>
 
-            {/* Fine dot grid */}
             <pattern
               id="teamGrid"
               width="48"
@@ -922,7 +825,6 @@ export default function Team({
               <circle cx="1" cy="1" r="1" fill="currentColor" opacity="0.28" />
             </pattern>
 
-            {/* Circuit glow */}
             <filter
               id="teamNodeGlow"
               x="-200%"
@@ -937,7 +839,6 @@ export default function Team({
               </feMerge>
             </filter>
 
-            {/* Fade the edges */}
             <linearGradient id="teamEdgeFade" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="white" stopOpacity="1" />
               <stop offset="35%" stopColor="white" stopOpacity="0.35" />
@@ -960,6 +861,7 @@ export default function Team({
               r="300"
               fill="url(#teamGlow)"
             />
+
             <circle
               className="team-glow team-glow-right"
               cx="1270"
@@ -967,6 +869,7 @@ export default function Team({
               r="330"
               fill="url(#teamGlow)"
             />
+
             <circle
               className="team-glow"
               cx="720"
@@ -990,7 +893,7 @@ export default function Team({
           </g>
 
           <g mask="url(#teamNetworkMask)">
-            {/* Left-side circuit framework */}
+            {/* Left circuit framework */}
             <g
               fill="none"
               stroke="currentColor"
@@ -1034,7 +937,7 @@ export default function Team({
               <path className="team-circuit" d="M320 340 L360 390 V490" />
             </g>
 
-            {/* Right-side circuit framework */}
+            {/* Right circuit framework */}
             <g
               fill="none"
               stroke="currentColor"
@@ -1054,7 +957,7 @@ export default function Team({
               <path d="M1360 560 V510 L1310 460" />
             </g>
 
-            {/* Moving circuit highlights */}
+            {/* Moving right circuit highlights */}
             <g
               fill="none"
               stroke="currentColor"
@@ -1141,7 +1044,7 @@ export default function Team({
               ))}
             </g>
 
-            {/* Pulsing active nodes */}
+            {/* Pulsing nodes */}
             <g fill="currentColor" filter="url(#teamNodeGlow)">
               {[
                 [110, 180],
@@ -1252,6 +1155,7 @@ export default function Team({
           pointerEvents: 'none'
         }}
       />
+
       <Container
         maxWidth="xl"
         sx={{
@@ -1403,8 +1307,53 @@ export default function Team({
           </Typography>
         </Stack>
 
-        {/* Filtered and paginated member cards */}
-        {visibleMembers.length > 0 ? (
+        {/* Loading state */}
+        {loading ? (
+          <Box sx={{ py: 8, textAlign: 'center' }}>
+            <Typography color="text.secondary">
+              Loading team members...
+            </Typography>
+          </Box>
+        ) : loadError ? (
+          /* Error state */
+          <Box
+            role="alert"
+            sx={{
+              py: 8,
+              px: 2,
+              textAlign: 'center',
+              border: `1px solid ${theme.palette.divider}`,
+              borderRadius: 3
+            }}
+          >
+            <Typography color="error" sx={{ mb: 2 }}>
+              Unable to load team members. Please try again.
+            </Typography>
+
+            <Chip
+              label="Retry"
+              clickable
+              color="primary"
+              onClick={() => {
+                setLoadError(false);
+                setLoading(true);
+
+                void fetchTeamMembers()
+                  .then((result) => {
+                    setFetchedMembers(result);
+                  })
+                  .catch((error) => {
+                    console.error('Failed to reload team members:', error);
+                    setLoadError(true);
+                  })
+                  .finally(() => {
+                    setLoading(false);
+                  });
+              }}
+            />
+          </Box>
+        ) : visibleMembers.length > 0 ? (
+          /* Team member cards */
           <Grid
             key={`${selectedCategory}-${page}`}
             container
@@ -1438,6 +1387,7 @@ export default function Team({
             ))}
           </Grid>
         ) : (
+          /* Empty state */
           <Box
             sx={{
               py: 8,
@@ -1453,7 +1403,7 @@ export default function Team({
         )}
 
         {/* Pagination */}
-        {pageCount >= 1 && (
+        {!loading && !loadError && pageCount >= 1 && (
           <Stack
             spacing={1.5}
             sx={{
