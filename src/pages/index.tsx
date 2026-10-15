@@ -95,6 +95,7 @@ function SectionDivider() {
       aria-hidden="true"
       sx={{
         position: 'relative',
+        display: { xs: 'none', md: 'block' },
         height: { xs: 24, md: 38 },
         overflow: 'hidden',
         pointerEvents: 'none',
@@ -104,7 +105,7 @@ function SectionDivider() {
           left: '8%',
           right: '8%',
           top: '50%',
-          height: '1px',
+          height: '2px',
           background: `linear-gradient(90deg, transparent, ${alpha(primary, 0.5)}, ${alpha(secondary, 0.5)}, transparent)`
         },
         '&::after': {
